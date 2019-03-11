@@ -1,0 +1,84 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using LiteNetLib;
+using NetworkOperation;
+
+namespace NetLibOperation
+{
+    public class NetLibSession : Session
+    {
+        private ConcurrentDictionary<Type, IHandler> _perSessionHandler = new ConcurrentDictionary<Type, IHandler>();
+
+        private readonly NetPeer _peer;
+        private readonly IHandlerFactory _factory;
+
+        public NetLibSession(NetPeer peer, IHandlerFactory factory)
+        {
+            _peer = peer;
+            _factory = factory;
+        }
+
+        public override string NetworkAddress => _peer.EndPoint.ToString();
+        public override object UntypedConnection => _peer;
+        public override long Id => _peer.ConnectId;
+        public override SessionStatistics Statistics { get; }
+
+        protected override bool HasAvailableData => _data != null;
+
+        protected override Task SendMessageAsync(ArraySegment<byte> data)
+        {
+            _peer.Send(data.Array, data.Offset, data.Count, SendOptions.ReliableOrdered);
+            return Task.CompletedTask;
+        }
+
+        private byte[] _data;
+
+        public void OnReceiveData(byte[] data)
+        {
+            _data = data;
+        }
+
+        protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
+        {
+            var copy = _data;
+            _data = null;
+            return Task.FromResult(new ArraySegment<byte>(copy));
+        }
+
+        protected override IHandler<TOp, TResult,TRequest> GetHandler<TOp, TResult,TRequest>()
+        {
+            return (IHandler<TOp, TResult,TRequest>)_perSessionHandler.GetOrAdd(typeof(IHandler<TOp, TResult,TRequest>), type => _factory.Create<TOp, TResult,TRequest>());
+        }
+        
+        protected override void OnClosedSession()
+        {
+            if (_peer.ConnectionState == ConnectionState.Connected)
+            {
+                _peer.NetManager.DisconnectPeer(_peer);
+            }
+
+            foreach (var handler in _perSessionHandler.Values)
+            {
+                _factory.Destroy(handler);
+            }
+        }
+
+        public override SessionState State
+        {
+            get
+            {
+                switch (_peer.ConnectionState)
+                {
+                    case ConnectionState.InProgress:
+                        return SessionState.Opening;
+                    case ConnectionState.Connected:
+                        return SessionState.Opened;
+                    case ConnectionState.Disconnected:
+                        return SessionState.Opened;
+                }
+                throw new ArgumentException();
+            }
+        }
+    }
+}

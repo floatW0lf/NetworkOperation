@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture.AutoMoq" Version="4.6.0" />
+    <PackageReference Include="AutoFixture.Xunit" Version="4.6.0" />
+    <PackageReference Include="MessagePack" Version="1.7.3.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="Moq" Version="4.10.1" />
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
+    <PackageReference Include="System.Reactive.Core" Version="4.1.2" />
+    <PackageReference Include="System.Reactive.Linq" Version="4.1.2" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkOperation.Server\NetworkOperation.Server.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="UnsafeOperation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Users\w0lf1\Desktop\UnsafeOperation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

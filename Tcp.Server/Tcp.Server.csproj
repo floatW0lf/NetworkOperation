@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkOperation.Server\NetworkOperation.Server.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
+  </ItemGroup>
+
+</Project>

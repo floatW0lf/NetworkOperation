@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteNetLib" Version="0.7.7.3" />
+    <PackageReference Include="MessagePack" Version="1.7.3.4" />
+    <PackageReference Include="Ninject" Version="3.3.4" />
+    <PackageReference Include="Ninject.Extensions.Conventions" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\NetLibOperation.Server\NetLibOperation.Server.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Server\NetworkOperation.Server.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
+    <ProjectReference Include="..\Tcp.Server\Tcp.Server.csproj" />
+  </ItemGroup>
+
+</Project>

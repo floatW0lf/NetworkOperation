@@ -17,15 +17,21 @@ namespace NetworkOperation.StatusCodes
 
         public static void UnregisterAll()
         {
-            EnumRegistry.Clear();
+            lock (EnumRegistry)
+            {
+                EnumRegistry.Clear();
+            }
             Register(typeof(BuiltInOperationState));
         }
 
         public static void Register(params Type[] enums)
         {
-            var registrations = enums.Select(CreateEnumRegistration).Concat(EnumRegistry).ToArray();
-            CheckIntersections(registrations);
-            AddRegistrations(registrations);
+            lock (EnumRegistry)
+            {
+                var registrations = enums.Select(CreateEnumRegistration).Concat(EnumRegistry).ToArray();
+                CheckIntersections(registrations);
+                AddRegistrations(registrations);
+            }
         }
 
         private static void AddRegistrations(KeyValuePair<Type, EnumRangeValue>[] registrations)

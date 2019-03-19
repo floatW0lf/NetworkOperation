@@ -17,7 +17,7 @@ namespace Server
             _server = server;
         }
 
-        public async Task<OperationResult<float>> Handle(Multiplay objectData, OperationContext<DefaultMessage> context, CancellationToken token)
+        public async Task<OperationResult<float>> Handle(Multiplay objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
             Console.WriteLine("Multiplay Handle");
             await _server.Executor.Execute<ClientOp, Empty>(new ClientOp() {Message = "multyply"});

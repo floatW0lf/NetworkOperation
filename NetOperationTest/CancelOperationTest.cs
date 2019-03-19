@@ -19,7 +19,7 @@ namespace NetOperationTest
     {
         public class FooTestHandler : IHandler<Foo,int,DefaultMessage>
         {
-            public Task<OperationResult<int>> Handle(Foo objectData, OperationContext<DefaultMessage> context, CancellationToken token)
+            public Task<OperationResult<int>> Handle(Foo objectData, RequestContext<DefaultMessage> context, CancellationToken token)
             {
                 return Task.Run(() =>
                 {
@@ -49,7 +49,7 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             var mockSession = new Mock<SessionCollection>();
-            var mockSetting = new ServerOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(Foo) }),serializeMock.Object, mockSession.Object,NullRequestPlaceHolder<DefaultMessage>.Instance);
+            var mockSetting = new ServerOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(Foo) }),serializeMock.Object, mockSession.Object);
             var cts = new CancellationTokenSource();
             var task = mockSetting.Execute<Foo,int>(new Foo(), cts.Token);
             cts.Cancel();
@@ -68,7 +68,7 @@ namespace NetOperationTest
             var factory = new Mock<IHandlerFactory>();
             factory.Setup(f => f.Create<Foo, int,DefaultMessage>()).Returns(fooHandler);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }), NullResponsePlaceHolder<DefaultMessage,DefaultMessage>.Instance);
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }));
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);

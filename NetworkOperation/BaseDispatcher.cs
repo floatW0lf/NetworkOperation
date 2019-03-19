@@ -25,22 +25,23 @@ namespace NetworkOperation
         private readonly BaseSerializer _serializer;
         private readonly IHandlerFactory _factory;
         protected readonly OperationRuntimeModel Model;
-        private readonly IResponsePlaceHolder<TRequest, TResponse> _responsePlaceHolder;
         private IResponseReceiver<TRequest> _responseReceiver;
+        
         private ConcurrentDictionary<uint,CancellationTokenSource> _cancellationMap = new ConcurrentDictionary<uint, CancellationTokenSource>();
 
         public Action<Exception> ExceptionHandler { get; set; }
+        public IResponsePlaceHolder<TRequest, TResponse> ResponsePlaceHolder { get; set; }
+        public IRequestFilter<TRequest,TResponse> GlobalRequestFilter { get; set; }
         public void Subscribe(IResponseReceiver<TRequest> receiveEvent)
         {
             _responseReceiver = receiveEvent;
         }
 
-        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IResponsePlaceHolder<TRequest,TResponse> responsePlaceHolder)
+        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model)
         {
             _serializer = serializer;
             _factory = factory;
             Model = model;
-            _responsePlaceHolder = responsePlaceHolder;
         }
 
         public async Task DispatchAsync(Session session)
@@ -50,15 +51,24 @@ namespace NetworkOperation
             while (session.HasAvailableData)
             {
                 var rawMessage = await session.ReceiveMessageAsync();
-                var op = _serializer.Deserialize<TRequest>(rawMessage);
-                
-                if (IsContinue(op)) continue;
-
-                var description = Model.GetDescriptionBy(op.OperationCode);
+                var request = _serializer.Deserialize<TRequest>(rawMessage);
                 try
                 {
-                    var rawResponse = await ProcessHandler(session, op, description, CreateCancellationToken(op, description));
-                    await SendAsync(session, op.OperationCode, rawResponse, op);
+                    if (GlobalRequestFilter != null)
+                    {
+                        var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
+                        if (response.StateCode != (uint)BuiltInOperationState.Success)
+                        {
+                            await session.SendMessageAsync(_serializer.Serialize(response).To());
+                            continue;
+                        }
+                    }
+                    
+                    if (IsContinue(request)) continue;
+    
+                    var description = Model.GetDescriptionBy(request.OperationCode);
+                    var rawResponse = await ProcessHandler(session, request, description, CreateCancellationToken(request, description));
+                    await SendAsync(session, request.OperationCode, rawResponse, request);
                 }
                 catch (OperationCanceledException e) { ExceptionHandler?.Invoke(e); }
                 catch (Exception e)
@@ -71,7 +81,7 @@ namespace NetworkOperation
                     {
                         var failOp = new TResponse()
                         {
-                            OperationCode = op.OperationCode,
+                            OperationCode = request.OperationCode,
                             StateCode = (uint) BuiltInOperationState.InternalError
                         };
                         await session.SendMessageAsync(_serializer.Serialize(failOp).To());
@@ -79,7 +89,7 @@ namespace NetworkOperation
                 }
                 finally
                 {
-                    RemoveCancellationSource(op);
+                    RemoveCancellationSource(request);
                 }
             }
         }
@@ -97,7 +107,6 @@ namespace NetworkOperation
 
         private bool TryOperationCancel(TRequest op)
         {
-            Console.WriteLine(StatusEncoding.AsString(op.StateCode));
             if (op.StateCode == (uint)BuiltInOperationState.Cancel)
             {
                 if (_cancellationMap.TryRemove(op.OperationCode, out var cts))
@@ -126,7 +135,7 @@ namespace NetworkOperation
                 OperationData = rawResponse.Data,
                 StateCode = rawResponse.Code
             };
-            _responsePlaceHolder.Fill(ref sendOp, request);
+            ResponsePlaceHolder?.Fill(ref sendOp, request);
             
             var resultRaw = _serializer.Serialize(sendOp);
             await session.SendMessageAsync(resultRaw.To());
@@ -144,7 +153,7 @@ namespace NetworkOperation
                 : _serializer.Deserialize<T>(segArray);
             
 
-            var result = await typedHandler.Handle(arg, new OperationContext<TRequest>(message, session), token);
+            var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
             if (operationDescription.UseAsyncSerialize) return new DataWithStateCode(await _serializer.SerializeAsync(result.Result), result.StatusCode);
 
             return new DataWithStateCode(_serializer.Serialize(result.Result), result.StatusCode);

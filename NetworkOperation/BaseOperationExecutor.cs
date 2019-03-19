@@ -7,7 +7,7 @@ using NetworkOperation.Extensions;
 
 namespace NetworkOperation
 {
-    public abstract class BaseOperationExecutor<TRequest, TResponse> : IResponseReceiver<TResponse> where TResponse : IOperationMessage, new() where TRequest : IOperationMessage, new()
+    public abstract class BaseOperationExecutor<TRequest, TResponse> : IResponseReceiver<TResponse>, IGlobalCancellation where TResponse : IOperationMessage, new() where TRequest : IOperationMessage, new()
     {
         private readonly ConcurrentDictionary<uint, Task> _responseQueue = new ConcurrentDictionary<uint, Task>();
 
@@ -17,20 +17,21 @@ namespace NetworkOperation
         private readonly Side _currentSide;
         private readonly Session _session;
         private readonly SessionCollection _sessions;
-        private readonly IRequestPlaceHolder<TRequest> _messagePlaceHolder;
+        
 
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, IRequestPlaceHolder<TRequest> messagePlaceHolder)
+        public CancellationToken GlobalToken { get; set; }
+        
+        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions)
         {
             Model = model;
             _serializer = serializer;
             _sessions = sessions;
-            _messagePlaceHolder = messagePlaceHolder;
             _currentSide = Side.Server;
         }
 
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, IRequestPlaceHolder<TRequest> messagePlaceHolder)
+        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session)
         {
-            _messagePlaceHolder = messagePlaceHolder;
+            
             Model = model;
             _serializer = serializer;
             _session = session;
@@ -40,6 +41,8 @@ namespace NetworkOperation
 
         protected OperationRuntimeModel Model { get; }
 
+        public IRequestPlaceHolder<TRequest> MessagePlaceHolder { get; set; }
+
         bool IResponseReceiver<TResponse>.Receive(TResponse result)
         {
             if (result.StateCode != (uint)BuiltInOperationState.Handle && _responseQueue.TryRemove(result.OperationCode, out var task))
@@ -48,7 +51,6 @@ namespace NetworkOperation
                 task.Start();
                 return true;
             }
-
             return false;
         }
 
@@ -65,19 +67,11 @@ namespace NetworkOperation
                     : _serializer.Serialize(operation)
             };
             
-            _messagePlaceHolder.Fill(ref op, operation);
-            
-            token.Register(async
-                (obj) =>
-            {
-                var desc = (OperationDescription)obj;
-                await SendCancel(receivers, forAll, desc);
-            }, description,false);
+            MessagePlaceHolder?.Fill(ref op, operation);
 
             var rawResult = _serializer.Serialize(op);
             await SendRaw(receivers, forAll, rawResult);
            
-
             try
             {
                 var task = new Task<OperationResult<TResult>>(state =>
@@ -88,7 +82,7 @@ namespace NetworkOperation
                     if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StateCode);
 
                     return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StateCode);
-                }, _states.Rent(), token, TaskCreationOptions.PreferFairness);
+                }, _states.Rent(), CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken).Token, TaskCreationOptions.PreferFairness);
 
                 _responseQueue.TryAdd(description.Code, task);
                 return await task;
@@ -118,6 +112,7 @@ namespace NetworkOperation
                 case Side.Server when forAll:
                     await _sessions.SendToAllAsync(rawResult);
                     break;
+                
                 case Side.Server:
                 {
                     for (var i = 0; i < receivers.Count; i++)

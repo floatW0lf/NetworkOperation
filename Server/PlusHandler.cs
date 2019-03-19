@@ -4,13 +4,22 @@ using System.Threading.Tasks;
 using Contract;
 using NetworkOperation;
 using NetworkOperation.Extensions;
+using NetworkOperation.Server;
 
 namespace Handlers
 {
     public class PlusHandler : IHandler<PlusOp,float,DefaultMessage>
     {
-        public async Task<OperationResult<float>> Handle(PlusOp objectData, OperationContext<DefaultMessage> context, CancellationToken token)
+        private readonly IServer _server;
+
+        public PlusHandler(IServer server)
         {
+            _server = server;
+        }
+            
+        public async Task<OperationResult<float>> Handle(PlusOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)
+        {
+            //_server.Shutdown();
             return this.Return(objectData.A + objectData.B);
         }
     }

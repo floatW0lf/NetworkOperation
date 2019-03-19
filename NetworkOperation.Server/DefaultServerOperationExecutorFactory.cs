@@ -16,7 +16,7 @@ namespace NetworkOperation.Server
         }
         public IServerOperationExecutor Create(SessionCollection arg)
         {
-            return new ServerOperationExecutor<TRequest,TResponse>(_model, _serializer, arg, _messagePlaceHolder);
+            return new ServerOperationExecutor<TRequest,TResponse>(_model, _serializer, arg);
         }
     }
 }

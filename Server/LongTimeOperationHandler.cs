@@ -9,7 +9,7 @@ namespace Server
     public class LongTimeOperationHandler : IHandler<LongTimeOperation, int, DefaultMessage>
     {
         public async Task<OperationResult<int>> Handle(LongTimeOperation objectData,
-            OperationContext<DefaultMessage> context, CancellationToken token)
+            RequestContext<DefaultMessage> context, CancellationToken token)
         {
             Console.WriteLine("LongTimeOperationHandler");
             try

@@ -17,8 +17,7 @@ namespace NetworkOperation.Dispatching
 
         private DispatchDelegate _cacheDispatcher;
 
-        public ExpressionDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model,
-            IResponsePlaceHolder<TRequest, TResponse> responsePlaceHolder) : base(serializer, factory, model, responsePlaceHolder)
+        public ExpressionDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model) : base(serializer, factory, model)
         {
         }
 

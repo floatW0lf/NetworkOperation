@@ -45,7 +45,7 @@ namespace NetOperationTest
                 throw new Exception("wrong operation");
             }
 
-            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IResponsePlaceHolder<DefaultMessage, DefaultMessage> responsePlaceHolder) : base(serializer, factory, model, responsePlaceHolder)
+            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model) : base(serializer, factory, model)
             {
             }
         }
@@ -64,7 +64,7 @@ namespace NetOperationTest
                 new OperationDescription(0, typeof(A), typeof(int), Side.Server),
                 new OperationDescription(1, typeof(B), typeof(float), Side.Server)
             });
-            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model, NullResponsePlaceHolder<DefaultMessage,DefaultMessage>.Instance);
+            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model);
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var hasData = true;
             var sessionMock = new Mock<Session>();
@@ -76,7 +76,7 @@ namespace NetOperationTest
             });
             await dispatcher.DispatchAsync(sessionMock.Object);
             sessionMock.Verify(s => s.ReceiveMessageAsync(), Times.Once);
-            moqHandler.Verify(handler => handler.Handle(op, It.IsAny<OperationContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
+            moqHandler.Verify(handler => handler.Handle(op, It.IsAny<RequestContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace NetOperationTest
             factory.Setup(f => f.Create<A, int,DefaultMessage>()).ReturnsUsingFixture(fixture);
             factory.Setup(f => f.Create<B, float,DefaultMessage>()).ReturnsUsingFixture(fixture);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }),NullResponsePlaceHolder<DefaultMessage,DefaultMessage>.Instance);
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }));
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
@@ -107,8 +107,8 @@ namespace NetOperationTest
 
             await generatedDispatcher.DispatchAsync(mockSession.Object);            
             mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>()), Times.Once);
-            handlerA.Verify(handler => handler.Handle(opA,It.IsAny<OperationContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
-            handlerB.Verify(h => h.Handle(It.IsAny<B>(), It.IsAny<OperationContext<DefaultMessage>>(),It.IsAny<CancellationToken>()), Times.Never);
+            handlerA.Verify(handler => handler.Handle(opA,It.IsAny<RequestContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
+            handlerB.Verify(h => h.Handle(It.IsAny<B>(), It.IsAny<RequestContext<DefaultMessage>>(),It.IsAny<CancellationToken>()), Times.Never);
         }
 
         private static byte[] CreateRawMessage<T>(uint code, T op)

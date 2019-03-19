@@ -31,6 +31,7 @@ namespace Client
             var res = await client.Executor.Execute<PlusOp, float>(new PlusOp{A = 100, B = 200});
             res.Handle().Success(f => { }).BuiltInCode(BuiltInOperationState.InternalError, () => { });
             Console.WriteLine(res);
+            await client.DisconnectAsync();
             try
             {
                 var result = await client.Executor.Execute<LongTimeOperation, int>(new LongTimeOperation(),cts.Token);

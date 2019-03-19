@@ -6,17 +6,15 @@ namespace NetworkOperation.Client
     {
         private readonly BaseSerializer _serializer;
         private readonly OperationRuntimeModel _model;
-        private readonly IRequestPlaceHolder<TRequest> _messagePlaceHolder;
 
-        public DefaultClientOperationExecutorFactory(BaseSerializer serializer, OperationRuntimeModel model, IRequestPlaceHolder<TRequest> messagePlaceHolder)
+        public DefaultClientOperationExecutorFactory(BaseSerializer serializer, OperationRuntimeModel model)
         {
             _serializer = serializer;
             _model = model;
-            _messagePlaceHolder = messagePlaceHolder;
         }
         public IClientOperationExecutor Create(Session arg)
         {
-            return new ClientOperationExecutor<TRequest,TResponse>(_model,_serializer, arg, _messagePlaceHolder);
+            return new ClientOperationExecutor<TRequest,TResponse>(_model,_serializer, arg);
         }
     }
 }

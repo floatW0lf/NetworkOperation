@@ -17,11 +17,11 @@ namespace NetworkOperation.Server
             return SendOperation<TOp, TOpResult>(operation, receivers, false, cancellation);
         }
 
-        public ServerOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, IRequestPlaceHolder<TMessage> messagePlaceHolder) : base(model, serializer, sessions, messagePlaceHolder)
+        public ServerOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions) : base(model, serializer, sessions)
         {
         }
 
-        private ServerOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, IRequestPlaceHolder<TMessage> messagePlaceHolder) : base(model, serializer, session, messagePlaceHolder)
+        private ServerOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session) : base(model, serializer, session)
         {
         }
     }

@@ -12,18 +12,21 @@ namespace NetLibOperation.Client
     public class Client<TRequest,TResponse> : AbstractClient<TRequest,TResponse,NetPeer>, INetEventListener where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public NetManager Manager { get; }
+        
         private Task _pollingTask;
         private Task _connectTask;
-        
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private Task _disconnectTask;
+
+        private CancellationTokenSource _cts;
 
         public override void Connect(string address, int port)
         {
-            PreConnect(address, port);
+            if (Session == null || Session.State == SessionState.Opened) return;
+            _connectTask = PreConnect(address, port);
             _connectTask.Wait();
         }
 
-        private void StartPoll()
+        private void InitEventLoop()
         {
             Manager.Start();
             _pollingTask = Task.Factory.StartNew(async() =>
@@ -41,38 +44,57 @@ namespace NetLibOperation.Client
 
         public override Task ConnectAsync(string address, int port)
         {
-            PreConnect(address, port);
-            return _connectTask;
+            if (Session == null || Session.State == SessionState.Closed)
+            {
+                _connectTask = PreConnect(address, port);
+                return _connectTask;
+            }
+            return Task.CompletedTask;
         }
 
-        private void PreConnect(string address, int port)
+        private Task PreConnect(string address, int port)
         {
-            StartPoll();
+            _cts = new CancellationTokenSource();
+            InitEventLoop();
             Manager.Connect(address, port);
-            _connectTask = new Task(() => {}, TaskCreationOptions.PreferFairness);
+            return new Task(() => {}, TaskCreationOptions.PreferFairness);
         }
 
         public override void Disconnect()
         {
-            if (_pollingTask == null) return;
-            Manager.Stop();
-            _cts.Cancel();
-            _pollingTask.Wait();
-            _pollingTask = null;
+            if (Session?.State == SessionState.Opened)
+            {
+                try
+                {
+                    Manager.Stop();
+                    _cts.Cancel();
+                    _pollingTask.Wait();
+                }
+                finally
+                {
+                    ClientClean();
+                } 
+            }
         }
 
-        public override async Task DisconnectAsync()
+        private void ClientClean()
         {
-            if (_pollingTask == null) return;
+            _pollingTask = null;
+            _cts?.Dispose();
+            _cts = null;
+        }
 
-            await Task.Run(() =>
+        public override Task DisconnectAsync()
+        {
+            if (Session?.State == SessionState.Opened)
             {
                 Manager.Stop();
-                while (Manager.IsRunning) { }
-            });
-            _cts.Cancel();
-            await _pollingTask;
-            _pollingTask = null;
+                _disconnectTask = new Task(() => {}, TaskCreationOptions.PreferFairness);
+                ClientClean();
+                return _disconnectTask;
+            }
+            
+            return Task.CompletedTask;
         }
 
         void INetEventListener.OnNetworkError(NetEndPoint endPoint, int socketErrorCode)
@@ -82,7 +104,6 @@ namespace NetLibOperation.Client
 
         void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
-            
         }
 
         void INetEventListener.OnNetworkReceive(NetPeer peer, NetDataReader reader)
@@ -97,12 +118,24 @@ namespace NetLibOperation.Client
 
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
-            OpenSession(peer);
-            _connectTask.Start();
+            try
+            {
+                OpenSession(peer);
+            }
+            finally
+            {
+                if (_connectTask.Status == TaskStatus.WaitingToRun)
+                {
+                    _connectTask.Start();  
+                }
+            }
         }
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
+            _cts?.Cancel();
+            _disconnectTask?.Start();
+            ClientClean();
             CloseSession();
         }
 

@@ -2,8 +2,8 @@
 {
     public enum SessionState
     {
-        Opened = 1,
         Closed,
+        Opened,
         Opening
     }
 }

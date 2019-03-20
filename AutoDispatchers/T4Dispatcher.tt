@@ -1,7 +1,7 @@
 ﻿<#@ template debug="true" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="$(SolutionDir)\NetworkOperation\bin\Debug\net472\NetworkOperation.dll" #>
-<#@ assembly name="$(SolutionDir)\Contract\bin\Debug\net472\Contract.dll" #>
+<#@ assembly name="D:\projects\NetOperationGit\Contract\bin\Debug\net472\NetworkOperation.dll" #>
+<#@ assembly name="D:\projects\NetOperationGit\Contract\bin\Debug\net472\Contract.dll" #>
 <#@ import namespace="NetworkOperation" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
@@ -13,25 +13,27 @@
 #>
 using System;
 using System.Threading.Tasks;
+using System.Threading;
 using NetworkOperation;
 
 namespace NetworkOperations.Dispatching
 {
-    public sealed class T4Dispatcher : BaseDispatcher
+    public sealed class T4Dispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
+           where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public T4Dispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model) : base(serializer, factory, model)
         {
         }
 
-        protected override Task<byte[]> ProcessHandler(Connection context, uint code, byte[] rawData, bool useAsync, CancellationToken token)
+        protected override Task<DataWithStateCode> ProcessHandler(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token)
         {
-            switch (code)
+            switch (operationDescription.Code)
             {
 <# foreach (OperationDescription op in operations) { if (op == null || !op.Handle.HasFlag(currentSide)) continue; #>
-               case <#=op.Code#>: return GenericHandle<<#=op.OperationType.FullName#>, <#=op.ResultType.FullName#>>(context, rawData, useAsync, token);
+               case <#=op.Code#>: return GenericHandle<<#=op.OperationType.FullName#>, <#=op.ResultType.FullName#>>(session, message, operationDescription, token);
 <# } #>
             }
-            throw new Exception("wrong cmd!");
+            throw new InvalidOperationException($"Wrong code operation {operationDescription.Code}");
         }
     }
 }

@@ -10,11 +10,11 @@ namespace Handlers
 {
     public class PlusHandler : IHandler<PlusOp,float,DefaultMessage>
     {
-        private readonly IServer _server;
+        private readonly IHost _host;
 
-        public PlusHandler(IServer server)
+        public PlusHandler(IHost host)
         {
-            _server = server;
+            _host = host;
         }
             
         public async Task<OperationResult<float>> Handle(PlusOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)

@@ -7,11 +7,12 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
+using NetworkOperation.Host;
 using Tcp.Core;
 
 namespace Tcp.Server
 {
-    public class TcpNetOperationServer<TRequest,TResponse> : AbstractServer<TRequest,TResponse, Socket, Socket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class TcpNetOperationHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse, Socket, Socket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public Socket Listener { get; private set; }
 
@@ -89,7 +90,7 @@ namespace Tcp.Server
             Listener = null;
         }
 
-        public TcpNetOperationServer(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<Socket, Session> sessionFactory, IFactory<SessionCollection, IServerOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher) : base(sessionsFactory, sessionFactory, executorFactory, dispatcher)
+        public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<Socket, Session> sessionFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher) : base(sessionsFactory, sessionFactory, executorFactory, dispatcher)
         {
         }
     }

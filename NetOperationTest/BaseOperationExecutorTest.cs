@@ -22,7 +22,7 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             var mockSession = new Mock<SessionCollection>();
-            var mockSetting = new ServerOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(A) }),serializeMock.Object, mockSession.Object);
+            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(A) }),serializeMock.Object, mockSession.Object);
             var task = mockSetting.Execute<A,int>(new A());
             Assert.Equal(TaskStatus.WaitingForActivation, task.Status);
 
@@ -37,7 +37,7 @@ namespace NetOperationTest
             
             serializeMock.Setup(serializer => serializer.Deserialize<int>(It.IsAny<ArraySegment<byte>>())).Returns(111);
             serializeMock.Setup(serializer => serializer.Serialize(It.IsAny<A>())).Returns(new byte[10]);
-            var executor = new ServerOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object);
+            var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object);
             IResponseReceiver<DefaultMessage> e = executor;
 
             Task.Delay(100).ContinueWith(_ => e.Receive(new DefaultMessage() {OperationCode = 0, StateCode = (uint)BuiltInOperationState.Success,OperationData = new byte[10]}))

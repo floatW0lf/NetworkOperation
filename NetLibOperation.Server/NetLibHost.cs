@@ -5,10 +5,11 @@ using NetworkOperation.Server;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
+using NetworkOperation.Host;
 
 namespace NetLibOperation
 {
-    public class Server<TMessage,TResponse> : AbstractServer<TMessage,TResponse,NetPeer,NetManager>, INetEventListener where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class NetLibHost<TMessage,TResponse> : AbstractHost<TMessage,TResponse,NetPeer,NetManager>, INetEventListener where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public NetManager Manager { get; }
 
@@ -87,7 +88,7 @@ namespace NetLibOperation
             
         }
 
-        public Server(IFactory<NetManager, MutableSessionCollection> sessionsFactory, IFactory<NetPeer, Session> sessionFactory, IFactory<SessionCollection, IServerOperationExecutor> executorFactory, BaseDispatcher<TMessage,TResponse> dispatcher, string connectionKey) : base(sessionsFactory, sessionFactory, executorFactory, dispatcher)
+        public NetLibHost(IFactory<NetManager, MutableSessionCollection> sessionsFactory, IFactory<NetPeer, Session> sessionFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TMessage,TResponse> dispatcher, string connectionKey) : base(sessionsFactory, sessionFactory, executorFactory, dispatcher)
         {
             Manager = new NetManager(this, connectionKey);
         }

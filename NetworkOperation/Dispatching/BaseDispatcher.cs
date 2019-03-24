@@ -11,12 +11,12 @@ namespace NetworkOperation
     public struct DataWithStateCode
     {
         public readonly byte[] Data;
-        public readonly uint Code;
+        public readonly uint StatusCode;
 
-        public DataWithStateCode(byte[] data, uint code)
+        public DataWithStateCode(byte[] data, uint statusCode)
         {
             Data = data;
-            Code = code;
+            StatusCode = statusCode;
         }
     }
     
@@ -29,6 +29,7 @@ namespace NetworkOperation
         
         private ConcurrentDictionary<uint,CancellationTokenSource> _cancellationMap = new ConcurrentDictionary<uint, CancellationTokenSource>();
 
+        public bool DebugMode { get; set; }
         public Action<Exception> ExceptionHandler { get; set; }
         public IResponsePlaceHolder<TRequest, TResponse> ResponsePlaceHolder { get; set; }
         public IRequestFilter<TRequest,TResponse> GlobalRequestFilter { get; set; }
@@ -68,7 +69,11 @@ namespace NetworkOperation
     
                     var description = Model.GetDescriptionBy(request.OperationCode);
                     var rawResponse = await ProcessHandler(session, request, description, CreateCancellationToken(request, description));
-                    await SendAsync(session, request.OperationCode, rawResponse, request);
+                    if (description.WaitResponse)
+                    {
+                        await SendAsync(session, rawResponse, request);
+                    }
+                    
                 }
                 catch (OperationCanceledException e) { ExceptionHandler?.Invoke(e); }
                 catch (Exception e)
@@ -81,8 +86,10 @@ namespace NetworkOperation
                     {
                         var failOp = new TResponse()
                         {
+                            Id = request.Id,
                             OperationCode = request.OperationCode,
-                            StateCode = (uint) BuiltInOperationState.InternalError
+                            StateCode = (uint) BuiltInOperationState.InternalError,
+                            OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
                         };
                         await session.SendMessageAsync(_serializer.Serialize(failOp).To());
                     }
@@ -127,13 +134,15 @@ namespace NetworkOperation
                 cts.Dispose();
             }
         }
-        private async Task SendAsync(Session session, uint code, DataWithStateCode rawResponse, TRequest request)
+        
+        private async Task SendAsync(Session session, DataWithStateCode rawResponse, TRequest request)
         {
-            var sendOp = new TResponse()
+            var sendOp = new TResponse
             {
-                OperationCode = code,
+                Id = request.Id,
+                OperationCode = request.OperationCode,
                 OperationData = rawResponse.Data,
-                StateCode = rawResponse.Code
+                StateCode = rawResponse.StatusCode
             };
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
@@ -146,7 +155,7 @@ namespace NetworkOperation
         protected async Task<DataWithStateCode> GenericHandle<T, TResult>(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token) where T : IOperation<T,TResult>
         {
             // TODO: время жизни обработчика
-            var typedHandler = _factory.Create<T,TResult,TRequest>();
+            var typedHandler = _factory.Create<T,TResult,TRequest>(); 
             var segArray = message.OperationData.To();
             var arg = operationDescription.UseAsyncSerialize
                 ? await _serializer.DeserializeAsync<T>(segArray)

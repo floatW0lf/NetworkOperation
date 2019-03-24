@@ -18,7 +18,7 @@ namespace Client
             
             var client = new Client<DefaultMessage, DefaultMessage>(
                 sessionFactory,
-                new DefaultClientOperationExecutorFactory<DefaultMessage,DefaultMessage>(serial, model),
+                new DefaultClientOperationExecutorFactory<DefaultMessage,DefaultMessage>(model,serial),
                 new ExpressionDispatcher<DefaultMessage, DefaultMessage>(serial,handlerFactory,model),
                 ""
                 );

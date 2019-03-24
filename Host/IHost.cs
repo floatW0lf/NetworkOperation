@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
+using NetworkOperation.Host;
 
 namespace NetworkOperation.Server
 {
-    public interface IServer
+    public interface IHost
     {
-        IServerOperationExecutor Executor { get; }
+        IHostOperationExecutor Executor { get; }
         SessionCollection Sessions { get; }
         void Start(int port);
         void Shutdown();

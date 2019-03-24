@@ -2,9 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NetworkOperation.Server
+namespace NetworkOperation.Host
 {
-    public interface IServerOperationExecutor : IOperationExecutor
+    public interface IHostOperationExecutor : IOperationExecutor
     {
         Task<OperationResult<TOpResult>> Execute<TOp,TOpResult>(TOp operation, IReadOnlyList<Session> receivers, CancellationToken cancellation = default) where TOp : IOperation<TOp,TOpResult>;
     }

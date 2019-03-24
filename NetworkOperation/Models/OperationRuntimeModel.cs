@@ -21,7 +21,10 @@ namespace NetworkOperation
                     var arguments =type.GetGenericArgsFromOperation();
 
                     return new OperationDescription(metaInfo.Code, arguments[0], arguments[1], metaInfo.Handle)
-                    { UseAsyncSerialize = metaInfo.UseAsyncSerialize };
+                    {
+                        UseAsyncSerialize = metaInfo.UseAsyncSerialize,
+                        WaitResponse = metaInfo.WaitResponse
+                    };
 
                 }).OrderBy(d => d.Code).ToArray();
 

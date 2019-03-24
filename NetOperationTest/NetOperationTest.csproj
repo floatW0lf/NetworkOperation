@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
 
     <IsPackable>false</IsPackable>
 
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetworkOperation.Server\NetworkOperation.Server.csproj" />
+    <ProjectReference Include="..\Host\Host.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
   </ItemGroup>
 

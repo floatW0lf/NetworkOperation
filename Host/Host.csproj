@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>7.2</LangVersion>
+    <AssemblyName>NetworkOperation.Host</AssemblyName>
+    <RootNamespace>NetworkOperation.Host</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

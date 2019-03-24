@@ -18,7 +18,7 @@ namespace NetworkOperation
             var useTcp = Read_YesNo("Use TCP ?");
             var kernel = new StandardKernel(new ServerModule(useTcp));
             
-            var server = kernel.Get<IServer>();
+            var server = kernel.Get<IHost>();
             server.Start(Port);
             server.Sessions.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress}");
             server.Sessions.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress}");

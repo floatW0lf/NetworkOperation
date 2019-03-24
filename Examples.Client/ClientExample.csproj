@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AsyncEnumerator" Version="2.2.2" />
     <PackageReference Include="LiteNetLib" Version="0.7.7.3" />
     <PackageReference Include="MessagePack" Version="1.7.3.4" />
     <PackageReference Include="Ninject" Version="3.3.4" />
@@ -15,11 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Contract\Contract.csproj" />
-    <ProjectReference Include="..\Host\Host.csproj" />
-    <ProjectReference Include="..\NetLibOperation.Server\NetLibOperation.Server.csproj" />
+    <ProjectReference Include="..\NetLibOperation.Client\NetLibOperation.Client.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\Tcp.Client\Tcp.Client.csproj" />
     <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
-    <ProjectReference Include="..\Tcp.Server\Tcp.Server.csproj" />
   </ItemGroup>
 
 </Project>

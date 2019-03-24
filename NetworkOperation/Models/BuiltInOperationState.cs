@@ -6,6 +6,7 @@ namespace NetworkOperation
         InternalError,
         Handle,
         Success,
+        Nowaiting,
         Cancel = 50
     }
 }

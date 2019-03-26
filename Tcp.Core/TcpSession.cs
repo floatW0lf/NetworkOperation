@@ -4,12 +4,13 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using NetworkOperation.Extensions;
 
 namespace Tcp.Core
 {
     public class TcpSession : Session
     {
-        private ArraySegment<byte> _segmentedBuffer = new byte[4092];
+        private ArraySegment<byte> _segmentedBuffer = new ArraySegment<byte>(new byte[4092]);
         private readonly Socket _client;
         private ConcurrentDictionary<Type, IHandler> _perSessionHandler = new ConcurrentDictionary<Type, IHandler>();
         private IHandlerFactory factory;
@@ -72,7 +73,7 @@ namespace Tcp.Core
         protected override async Task SendMessageAsync(ArraySegment<byte> data)
         {
             var prefix = BitConverter.GetBytes(data.Count);
-            await _client.SendAsync(new[] {prefix, data}, SocketFlags.None);
+            await _client.SendAsync(new[] {prefix.To(), data}, SocketFlags.None);
         }
     }
 }

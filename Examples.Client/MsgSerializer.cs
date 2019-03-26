@@ -20,7 +20,7 @@ namespace NetOperationTest
 
         public override async Task<T> DeserializeAsync<T>(ArraySegment<byte> rawBytes)
         {
-            using (var memory = new MemoryStream(rawBytes.ToArray()))
+            using (var memory = new MemoryStream(rawBytes.Array))
             {
                 return await MessagePackSerializer.DeserializeAsync<T>(memory);
             }

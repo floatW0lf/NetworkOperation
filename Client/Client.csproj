@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>7.2</LangVersion>
     <AssemblyName>NetworkOperation.Client</AssemblyName>
     <RootNamespace>NetworkOperation.Client</RootNamespace>
+    <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

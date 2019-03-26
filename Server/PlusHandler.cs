@@ -19,6 +19,7 @@ namespace Handlers
             
         public async Task<OperationResult<float>> Handle(PlusOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
+            Console.WriteLine("Plus execute");
             Task.Delay(1000, token).ContinueWith(async task =>
             {
                 await _host.Executor.Execute<ClientOp, Empty>(new ClientOp() {Message = "push from + operation"});

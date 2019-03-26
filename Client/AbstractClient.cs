@@ -25,8 +25,33 @@ namespace NetworkOperation.Client
         private IFactory<TConnection,Session> _sessionFactory;
         private IFactory<Session,IClientOperationExecutor> _executorFactory;
         private readonly BaseDispatcher<TRequest,TResponse> _dispatcher;
+        private IClientOperationExecutor _executor;
 
-        public IClientOperationExecutor Executor { get; private set; }
+        public ClientState Current
+        {
+            get
+            {
+                switch (Session?.State)
+                {
+                    case SessionState.Opened:
+                        return ClientState.Connected;
+                    case SessionState.Opening:
+                        return ClientState.Connecting;
+                    default:
+                        return ClientState.Disconnected;
+                }
+            }
+        }
+
+        public IClientOperationExecutor Executor
+        {
+            get
+            {
+                if (_executor == null) throw new InvalidOperationException("Client not connected");
+                return _executor;
+            }
+        }
+
         public abstract void Connect(string address, int port);
         public abstract Task ConnectAsync(string address, int port);
         public abstract void Disconnect();
@@ -37,6 +62,7 @@ namespace NetworkOperation.Client
             Session.Close();
             OnSessionClosed?.Invoke(Session);
             
+            _executor = null;
             OnSessionClosed = null;
             OnSessionError = null;
             OnSessionOpened = null;
@@ -47,7 +73,7 @@ namespace NetworkOperation.Client
         protected void OpenSession(TConnection session)
         {
             Session = _sessionFactory.Create(session);
-            Executor = _executorFactory.Create(Session);
+            _executor = _executorFactory.Create(Session);
             _dispatcher.Subscribe((IResponseReceiver<TRequest>) Executor);
             OnSessionOpened?.Invoke(Session);
         }

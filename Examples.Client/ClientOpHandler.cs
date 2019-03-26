@@ -9,6 +9,7 @@ namespace Client
 {
     public class ClientOpHandler : IHandler<ClientOp,Empty,DefaultMessage>
     {
+        
         public async Task<OperationResult<Empty>> Handle(ClientOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
             Console.WriteLine(objectData.Message);

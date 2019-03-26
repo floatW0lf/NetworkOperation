@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Logger;
 using Xunit;
 
 namespace NetOperationTest
@@ -45,7 +46,7 @@ namespace NetOperationTest
                 throw new Exception("wrong operation");
             }
 
-            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model) : base(serializer, factory, model)
+            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
             {
             }
         }
@@ -64,7 +65,7 @@ namespace NetOperationTest
                 new OperationDescription(0, typeof(A), typeof(int), Side.Server),
                 new OperationDescription(1, typeof(B), typeof(float), Side.Server)
             });
-            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model);
+            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model,new Mock<IStructuralLogger>().Object);
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var hasData = true;
             var sessionMock = new Mock<Session>();
@@ -92,7 +93,7 @@ namespace NetOperationTest
             factory.Setup(f => f.Create<A, int,DefaultMessage>()).ReturnsUsingFixture(fixture);
             factory.Setup(f => f.Create<B, float,DefaultMessage>()).ReturnsUsingFixture(fixture);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }));
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }), new Mock<IStructuralLogger>().Object);
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);

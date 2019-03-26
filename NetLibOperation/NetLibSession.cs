@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Threading.Tasks;
 using LiteNetLib;
 using NetworkOperation;
+using NetworkOperation.Extensions;
 
 namespace NetLibOperation
 {
@@ -19,22 +21,22 @@ namespace NetLibOperation
             _factory = factory;
         }
 
-        public override string NetworkAddress => _peer.EndPoint.ToString();
+        public override EndPoint NetworkAddress => _peer.EndPoint;
         public override object UntypedConnection => _peer;
-        public override long Id => _peer.ConnectId;
+        public override long Id => _peer.Id;
         public override SessionStatistics Statistics { get; }
 
         protected override bool HasAvailableData => _data != null;
 
         protected override Task SendMessageAsync(ArraySegment<byte> data)
         {
-            _peer.Send(data.Array, data.Offset, data.Count, SendOptions.ReliableOrdered);
+            _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
             return Task.CompletedTask;
         }
 
-        private byte[] _data;
+        private ArraySegment<byte> _data;
 
-        public void OnReceiveData(byte[] data)
+        public void OnReceiveData(ArraySegment<byte> data)
         {
             _data = data;
         }
@@ -42,8 +44,8 @@ namespace NetLibOperation
         protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
             var copy = _data;
-            _data = null;
-            return Task.FromResult(new ArraySegment<byte>(copy));
+            _data = default;
+            return Task.FromResult(copy);
         }
 
         protected override IHandler<TOp, TResult,TRequest> GetHandler<TOp, TResult,TRequest>()
@@ -70,12 +72,14 @@ namespace NetLibOperation
             {
                 switch (_peer.ConnectionState)
                 {
-                    case ConnectionState.InProgress:
+                    case ConnectionState.Incoming:
                         return SessionState.Opening;
+                    
                     case ConnectionState.Connected:
                         return SessionState.Opened;
+                    
                     case ConnectionState.Disconnected:
-                        return SessionState.Opened;
+                        return SessionState.Closed;
                 }
                 throw new ArgumentException();
             }

@@ -34,6 +34,7 @@ namespace NetOperationTest
             StatusEncoding.Register(typeof(TestValidStatusCode), typeof(TestValidOtherStatusCode));
             Assert.True(StatusEncoding.IsValidValue<TestValidStatusCode>(52));
             Assert.True(StatusEncoding.IsValidValue<TestValidOtherStatusCode>(56));
+            
         }
         
         [Fact]
@@ -55,7 +56,7 @@ namespace NetOperationTest
             var message = new DefaultMessage();
             StatusEncoding.Encode(ref message, TestValidStatusCode.SomeCode);
             
-            Assert.Equal(51U, message.StateCode);
+            Assert.Equal(51U, message.StatusCode);
             Assert.Equal(TestValidStatusCode.SomeCode, StatusEncoding.Decode(message,TestValidStatusCode.SomeCode3));
         }
         
@@ -63,12 +64,12 @@ namespace NetOperationTest
         public void WrongStatusCode()
         {
             StatusEncoding.Register(typeof(TestValidStatusCode), typeof(TestValidOtherStatusCode));
-            var message = new DefaultMessage {StateCode = 100};
+            var message = new DefaultMessage {StatusCode = 100};
             Assert.Throws<InvalidOperationException>(() =>
             {
                 StatusEncoding.Decode(message, TestValidStatusCode.SomeCode);
             });
-
+            
         }
 
         public void Dispose()

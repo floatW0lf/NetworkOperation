@@ -15,7 +15,7 @@ namespace NetLibOperation
 
         protected override Task SendToAllAsync(byte[] data)
         {
-            _manager.SendToAll(data,SendOptions.ReliableOrdered);
+            _manager.SendToAll(data,DeliveryMethod.ReliableOrdered);
             return Task.CompletedTask;
         }
     }

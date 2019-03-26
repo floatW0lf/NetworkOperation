@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
+using NetworkOperation.Logger;
 
 namespace NetworkOperation.Client
 {
@@ -8,12 +11,15 @@ namespace NetworkOperation.Client
     {
         public int PollTimeInMs { get; set; } = 10;
 
-        protected AbstractClient(IFactory<TConnection,Session> sessionFactory, IFactory<Session,IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher)
+        public IStructuralLogger Logger { get; }
+        
+        protected AbstractClient(IFactory<TConnection,Session> sessionFactory, IFactory<Session,IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher, IStructuralLogger logger)
         {
             _sessionFactory = sessionFactory;
             _executorFactory = executorFactory;
             _dispatcher = dispatcher;
             _dispatcher.ExecutionSide = Side.Client;
+            Logger = logger;
         }
 
         private IFactory<TConnection,Session> _sessionFactory;
@@ -30,6 +36,10 @@ namespace NetworkOperation.Client
         {
             Session.Close();
             OnSessionClosed?.Invoke(Session);
+            
+            OnSessionClosed = null;
+            OnSessionError = null;
+            OnSessionOpened = null;
         }
 
         protected Session Session { get; private set; }
@@ -42,9 +52,9 @@ namespace NetworkOperation.Client
             OnSessionOpened?.Invoke(Session);
         }
 
-        protected void DoErrorSession(string message, int code)
+        protected void DoErrorSession(EndPoint endPoint, SocketError code)
         {
-            OnSessionError?.Invoke(Session, message, code);
+            OnSessionError?.Invoke(Session, endPoint, code);
         }
 
         protected Task Dispatch()
@@ -54,6 +64,6 @@ namespace NetworkOperation.Client
             
         public event Action<Session> OnSessionClosed;
         public event Action<Session> OnSessionOpened;
-        public event Action<Session, string, int> OnSessionError;
+        public event Action<Session, EndPoint, SocketError> OnSessionError;
     }
 }

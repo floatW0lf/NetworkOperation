@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
 using NetworkOperation.Server;
@@ -12,6 +14,7 @@ namespace NetworkOperation.Host
         private readonly IFactory<MutableSessionCollection, IHostOperationExecutor> _executorFactory;
 
         public int PollTimeInMs { get; set; } = 10;
+        
         protected AbstractHost(
             IFactory<TConnectionCollection,MutableSessionCollection> sessionsFactory, 
             IFactory<TConnection,Session> sessionFactory,
@@ -44,6 +47,11 @@ namespace NetworkOperation.Host
         protected void CloseAllSession()
         {
             _mutableSessions.Clear();
+        }
+
+        protected void DoError(Session session, EndPoint endPoint, SocketError error)
+        {
+            _mutableSessions.DoError(session, endPoint, error);
         }
         
         public IHostOperationExecutor Executor { get; private set; }

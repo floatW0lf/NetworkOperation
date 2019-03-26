@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientExample", "Examples.Client\ClientExample.csproj", "{5148BC04-3279-4449-88F1-21FB39A3D990}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{CB0899DC-2339-41DF-B65B-59FB4BCBA588}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +43,10 @@ Global
 		{06B4D74F-BC26-4542-B357-DD8065028D06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06B4D74F-BC26-4542-B357-DD8065028D06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06B4D74F-BC26-4542-B357-DD8065028D06}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F08D387-E7DB-4409-8A42-8178D10F215E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F08D387-E7DB-4409-8A42-8178D10F215E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F08D387-E7DB-4409-8A42-8178D10F215E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F08D387-E7DB-4409-8A42-8178D10F215E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F08D387-E7DB-4409-8A42-8178D10F215E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F08D387-E7DB-4409-8A42-8178D10F215E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B920FB06-CAC5-4AFF-B68B-B6487EA47735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B920FB06-CAC5-4AFF-B68B-B6487EA47735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B920FB06-CAC5-4AFF-B68B-B6487EA47735}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -99,5 +101,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B8D9E72A-BD0B-459A-9E49-1FB6AC12940C}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5148BC04-3279-4449-88F1-21FB39A3D990} = {CB0899DC-2339-41DF-B65B-59FB4BCBA588}
+		{3F08D387-E7DB-4409-8A42-8178D10F215E} = {CB0899DC-2339-41DF-B65B-59FB4BCBA588}
+		{06B4D74F-BC26-4542-B357-DD8065028D06} = {CB0899DC-2339-41DF-B65B-59FB4BCBA588}
 	EndGlobalSection
 EndGlobal

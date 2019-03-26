@@ -2,14 +2,16 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace NetworkOperation
 {
-    public abstract class SessionCollection : IReadOnlyList<Session>, ISessionEvents
+    public abstract class SessionCollection : IEnumerable<Session>, ISessionEvents
     {
         protected readonly ConcurrentDictionary<long, Session> IdToSessions = new ConcurrentDictionary<long, Session>();
-        protected readonly List<Session> Session = new List<Session>();
 
         public virtual Session GetSession(long id)
         {
@@ -19,15 +21,15 @@ namespace NetworkOperation
 
         protected internal virtual async Task SendToAllAsync(byte[] data)
         {
-            for (int i = 0; i < Session.Count; i++)
+            foreach (var session in IdToSessions)
             {
-                await Session[i].SendMessageAsync(new ArraySegment<byte>(data));
+                await session.Value.SendMessageAsync(new ArraySegment<byte>(data));
             }
         }
 
         public virtual IEnumerator<Session> GetEnumerator()
         {
-            return IdToSessions.Values.GetEnumerator();
+            return IdToSessions.Select(pair => pair.Value).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -35,9 +37,8 @@ namespace NetworkOperation
             return GetEnumerator();
         }
 
-        public int Count => Session.Count;
-        public Session this[int index] => Session[index];
-
+        public int Count => IdToSessions.Count();
+        
         protected void RaiseClosed(Session session)
         {
             OnSessionClosed?.Invoke(session);
@@ -48,14 +49,14 @@ namespace NetworkOperation
             OnSessionOpened?.Invoke(session);
         }
 
-        protected void RaiseError(Session session, string errorMessage, int code)
+        protected void RaiseError(Session session, EndPoint endPoint, SocketError code)
         {
-            OnSessionError?.Invoke(session, errorMessage, code);
+            OnSessionError?.Invoke(session, endPoint, code);
         }
 
         public event Action<Session> OnSessionClosed;
         public event Action<Session> OnSessionOpened;
-        public event Action<Session, string, int> OnSessionError;
+        public event Action<Session, EndPoint, SocketError> OnSessionError;
     }
 
     public abstract class MutableSessionCollection : SessionCollection, ICollection<Session>
@@ -65,21 +66,18 @@ namespace NetworkOperation
             if (IdToSessions.TryAdd(item.Id, item))
             {
                 item.SessionCollection = this;
-                Session.Add(item);
                 RaiseOpened(item);
             }
         }
 
         public void Clear()
         {
-            for (int i = 0; i < Session.Count; i++)
+            foreach (var session in IdToSessions)
             {
-                var session = Session[i];
-                session.OnClosedSession();
-                RaiseClosed(session);
+                session.Value.OnClosedSession();
+                RaiseClosed(session.Value);
             }
             IdToSessions.Clear();
-            Session.Clear();
         }
 
         public bool Contains(Session item)
@@ -97,19 +95,15 @@ namespace NetworkOperation
             var removed = IdToSessions.TryRemove(item.Id, out _);
             if (removed)
             {
-                Session.Remove(item);
                 item.OnClosedSession();
                 RaiseClosed(item);
             }
             return removed;
         }
 
-        public void DoError(Session item, string message, int code)
+        public void DoError(Session item, EndPoint endPoint, SocketError code)
         {
-            IdToSessions.TryRemove(item.Id, out _);
-            Session.Remove(item);
-            item.OnClosedSession();
-            RaiseError(item, message, code);
+            RaiseError(item, endPoint, code);
         }
 
         public new int Count => IdToSessions.Count;

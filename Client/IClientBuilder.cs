@@ -1,3 +1,6 @@
+using System;
+using NetworkOperation.Logger;
+
 namespace NetworkOperation.Client
 {
     public interface IClientBuilder<TRequest,TResponse> 
@@ -7,10 +10,9 @@ namespace NetworkOperation.Client
         IHandlerFactory HandlerFactory { get; set; }
         BaseSerializer Serializer { get; set; }
         OperationRuntimeModel Model { get; set; }
-        
-        void RegisterHandler<TOperation, TResult>() where TOperation : IOperation<TOperation,TResult>;
-        void RegisterHandler<TOperation, TResult>(IHandler<TOperation,TResult,TRequest> handler) where TOperation : IOperation<TOperation,TResult>;
-        
+        IStructuralLogger StructuralLogger { get; set; }
+        void RegisterHandler<THandler>() where THandler : IHandler;
+        void RegisterHandler(Type handler);
         IClient Build();
     }
 }

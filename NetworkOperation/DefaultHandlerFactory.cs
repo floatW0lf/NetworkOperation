@@ -1,21 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NetworkOperation
 {
-    public class DefaultHandlerFactory : IHandlerFactory
+    public class DefaultHandlerFactory : IHandlerFactory, IInterfaceMapAccessor
     {
+        public Dictionary<Type,Type> InterfaceToClassMap { get; set; }
         public IHandler<TOp, TResult, TMessage> Create<TOp, TResult, TMessage>() where TOp : IOperation<TOp, TResult> where TMessage : IOperationMessage
         {
-            var handlerType = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).First(type =>
-                typeof(IHandler<TOp, TResult,TMessage>).IsAssignableFrom(type) && !type.IsAbstract && !type.IsInterface);
-
-            return (IHandler<TOp, TResult, TMessage>) Activator.CreateInstance(handlerType);
+            var impl = InterfaceToClassMap[typeof(IHandler<TOp, TResult, TMessage>)];
+            return (IHandler<TOp, TResult, TMessage>) Activator.CreateInstance(impl);
         }
 
         public void Destroy(IHandler handler)
         {
-            
         }
     }
 }

@@ -9,6 +9,7 @@ using Moq;
 using NetworkOperation;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
+using NetworkOperation.Logger;
 using NetworkOperation.Server;
 using Xunit;
 using Xunit.Sdk;
@@ -68,7 +69,12 @@ namespace NetOperationTest
             var factory = new Mock<IHandlerFactory>();
             factory.Setup(f => f.Create<Foo, int,DefaultMessage>()).Returns(fooHandler);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }));
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(
+                new MsgSerializer(), 
+                factory.Object, 
+                OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }), 
+                new Mock<IStructuralLogger>().Object);
+            
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
@@ -88,7 +94,7 @@ namespace NetOperationTest
             {
                 hasCancelData = false;
                 return MessagePackSerializer.Serialize(new DefaultMessage()
-                    {OperationCode = 0, StateCode = (uint)BuiltInOperationState.Cancel});
+                    {OperationCode = 0, StatusCode = (uint)BuiltInOperationState.Cancel});
             });
             
             generatedDispatcher.DispatchAsync(mockSession.Object).GetAwaiter();

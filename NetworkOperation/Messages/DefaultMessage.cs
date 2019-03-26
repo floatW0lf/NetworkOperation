@@ -12,6 +12,6 @@ namespace NetworkOperation
         [DataMember]
         public byte[] OperationData { get; set; }
         [DataMember]
-        public uint StateCode { get; set; }
+        public uint StatusCode { get; set; }
     }
 }

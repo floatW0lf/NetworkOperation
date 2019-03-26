@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
+using NetworkOperation.Logger;
 using Tcp.Core;
 
 namespace Tcp.Client
@@ -74,7 +75,8 @@ namespace Tcp.Client
             await _pollTask;
         }
 
-        public TcpNetOperationClient(IFactory<Socket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher) : base(sessionFactory, executorFactory, dispatcher)
+
+        public TcpNetOperationClient(IFactory<Socket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, IStructuralLogger logger) : base(sessionFactory, executorFactory, dispatcher, logger)
         {
             Client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             Client.LingerState.Enabled = false;

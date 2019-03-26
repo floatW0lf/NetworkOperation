@@ -38,9 +38,12 @@ namespace NetOperationTest
             serializeMock.Setup(serializer => serializer.Deserialize<int>(It.IsAny<ArraySegment<byte>>())).Returns(111);
             serializeMock.Setup(serializer => serializer.Serialize(It.IsAny<A>())).Returns(new byte[10]);
             var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object);
+            var mockGenerator = new Mock<IGeneratorId>();
+            mockGenerator.Setup(id => id.Generate()).Returns(100);
+            executor.MessageIdGenerator = mockGenerator.Object;
             IResponseReceiver<DefaultMessage> e = executor;
-
-            Task.Delay(100).ContinueWith(_ => e.Receive(new DefaultMessage() {OperationCode = 0, StateCode = (uint)BuiltInOperationState.Success,OperationData = new byte[10]}))
+            
+            Task.Delay(100).ContinueWith(_ => e.Receive(new DefaultMessage() {OperationCode = 0, StatusCode = (uint)BuiltInOperationState.Success, OperationData = new byte[10],Id = 100}))
                 .GetAwaiter();
             
             var result =  await executor.Execute<A, int>(new A());

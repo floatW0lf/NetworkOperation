@@ -1,6 +1,7 @@
 ﻿using NetworkOperation;
 using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -18,10 +19,9 @@ namespace Tcp.Core
         {
             this._client = client;
             this.factory = factory;
-            NetworkAddress = client.RemoteEndPoint.ToString();
         }
 
-        public override string NetworkAddress { get; }
+        public override EndPoint NetworkAddress => _client.RemoteEndPoint;
 
         public override object UntypedConnection => _client;
 

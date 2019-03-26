@@ -44,9 +44,9 @@ namespace Tcp.Server
                 {
                     CheckForDisconnectClient();
 
-                    for (int i = 0; i < Sessions.Count; i++)
+                    foreach (var session in Sessions)
                     {
-                        Dispatcher.DispatchAsync(Sessions[i]).GetAwaiter();
+                        Dispatcher.DispatchAsync(session).GetAwaiter();
                     }
                     await Task.Delay(PollTimeInMs);
                 }
@@ -65,9 +65,8 @@ namespace Tcp.Server
 
         private void CheckForDisconnectClient()
         {
-            for (int i = 0; i < Sessions.Count; i++)
+            foreach (var session in Sessions)
             {
-                var session = Sessions[i];
                 if (session.State == SessionState.Closed)
                 {
                     session.Close();

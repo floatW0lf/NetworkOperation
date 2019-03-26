@@ -77,7 +77,7 @@ namespace NetworkOperation
 
         bool IResponseReceiver<TResponse>.Receive(TResponse result)
         {
-            if (result.StateCode != (uint)BuiltInOperationState.Handle && _responseQueue.TryRemove(new OperationId(result.Id,result.OperationCode), out var task))
+            if (result.StatusCode != (uint)BuiltInOperationState.Handle && _responseQueue.TryRemove(new OperationId(result.Id,result.OperationCode), out var task))
             {
                 ((State) task.AsyncState).Result = result;
                 task.Start();
@@ -116,23 +116,24 @@ namespace NetworkOperation
                             var s = (State) state;
                             var message = s.Result;
                             _states.Put(s);
-                            if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StateCode);
+                            
+                            if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
 
-                            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StateCode);
+                            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StatusCode);
+                            
                         }, _states.Rent(), composite.Token, TaskCreationOptions.PreferFairness);
 
                         _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), task);
                         return await task;
                     }
                 }
-                return new OperationResult<TResult>(default, (uint)BuiltInOperationState.Nowaiting);
+                return new OperationResult<TResult>(default, (uint)BuiltInOperationState.NoWaiting);
             }
             catch (OperationCanceledException)
             {
                 await SendCancel(receivers, forAll, op);
                 throw;
             }
-            
         }
 
         private async Task SendCancel(IReadOnlyList<Session> receivers, bool forAll, TRequest request)
@@ -145,7 +146,7 @@ namespace NetworkOperation
                     {
                         Id = MessageIdGenerator.Generate(),
                         OperationCode = request.OperationCode, 
-                        StateCode = (uint)BuiltInOperationState.Cancel
+                        StatusCode = (uint)BuiltInOperationState.Cancel
                     }));
             }
         }

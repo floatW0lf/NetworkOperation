@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteNetLib" Version="0.7.7.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Client\Client.csproj" />
     <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
   </ItemGroup>
 
 </Project>

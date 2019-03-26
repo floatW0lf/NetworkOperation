@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
@@ -6,12 +8,14 @@ using LiteNetLib.Utils;
 using NetworkOperation;
 using NetworkOperation.Client;
 using NetworkOperation.Factories;
+using NetworkOperation.Logger;
 
 namespace NetLibOperation.Client
 {
     public class Client<TRequest, TResponse> : AbstractClient<TRequest, TResponse, NetPeer>, INetEventListener,
         IDisposable where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
+        private readonly string _connectKey;
         private Task _connectTask;
         private Task _disconnectTask;
         
@@ -22,10 +26,13 @@ namespace NetLibOperation.Client
         private Task _pollingTask;
 
         public Client(IFactory<NetPeer, Session> sessionFactory,
-            IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher,
-            string connectKey) : base(sessionFactory, executorFactory, dispatcher)
+                      IFactory<Session, IClientOperationExecutor> executorFactory, 
+                      BaseDispatcher<TRequest, TResponse> dispatcher,
+                      IStructuralLogger logger,
+                      string connectKey) : base(sessionFactory, executorFactory, dispatcher, logger)
         {
-            Manager = new NetManager(this, connectKey);
+            _connectKey = connectKey;
+            Manager = new NetManager(this);
         }
 
         public NetManager Manager { get; private set; }
@@ -36,26 +43,19 @@ namespace NetLibOperation.Client
             Disposed();
         }
 
-        void INetEventListener.OnNetworkError(NetEndPoint endPoint, int socketErrorCode)
+        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
-            DoErrorSession($"Error {endPoint}", socketErrorCode);
+            
         }
 
         void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
         }
 
-        void INetEventListener.OnNetworkReceive(NetPeer peer, NetDataReader reader)
-        {
-            ((NetLibSession) Session).OnReceiveData(reader.Data);
-            Dispatch().GetAwaiter();
-        }
-
-        void INetEventListener.OnNetworkReceiveUnconnected(NetEndPoint remoteEndPoint, NetDataReader reader,
-            UnconnectedMessageType messageType)
+        void INetEventListener.OnConnectionRequest(ConnectionRequest request)
         {
         }
-
+        
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
             try
@@ -78,9 +78,24 @@ namespace NetLibOperation.Client
             CloseSession();
         }
 
+        void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
+        {
+            DoErrorSession(endPoint,socketError);
+        }
+
+        void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+        {
+            ((NetLibSession) Session).OnReceiveData(new ArraySegment<byte>(reader.RawData,reader.UserDataOffset,reader.UserDataSize));
+            Dispatch().GetAwaiter();
+        }
+
         public override void Connect(string address, int port)
         {
-            if (Session == null || Session.State == SessionState.Opened) return;
+            if (Session?.State == SessionState.Opened)
+            {
+                Logger.Write(LogLevel.Warning,"Client already connected");
+                return;
+            }
             _connectTask = PreConnect(address, port);
             _connectTask.Wait();
         }
@@ -109,14 +124,14 @@ namespace NetLibOperation.Client
                 _connectTask = PreConnect(address, port);
                 return _connectTask;
             }
-
+            Logger.Write(LogLevel.Warning,"Client already connected");
             return Task.CompletedTask;
         }
 
         private Task PreConnect(string address, int port)
         {
             InitEventLoop();
-            Manager.Connect(address, port);
+            Manager.Connect(address, port, _connectKey);
             return new Task(() => { }, TaskCreationOptions.PreferFairness);
         }
 
@@ -126,7 +141,9 @@ namespace NetLibOperation.Client
             {
                 GlobalCancel(true);
                 CloseSession();
+                return;
             }
+            Logger.Write(LogLevel.Warning,"Client already disconnect");
         }
 
         private void GlobalCancel(bool stopEventLoop = false)

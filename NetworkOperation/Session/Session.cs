@@ -1,19 +1,42 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NetworkOperation
 {
     public abstract class Session
     {
+        private ConcurrentDictionary<string, object> _sessionParams;
+        public object this[string paramName]
+        {
+            get
+            {
+                object p = null;
+                CreateOrGet()?.TryGetValue(paramName, out p);
+                return p;
+            }
+            set
+            {
+                CreateOrGet()?.AddOrUpdate(paramName, value, (s, o) => o);
+            }
+        }
+        
+        private ConcurrentDictionary<string, object> CreateOrGet()
+        {
+           return _sessionParams = _sessionParams ?? new ConcurrentDictionary<string, object>();
+        }
+
         internal ICollection<Session> SessionCollection { get; set; }
-        public abstract string NetworkAddress { get; }
+        public abstract EndPoint NetworkAddress { get; }
         public abstract object UntypedConnection { get; }
         public abstract long Id { get; }
         public abstract SessionStatistics Statistics { get; }
 
         public void Close()
         {
+            _sessionParams?.Clear();
             if (SessionCollection != null)
             {
                 SessionCollection.Remove(this);

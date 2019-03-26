@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Extensions;
+using NetworkOperation.Logger;
 using NetworkOperation.StatusCodes;
 
 namespace NetworkOperation
@@ -25,12 +26,13 @@ namespace NetworkOperation
         private readonly BaseSerializer _serializer;
         private readonly IHandlerFactory _factory;
         protected readonly OperationRuntimeModel Model;
+        protected IStructuralLogger StructuralLogger { get; }
+        
         private IResponseReceiver<TRequest> _responseReceiver;
         
         private ConcurrentDictionary<uint,CancellationTokenSource> _cancellationMap = new ConcurrentDictionary<uint, CancellationTokenSource>();
 
         public bool DebugMode { get; set; }
-        public Action<Exception> ExceptionHandler { get; set; }
         public IResponsePlaceHolder<TRequest, TResponse> ResponsePlaceHolder { get; set; }
         public IRequestFilter<TRequest,TResponse> GlobalRequestFilter { get; set; }
         public void Subscribe(IResponseReceiver<TRequest> receiveEvent)
@@ -38,11 +40,12 @@ namespace NetworkOperation
             _responseReceiver = receiveEvent;
         }
 
-        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model)
+        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger structuralLogger)
         {
             _serializer = serializer;
             _factory = factory;
             Model = model;
+            StructuralLogger = structuralLogger;
         }
 
         public async Task DispatchAsync(Session session)
@@ -58,7 +61,7 @@ namespace NetworkOperation
                     if (GlobalRequestFilter != null)
                     {
                         var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
-                        if (response.StateCode != (uint)BuiltInOperationState.Success)
+                        if (response.StatusCode != (uint)BuiltInOperationState.Success)
                         {
                             await session.SendMessageAsync(_serializer.Serialize(response).To());
                             continue;
@@ -75,12 +78,12 @@ namespace NetworkOperation
                     }
                     
                 }
-                catch (OperationCanceledException e) { ExceptionHandler?.Invoke(e); }
+                catch (OperationCanceledException e) { StructuralLogger.Write(LogLevel.Info,"Operation canceled: {request}, {exception}", request, e); }
                 catch (Exception e)
                 {
                     try
                     {
-                        ExceptionHandler?.Invoke(e);
+                        StructuralLogger.Write(LogLevel.Error,"Handle error : {exception}", e);
                     }
                     finally
                     {
@@ -88,7 +91,7 @@ namespace NetworkOperation
                         {
                             Id = request.Id,
                             OperationCode = request.OperationCode,
-                            StateCode = (uint) BuiltInOperationState.InternalError,
+                            StatusCode = (uint) BuiltInOperationState.InternalError,
                             OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
                         };
                         await session.SendMessageAsync(_serializer.Serialize(failOp).To());
@@ -114,7 +117,7 @@ namespace NetworkOperation
 
         private bool TryOperationCancel(TRequest op)
         {
-            if (op.StateCode == (uint)BuiltInOperationState.Cancel)
+            if (op.StatusCode == (uint)BuiltInOperationState.Cancel)
             {
                 if (_cancellationMap.TryRemove(op.OperationCode, out var cts))
                 {
@@ -129,7 +132,7 @@ namespace NetworkOperation
 
         private void RemoveCancellationSource(TRequest op)
         {
-            if (op.StateCode == (uint)BuiltInOperationState.Cancel && _cancellationMap.TryRemove(op.OperationCode, out var cts))
+            if (op.StatusCode == (uint)BuiltInOperationState.Cancel && _cancellationMap.TryRemove(op.OperationCode, out var cts))
             {
                 cts.Dispose();
             }
@@ -142,7 +145,7 @@ namespace NetworkOperation
                 Id = request.Id,
                 OperationCode = request.OperationCode,
                 OperationData = rawResponse.Data,
-                StateCode = rawResponse.StatusCode
+                StatusCode = rawResponse.StatusCode
             };
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             

@@ -6,6 +6,7 @@ using NetOperationTest;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
+using NetworkOperation.Logger;
 using NetworkOperation.Server;
 using Ninject.Extensions.Conventions;
 using Ninject.Modules;
@@ -29,6 +30,7 @@ namespace NetworkOperation
             Bind<IFactory<Socket, Session>>().To<Tcp.Core.SessionFactory>().InSingletonScope();
             Bind<IFactory<Socket, MutableSessionCollection>>().To<Tcp.Server.SessionsFactory>().InSingletonScope();
             Bind<IFactory<NetManager, MutableSessionCollection>>().To<NetLibOperation.SessionsFactory>().InSingletonScope();
+            Bind<IStructuralLogger>().To<ConsoleStructuralLogger>().InSingletonScope();
             
             Bind<IFactory<SessionCollection, IHostOperationExecutor>>()
                 .To<DefaultServerOperationExecutorFactory<DefaultMessage,DefaultMessage>>().InSingletonScope();

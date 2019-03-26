@@ -19,7 +19,11 @@ namespace Handlers
             
         public async Task<OperationResult<float>> Handle(PlusOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            //_server.Shutdown();
+            Task.Delay(1000, token).ContinueWith(async task =>
+            {
+                await _host.Executor.Execute<ClientOp, Empty>(new ClientOp() {Message = "push from + operation"});
+            },TaskContinuationOptions.NotOnCanceled).GetAwaiter();
+            
             return this.Return(objectData.A + objectData.B);
         }
     }

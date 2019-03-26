@@ -1,11 +1,9 @@
-﻿using LiteNetLib;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 using Contract;
 using NetworkOperation.Server;
 using Ninject;
-using Ninject.Infrastructure;
+
 
 namespace NetworkOperation
 {
@@ -15,6 +13,7 @@ namespace NetworkOperation
         
         static async Task Main(string[] args)
         {
+            
             var useTcp = Read_YesNo("Use TCP ?");
             var kernel = new StandardKernel(new ServerModule(useTcp));
             

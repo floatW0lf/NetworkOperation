@@ -1,3 +1,6 @@
+using System;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkOperation.Client
@@ -8,13 +11,11 @@ namespace NetworkOperation.Client
         Connected,
         Connecting
     }
-    public interface IClient
+    public interface IClient : IDisposable
     {
         ClientState Current { get; }
         IClientOperationExecutor Executor { get; }
-        void Connect(string address, int port);
-        Task ConnectAsync(string address, int port);
-        void Disconnect();
+        Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
         Task DisconnectAsync();
     }
 }

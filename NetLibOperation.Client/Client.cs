@@ -16,15 +16,14 @@ namespace NetLibOperation.Client
         IDisposable where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private readonly string _connectKey;
-        private Task _connectTask;
-        private Task _disconnectTask;
         
         private bool _eventLoopRun;
 
         private CancellationTokenSource _globalCancellationTokenSource;
 
         private Task _pollingTask;
-
+        private Task _connectTask;
+        
         public Client(IFactory<NetPeer, Session> sessionFactory,
                       IFactory<Session, IClientOperationExecutor> executorFactory, 
                       BaseDispatcher<TRequest, TResponse> dispatcher,
@@ -37,7 +36,7 @@ namespace NetLibOperation.Client
 
         public NetManager Manager { get; private set; }
 
-        public void Dispose()
+        public override void Dispose()
         {
             GC.SuppressFinalize(this);
             Disposed();
@@ -58,17 +57,20 @@ namespace NetLibOperation.Client
         
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
-            try
+            if (_globalCancellationTokenSource == null)
+                _globalCancellationTokenSource = new CancellationTokenSource();
+            
+            TryStart(_connectTask);
+            OpenSession(peer);
+            ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
+            
+        }
+
+        private void TryStart(Task task)
+        {
+            if (task != null && task.Status == TaskStatus.Created)
             {
-                if (_globalCancellationTokenSource == null)
-                    _globalCancellationTokenSource = new CancellationTokenSource();
-                OpenSession(peer);
-                ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
-            }
-            finally
-            {
-                if (_connectTask.Status >= TaskStatus.Created && _connectTask.Status < TaskStatus.Running)
-                    _connectTask.Start();
+                task.Start();
             }
         }
 
@@ -89,16 +91,7 @@ namespace NetLibOperation.Client
             Dispatch().GetAwaiter();
         }
 
-        public override void Connect(string address, int port)
-        {
-            if (Session?.State == SessionState.Opened)
-            {
-                Logger.Write(LogLevel.Warning,"Client already connected");
-                return;
-            }
-            _connectTask = PreConnect(address, port);
-            _connectTask.Wait();
-        }
+        
 
         private void InitEventLoop()
         {
@@ -115,43 +108,13 @@ namespace NetLibOperation.Client
                 } while (_eventLoopRun);
             }, TaskCreationOptions.LongRunning);
         }
-
-
-        public override Task ConnectAsync(string address, int port)
-        {
-            if (Session == null || Session.State == SessionState.Closed)
-            {
-                _connectTask = PreConnect(address, port);
-                return _connectTask;
-            }
-            Logger.Write(LogLevel.Warning,"Client already connected");
-            return Task.CompletedTask;
-        }
-
-        private Task PreConnect(string address, int port)
-        {
-            InitEventLoop();
-            Manager.Connect(address, port, _connectKey);
-            return new Task(() => { }, TaskCreationOptions.PreferFairness);
-        }
-
-        public override void Disconnect()
-        {
-            if (Session?.State == SessionState.Opened)
-            {
-                GlobalCancel(true);
-                CloseSession();
-                return;
-            }
-            Logger.Write(LogLevel.Warning,"Client already disconnect");
-        }
-
         private void GlobalCancel(bool stopEventLoop = false)
         {
             if (stopEventLoop)
             {
                 Manager.Stop();
                 _eventLoopRun = false;
+                _pollingTask = null;
             }
             
             if (_globalCancellationTokenSource != null)
@@ -161,12 +124,6 @@ namespace NetLibOperation.Client
                 _globalCancellationTokenSource = null;
             }
         }
-
-        public override async Task DisconnectAsync()
-        {
-            Disconnect();
-        }
-
         private void Disposed()
         {
             GlobalCancel(true);
@@ -176,6 +133,38 @@ namespace NetLibOperation.Client
         ~Client()
         {
             Disposed();
+        }
+
+        public override async Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (Session == null || Session.State == SessionState.Closed)
+                {
+                    InitEventLoop();
+                    Manager.Connect((IPEndPoint)remote, _connectKey);
+                    _connectTask = new Task(() => {}, cancellationToken, TaskCreationOptions.PreferFairness);
+                    await _connectTask;
+                    return;
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                Manager.Stop();
+                throw;
+            }
+            Logger.Write(LogLevel.Warning,"Client already connected");
+        }
+
+        public override async Task DisconnectAsync()
+        {
+            if (Session?.State == SessionState.Opened)
+            {
+                await Task.Factory.StartNew(() => Manager.Stop());
+                CloseSession();
+            }
+            Logger.Write(LogLevel.Warning,"Client already disconnect");
+            
         }
     }
 }

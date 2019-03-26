@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
 using NetworkOperation.Logger;
@@ -52,20 +53,14 @@ namespace NetworkOperation.Client
             }
         }
 
-        public abstract void Connect(string address, int port);
-        public abstract Task ConnectAsync(string address, int port);
-        public abstract void Disconnect();
+        public abstract Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
         public abstract Task DisconnectAsync();
         
         protected void CloseSession()    
         {
+            if (Session == null) return;
             Session.Close();
             OnSessionClosed?.Invoke(Session);
-            
-            _executor = null;
-            OnSessionClosed = null;
-            OnSessionError = null;
-            OnSessionOpened = null;
         }
 
         protected Session Session { get; private set; }
@@ -91,5 +86,6 @@ namespace NetworkOperation.Client
         public event Action<Session> OnSessionClosed;
         public event Action<Session> OnSessionOpened;
         public event Action<Session, EndPoint, SocketError> OnSessionError;
+        public abstract void Dispose();
     }
 }

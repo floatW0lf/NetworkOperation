@@ -31,6 +31,7 @@ namespace NetLibOperation
 
         public NetManager Manager { get; }
 
+        public int MaxConnection { get; set; } = 10000;
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
             SessionOpen(peer);
@@ -66,7 +67,7 @@ namespace NetLibOperation
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
-            if (Manager.PeersCount < Manager.MaxConnectAttempts)
+            if (Manager.PeersCount < MaxConnection)
                 request.AcceptIfKey(_connectionKey);
             else
                 request.Reject();

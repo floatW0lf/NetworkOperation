@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using NetworkOperation;
 using NetworkOperation.Client;
 using System.Net.Sockets;
@@ -19,11 +20,6 @@ namespace Tcp.Client
         private bool _prevConnectState;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         
-        public override void Connect(string address, int port)
-        {
-            ConnectAsync(address,port).RunSynchronously();
-        }
-
         void PollEvents()
         {
             _pollTask = Task.Factory.StartNew(async () =>
@@ -43,20 +39,11 @@ namespace Tcp.Client
             }, TaskCreationOptions.LongRunning);
         }
 
-        public override async Task ConnectAsync(string address, int port)
+        public override async Task ConnectAsync(EndPoint address, CancellationToken cancellationToken = default)
         {
-            await Client.ConnectAsync(address, port);
+            await Client.ConnectAsync(address);
             OpenSession(Client);
             PollEvents();
-        }
-
-        public override void Disconnect()
-        {
-            if (_pollTask == null) return;
-
-            Client.Close();
-            _cts.Cancel();
-            _pollTask.Wait();
         }
 
         public override async Task DisconnectAsync()
@@ -73,6 +60,11 @@ namespace Tcp.Client
 
             _cts.Cancel();
             await _pollTask;
+        }
+
+        public override void Dispose()
+        {
+            
         }
 
 

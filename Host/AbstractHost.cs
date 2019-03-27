@@ -40,7 +40,7 @@ namespace NetworkOperation.Host
         {
             _mutableSessions = _sessionsFactory.Create(connectionCollection);
             Executor = _executorFactory.Create(_mutableSessions);
-            Dispatcher.Subscribe((IResponseReceiver<TRequest>) Executor);
+            Dispatcher.Subscribe((IResponseReceiver<TResponse>) Executor);
         }
 
 

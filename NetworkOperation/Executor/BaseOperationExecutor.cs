@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
 
 namespace NetworkOperation
@@ -77,7 +78,7 @@ namespace NetworkOperation
 
         bool IResponseReceiver<TResponse>.Receive(TResponse result)
         {
-            if (result.StatusCode != (uint)BuiltInOperationState.Handle && _responseQueue.TryRemove(new OperationId(result.Id,result.OperationCode), out var task))
+            if (_responseQueue.TryRemove(new OperationId(result.Id,result.OperationCode), out var task))
             {
                 ((State) task.AsyncState).Result = result;
                 task.Start();
@@ -111,20 +112,27 @@ namespace NetworkOperation
                 {
                     using (var composite = CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken))
                     {
-                        var task = new Task<OperationResult<TResult>>(state =>
+                        Task<OperationResult<TResult>> response = null;
+                        try 
                         {
-                            var s = (State) state;
-                            var message = s.Result;
-                            _states.Put(s);
+                            response = new Task<OperationResult<TResult>>(state =>
+                            {
+                                var s = (State) state;
+                                var message = s.Result;
+                                _states.Put(s);
                             
-                            if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
-
-                            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StatusCode);
+                                if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
+                                return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StatusCode);
                             
-                        }, _states.Rent(), composite.Token, TaskCreationOptions.PreferFairness);
-
-                        _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), task);
-                        return await task;
+                            }, _states.Rent(), composite.Token, TaskCreationOptions.PreferFairness);
+                            _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
+                            return await response;
+                        }
+                        catch (Exception e)
+                        {
+                            _states.Put((State)response.AsyncState);
+                            throw;
+                        }
                     }
                 }
                 return new OperationResult<TResult>(default, (uint)BuiltInOperationState.NoWaiting);
@@ -141,6 +149,7 @@ namespace NetworkOperation
             if (_responseQueue.TryRemove(new OperationId(request.Id, request.OperationCode), out var canceledTask))
             {
                 _states.Put((State) canceledTask.AsyncState);
+                
                 await SendRawOperation(receivers, forAll,
                     _serializer.Serialize(new TRequest
                     {
@@ -156,19 +165,20 @@ namespace NetworkOperation
             switch (_currentSide)
             {
                 case Side.Server when forAll:
-                    await _sessions.SendToAllAsync(request);
+                    await _sessions.SendToAllAsync(request.AppendInBegin(TypeMessage.Request));
                     break;
                 
                 case Side.Server:
                 {
-                    for (var i = 0; i < receivers.Count; i++)
+                    var rawWithMessageType = request.AppendInBegin(TypeMessage.Request);
+                    foreach (var r in receivers)
                     {
-                        await receivers[i].SendMessageAsync(request.To());
+                        await r.SendMessageAsync(rawWithMessageType);
                     }
                     break;
                 }
                 case Side.Client:
-                    await _session.SendMessageAsync(request.To());
+                    await _session.SendMessageAsync(request.AppendInBegin(TypeMessage.Request));
                     break;
             }
         }

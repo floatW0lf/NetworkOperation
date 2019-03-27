@@ -60,10 +60,9 @@ namespace NetLibOperation.Client
             if (_globalCancellationTokenSource == null)
                 _globalCancellationTokenSource = new CancellationTokenSource();
             
-            TryStart(_connectTask);
             OpenSession(peer);
             ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
-            
+            TryStart(_connectTask);
         }
 
         private void TryStart(Task task)
@@ -142,8 +141,8 @@ namespace NetLibOperation.Client
                 if (Session == null || Session.State == SessionState.Closed)
                 {
                     InitEventLoop();
-                    Manager.Connect((IPEndPoint)remote, _connectKey);
                     _connectTask = new Task(() => {}, cancellationToken, TaskCreationOptions.PreferFairness);
+                    Manager.Connect((IPEndPoint)remote, _connectKey);
                     await _connectTask;
                     return;
                 }

@@ -8,22 +8,23 @@ namespace NetworkOperation.Client
 {
     public static class ClientExtensions
     {
-        public static Task ConnectAsync(this IClient client, string address, int port, CancellationToken cancellationToken = default)
+        public static async Task ConnectAsync(this IClient client, string address, int port, CancellationToken cancellationToken = default)
         {
             if (IPAddress.TryParse(address, out var ip)){}
             else
             {
-                ip = Dns.GetHostAddresses(address).FirstOrDefault();
+               var addresses = await Dns.GetHostAddressesAsync(address);
+               ip = addresses.FirstOrDefault();
             }
             if (ip == null) throw new ArgumentException($"{address} wrong address");
-            return client.ConnectAsync(new IPEndPoint(ip, port), cancellationToken); 
+            await client.ConnectAsync(new IPEndPoint(ip, port), cancellationToken); 
             
         }
         
-        public static Task ConnectAsync(this IClient client, string addressWithPort, CancellationToken cancellationToken = default)
+        public static async Task ConnectAsync(this IClient client, string addressWithPort, CancellationToken cancellationToken = default)
         {
             var strings = addressWithPort.Split(':');
-            return client.ConnectAsync(strings[0], int.Parse(strings[1]), cancellationToken);
+            await client.ConnectAsync(strings[0], int.Parse(strings[1]), cancellationToken);
         }
     }
 }

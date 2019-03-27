@@ -4,7 +4,6 @@ namespace NetworkOperation
     {
         None = 0,
         InternalError,
-        Handle,
         Success,
         NoWaiting,
         Cancel = 50

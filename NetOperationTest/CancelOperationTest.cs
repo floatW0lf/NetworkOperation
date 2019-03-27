@@ -55,7 +55,7 @@ namespace NetOperationTest
             var task = mockSetting.Execute<Foo,int>(new Foo(), cts.Token);
             cts.Cancel();
             Assert.Equal(TaskStatus.Canceled,task.Status);
-            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<byte[]>()), Times.Exactly(2));
+            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>()), Times.Exactly(2));
         }
         
         [Fact]

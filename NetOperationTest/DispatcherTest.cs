@@ -73,7 +73,7 @@ namespace NetOperationTest
             sessionMock.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
             {
                 hasData = false;
-                return CreateRawMessage(0, op); 
+                return CreateRawMessage(0, op, TypeMessage.Request); 
             });
             await dispatcher.DispatchAsync(sessionMock.Object);
             sessionMock.Verify(s => s.ReceiveMessageAsync(), Times.Once);
@@ -103,7 +103,7 @@ namespace NetOperationTest
             mockSession.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
             {
                 hasData = false;
-                return CreateRawMessage(0, opA);
+                return CreateRawMessage(0, opA, TypeMessage.Request);
             });
 
             await generatedDispatcher.DispatchAsync(mockSession.Object);            
@@ -112,10 +112,10 @@ namespace NetOperationTest
             handlerB.Verify(h => h.Handle(It.IsAny<B>(), It.IsAny<RequestContext<DefaultMessage>>(),It.IsAny<CancellationToken>()), Times.Never);
         }
 
-        private static byte[] CreateRawMessage<T>(uint code, T op)
+        private static byte[] CreateRawMessage<T>(uint code, T op, TypeMessage type)
         {
             var subOp = MessagePackSerializer.Serialize(op);
-            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp });
+            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp }).AppendInBegin(type).Array;
         }
     }
 }

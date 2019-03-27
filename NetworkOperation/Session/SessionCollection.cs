@@ -19,11 +19,11 @@ namespace NetworkOperation
             return session;
         }
 
-        protected internal virtual async Task SendToAllAsync(byte[] data)
+        protected internal virtual async Task SendToAllAsync(ArraySegment<byte> data)
         {
             foreach (var session in IdToSessions)
             {
-                await session.Value.SendMessageAsync(new ArraySegment<byte>(data));
+                await session.Value.SendMessageAsync(data);
             }
         }
 
@@ -74,8 +74,8 @@ namespace NetworkOperation
         {
             foreach (var session in IdToSessions)
             {
-                session.Value.OnClosedSession();
                 RaiseClosed(session.Value);
+                session.Value.OnClosedSession();
             }
             IdToSessions.Clear();
         }
@@ -95,8 +95,8 @@ namespace NetworkOperation
             var removed = IdToSessions.TryRemove(item.Id, out _);
             if (removed)
             {
-                item.OnClosedSession();
                 RaiseClosed(item);
+                item.OnClosedSession();
             }
             return removed;
         }
@@ -105,8 +105,6 @@ namespace NetworkOperation
         {
             RaiseError(item, endPoint, code);
         }
-
-        public new int Count => IdToSessions.Count;
         public bool IsReadOnly => false;
 
     }

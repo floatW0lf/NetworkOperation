@@ -56,11 +56,12 @@ namespace NetworkOperation.Client
         public abstract Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
         public abstract Task DisconnectAsync();
         
-        protected void CloseSession()    
+        protected void CloseSession()
         {
+            _executor = null;
             if (Session == null) return;
-            Session.Close();
             OnSessionClosed?.Invoke(Session);
+            Session.Close();
         }
 
         protected Session Session { get; private set; }
@@ -69,7 +70,7 @@ namespace NetworkOperation.Client
         {
             Session = _sessionFactory.Create(session);
             _executor = _executorFactory.Create(Session);
-            _dispatcher.Subscribe((IResponseReceiver<TRequest>) Executor);
+            _dispatcher.Subscribe((IResponseReceiver<TResponse>) _executor);
             OnSessionOpened?.Invoke(Session);
         }
 

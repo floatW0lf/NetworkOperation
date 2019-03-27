@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
 using NetworkOperation.Logger;
 using NetworkOperation.StatusCodes;
@@ -28,14 +29,14 @@ namespace NetworkOperation
         protected readonly OperationRuntimeModel Model;
         protected IStructuralLogger StructuralLogger { get; }
         
-        private IResponseReceiver<TRequest> _responseReceiver;
+        private IResponseReceiver<TResponse> _responseReceiver;
         
         private ConcurrentDictionary<uint,CancellationTokenSource> _cancellationMap = new ConcurrentDictionary<uint, CancellationTokenSource>();
 
         public bool DebugMode { get; set; }
         public IResponsePlaceHolder<TRequest, TResponse> ResponsePlaceHolder { get; set; }
         public IRequestFilter<TRequest,TResponse> GlobalRequestFilter { get; set; }
-        public void Subscribe(IResponseReceiver<TRequest> receiveEvent)
+        public void Subscribe(IResponseReceiver<TResponse> receiveEvent)
         {
             _responseReceiver = receiveEvent;
         }
@@ -50,20 +51,35 @@ namespace NetworkOperation
 
         public async Task DispatchAsync(Session session)
         {
-            if (_responseReceiver == null) throw new Exception("Don't subscribed receive event");
-            
             while (session.HasAvailableData)
             {
                 var rawMessage = await session.ReceiveMessageAsync();
+                rawMessage = rawMessage.ReadMessageType(out var type);
+                
+                switch (type)
+                {
+                    case TypeMessage.Response:
+                        if (_responseReceiver == null) throw new Exception("Don't subscribed receive event");
+                        _responseReceiver.Receive(_serializer.Deserialize<TResponse>(rawMessage));
+                        continue;
+                    
+                    case TypeMessage.Request:
+                        break;
+                    
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }  
+                
                 var request = _serializer.Deserialize<TRequest>(rawMessage);
                 try
                 {
                     if (GlobalRequestFilter != null)
                     {
                         var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
+                        response.Id = request.Id;
                         if (response.StatusCode != (uint)BuiltInOperationState.Success)
                         {
-                            await session.SendMessageAsync(_serializer.Serialize(response).To());
+                            await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response));
                             continue;
                         }
                     }
@@ -94,7 +110,7 @@ namespace NetworkOperation
                             StatusCode = (uint) BuiltInOperationState.InternalError,
                             OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
                         };
-                        await session.SendMessageAsync(_serializer.Serialize(failOp).To());
+                        await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response));
                     }
                 }
                 finally
@@ -106,7 +122,7 @@ namespace NetworkOperation
 
         private bool IsContinue(TRequest op)
         {
-            return TryOperationCancel(op) || _responseReceiver.Receive(op);
+            return TryOperationCancel(op);
         }
 
         private CancellationToken CreateCancellationToken(TRequest op, OperationDescription description)
@@ -150,7 +166,7 @@ namespace NetworkOperation
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
             var resultRaw = _serializer.Serialize(sendOp);
-            await session.SendMessageAsync(resultRaw.To());
+            await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response));
         }
 
         protected abstract Task<DataWithStateCode> ProcessHandler(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token);

@@ -68,11 +68,11 @@ namespace NetworkOperation
                     
                     default:
                         throw new ArgumentOutOfRangeException();
-                }  
-                
-                var request = _serializer.Deserialize<TRequest>(rawMessage);
+                }
+                var request = new TRequest();
                 try
                 {
+                    request = _serializer.Deserialize<TRequest>(rawMessage);
                     if (GlobalRequestFilter != null)
                     {
                         var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
@@ -176,15 +176,15 @@ namespace NetworkOperation
             // TODO: время жизни обработчика
             var typedHandler = _factory.Create<T,TResult,TRequest>(); 
             var segArray = message.OperationData.To();
+            
             var arg = operationDescription.UseAsyncSerialize
                 ? await _serializer.DeserializeAsync<T>(segArray)
                 : _serializer.Deserialize<T>(segArray);
-            
 
             var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
-            if (operationDescription.UseAsyncSerialize) return new DataWithStateCode(await _serializer.SerializeAsync(result.Result), result.StatusCode);
-
-            return new DataWithStateCode(_serializer.Serialize(result.Result), result.StatusCode);
+            if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.StatusCode);
+            
+            return new DataWithStateCode(operationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.StatusCode);
         }
 
         protected internal Side ExecutionSide { get; internal set; }

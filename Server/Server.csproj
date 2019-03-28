@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>7.1</LangVersion>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 

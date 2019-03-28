@@ -1,4 +1,5 @@
 using NetworkOperation.Factories;
+using NetworkOperation.Logger;
 
 namespace NetworkOperation.Client
 {
@@ -6,15 +7,17 @@ namespace NetworkOperation.Client
     {
         private readonly OperationRuntimeModel _model;
         private readonly BaseSerializer _serializer;
+        private readonly IStructuralLogger _structuralLogger;
 
-        public DefaultClientOperationExecutorFactory(OperationRuntimeModel model, BaseSerializer serializer)
+        public DefaultClientOperationExecutorFactory(OperationRuntimeModel model, BaseSerializer serializer,IStructuralLogger structuralLogger)
         {
             _model = model;
             _serializer = serializer;
+            _structuralLogger = structuralLogger;
         }
         public IClientOperationExecutor Create(Session arg)
         {
-            return new DefaultClientOperationExecutor<TRequest,TResponse>(_model,_serializer,arg);
+            return new DefaultClientOperationExecutor<TRequest,TResponse>(_model,_serializer,arg,_structuralLogger);
         }
     }
 }

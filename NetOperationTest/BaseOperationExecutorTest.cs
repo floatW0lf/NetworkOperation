@@ -4,6 +4,7 @@ using NetworkOperation;
 using NetworkOperation.Server;
 using System.Threading.Tasks;
 using Moq.Protected;
+using NetworkOperation.Logger;
 using Xunit;
 
 namespace NetOperationTest
@@ -22,7 +23,7 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             var mockSession = new Mock<SessionCollection>();
-            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(A) }),serializeMock.Object, mockSession.Object);
+            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(A) }),serializeMock.Object, mockSession.Object, new ConsoleStructuralLogger());
             var task = mockSetting.Execute<A,int>(new A());
             Assert.Equal(TaskStatus.WaitingForActivation, task.Status);
 
@@ -37,7 +38,7 @@ namespace NetOperationTest
             
             serializeMock.Setup(serializer => serializer.Deserialize<int>(It.IsAny<ArraySegment<byte>>())).Returns(111);
             serializeMock.Setup(serializer => serializer.Serialize(It.IsAny<A>())).Returns(new byte[10]);
-            var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object);
+            var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object,new ConsoleStructuralLogger());
             var mockGenerator = new Mock<IGeneratorId>();
             mockGenerator.Setup(id => id.Generate()).Returns(100);
             executor.MessageIdGenerator = mockGenerator.Object;

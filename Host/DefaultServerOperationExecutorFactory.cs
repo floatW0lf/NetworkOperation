@@ -1,5 +1,6 @@
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
+using NetworkOperation.Logger;
 
 namespace NetworkOperation.Server
 {
@@ -7,15 +8,17 @@ namespace NetworkOperation.Server
     {
         private readonly OperationRuntimeModel _model;
         private readonly BaseSerializer _serializer;
+        private readonly IStructuralLogger _logger;
 
-        public DefaultServerOperationExecutorFactory(OperationRuntimeModel model, BaseSerializer serializer)
+        public DefaultServerOperationExecutorFactory(OperationRuntimeModel model, BaseSerializer serializer, IStructuralLogger logger)
         {
             _model = model;
             _serializer = serializer;
+            _logger = logger;
         }
         public IHostOperationExecutor Create(SessionCollection arg)
         {
-            return new HostOperationExecutor<TRequest,TResponse>(_model, _serializer, arg);
+            return new HostOperationExecutor<TRequest,TResponse>(_model, _serializer, arg, _logger);
         }
     }
 }

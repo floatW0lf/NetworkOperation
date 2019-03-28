@@ -33,10 +33,7 @@ namespace Client
             Bind<IFactory<Session, IClientOperationExecutor>>().To<DefaultClientOperationExecutorFactory<DefaultMessage,DefaultMessage>>().InSingletonScope();
             
             Bind<IHandlerFactory>().To<DefaultHandlerFactory>();
-
-            Bind<IRequestPlaceHolder<DefaultMessage>>().ToConstant(NullRequestPlaceHolder<DefaultMessage>.Instance);
-            Bind<IResponsePlaceHolder<DefaultMessage, DefaultMessage>>()
-                .ToConstant(NullResponsePlaceHolder<DefaultMessage, DefaultMessage>.Instance);
+            
             if (_useTcp)
             {
                 Bind<IClient,ISessionEvents>().To<TcpNetOperationClient<DefaultMessage,DefaultMessage>>().InSingletonScope();

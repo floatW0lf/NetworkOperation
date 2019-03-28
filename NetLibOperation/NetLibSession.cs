@@ -26,8 +26,10 @@ namespace NetLibOperation
         public override long Id => _peer.Id;
         public override SessionStatistics Statistics { get; }
 
-        protected override bool HasAvailableData => _data != null;
+        protected override bool HasAvailableData => _hasData;
 
+        private bool _hasData;
+        
         protected override Task SendMessageAsync(ArraySegment<byte> data)
         {
             _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
@@ -38,11 +40,13 @@ namespace NetLibOperation
 
         public void OnReceiveData(ArraySegment<byte> data)
         {
+            _hasData = true;
             _data = data;
         }
 
         protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
+            _hasData = false;
             var copy = _data;
             _data = default;
             return Task.FromResult(copy);

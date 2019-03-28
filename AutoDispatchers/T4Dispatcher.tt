@@ -1,4 +1,4 @@
-﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ assembly name="..\NetworkOperation\bin\Debug\net472\NetworkOperation.dll" #>
 <#@ assembly name="..\Contract\bin\Debug\net472\Contract.dll" #>
@@ -9,8 +9,10 @@
 <#@ output extension=".generated.cs" #>
 <#
     var operations = OperationRuntimeModel.CreateFromAttribute();
-    var currentSide = Side.Server;
+    var currentSide = Side.Server; /*or Side.Client */
+    var supportAOTCompile = true;
 #>
+
 using System;
 using System.Threading.Tasks;
 using System.Threading;
@@ -19,7 +21,7 @@ using NetworkOperation.Logger;
 
 namespace NetworkOperations.Dispatching
 {
-    public sealed class T4Dispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
+    public sealed class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
            where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public T4Dispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
@@ -37,4 +39,14 @@ namespace NetworkOperations.Dispatching
             throw new InvalidOperationException($"Wrong code operation {operationDescription.Code}");
         }
     }
+    
+<# if (supportAOTCompile) {#>    
+    public static AOTSupport
+    {
+        public static void VirtualGenericMethodsDefinition()
+        {
+            
+        }
+    }
+<# } #>        
 }

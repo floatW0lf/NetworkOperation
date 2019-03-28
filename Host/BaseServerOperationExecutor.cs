@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Host;
+using NetworkOperation.Logger;
 
 namespace NetworkOperation.Server
 {
@@ -18,11 +19,12 @@ namespace NetworkOperation.Server
             return SendOperation<TOp, TOpResult>(operation, receivers, false, cancellation);
         }
 
-        public HostOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions) : base(model, serializer, sessions)
+
+        public HostOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, IStructuralLogger logger) : base(model, serializer, sessions, logger)
         {
         }
 
-        private HostOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session) : base(model, serializer, session)
+        private HostOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, IStructuralLogger logger) : base(model, serializer, session, logger)
         {
         }
     }

@@ -3,6 +3,8 @@
   <PropertyGroup>
     <LangVersion>7.1</LangVersion>
     <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
+    <Configurations>Debug;Release;AOT</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

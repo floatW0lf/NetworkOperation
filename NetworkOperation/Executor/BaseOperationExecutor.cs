@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
+using NetworkOperation.Logger;
 
 namespace NetworkOperation
 {
@@ -49,24 +50,27 @@ namespace NetworkOperation
         private readonly Side _currentSide;
         private readonly Session _session;
         private readonly SessionCollection _sessions;
-        
+        private readonly IStructuralLogger _logger;
+
 
         public CancellationToken GlobalToken { get; set; }
         
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions)
+        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, IStructuralLogger logger)
         {
             Model = model;
             _serializer = serializer;
             _sessions = sessions;
+            _logger = logger;
             _currentSide = Side.Server;
         }
 
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session)
+        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, IStructuralLogger logger)
         {
             
             Model = model;
             _serializer = serializer;
             _session = session;
+            _logger = logger;
             _currentSide = Side.Client;
         }
 
@@ -92,6 +96,9 @@ namespace NetworkOperation
         {
             
             var description = Model.GetDescriptionBy(typeof(TOp));
+            
+            _logger.Write(LogLevel.Debug,"Start send operation {operation}, code: {code}",operation,description.Code);
+            
             var op = new TRequest
             {
                 OperationCode = description.Code,
@@ -102,10 +109,14 @@ namespace NetworkOperation
             };
             
             MessagePlaceHolder?.Fill(ref op, operation);
-
+            
+            _logger.Write(LogLevel.Debug,"Operation serialized {operation}", operation);
+            
             var rawResult = _serializer.Serialize(op);
             await SendRawOperation(receivers, forAll, rawResult);
            
+            _logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
+            
             try
             {
                 if (description.WaitResponse)
@@ -121,6 +132,8 @@ namespace NetworkOperation
                                 var message = s.Result;
                                 _states.Put(s);
                             
+                                _logger.Write(LogLevel.Debug,"Receive response {response}", message);
+                                
                                 if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
                                 return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StatusCode);
                             
@@ -128,9 +141,12 @@ namespace NetworkOperation
                             _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
                             return await response;
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
-                            _states.Put((State)response.AsyncState);
+                            if (response != null)
+                            {
+                                _states.Put((State)response.AsyncState);
+                            }
                             throw;
                         }
                     }

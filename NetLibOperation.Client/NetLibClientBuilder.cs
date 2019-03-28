@@ -22,7 +22,7 @@ namespace NetLibOperation.Client
         
         
         public Func<IClientBuilder<TRequest,TResponse>,IFactory<NetPeer,Session>> SessionSetup { get; set; } = builder => new SessionFactory(builder.HandlerFactory);
-        public Func<IClientBuilder<TRequest,TResponse>,IFactory<Session,IClientOperationExecutor>> ExecutorSetup { get; set; } = builder => new DefaultClientOperationExecutorFactory<TRequest,TResponse>(builder.Model,builder.Serializer);
+        public Func<IClientBuilder<TRequest,TResponse>,IFactory<Session,IClientOperationExecutor>> ExecutorSetup { get; set; } = builder => new DefaultClientOperationExecutorFactory<TRequest,TResponse>(builder.Model,builder.Serializer, builder.StructuralLogger);
        
         public Func<IClientBuilder<TRequest,TResponse>,BaseDispatcher<TRequest,TResponse>> DispatcherSetup { get; set; } = builder => new ExpressionDispatcher<TRequest,TResponse>(builder.Serializer,builder.HandlerFactory, builder.Model,builder.StructuralLogger);
 

@@ -7,7 +7,7 @@ namespace Contract
     [Operation(0,Handle = Side.Client)]
     public struct ClientOp : IOperation<ClientOp,Empty>
     {
-        [DataMember]
+        [DataMember(Order = 0)]
         public string Message;
     }
 }

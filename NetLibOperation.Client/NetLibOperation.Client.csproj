@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
     <LangVersion>7.1</LangVersion>
+    <Configurations>Debug;Release;AOT</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'AOT' ">
+    <DefineConstants>TRACE;AOT</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

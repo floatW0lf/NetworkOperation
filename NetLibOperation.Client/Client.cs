@@ -161,6 +161,7 @@ namespace NetLibOperation.Client
             {
                 await Task.Factory.StartNew(() => Manager.Stop());
                 CloseSession();
+                return;
             }
             Logger.Write(LogLevel.Warning,"Client already disconnect");
             

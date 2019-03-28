@@ -13,8 +13,10 @@ namespace NetworkOperation.Logger
         string Name { get; }
         LogLevel MinLogLevel { get; set; }
         void Write(LogLevel level, string message);
+#if !AOT
         void Write<T>(LogLevel level, string message, T arg);
         void Write<T,T1>(LogLevel level, string message, T arg, T1 arg1);
+#endif
         void Write(LogLevel level, string message, params object[] args);
     }
 }

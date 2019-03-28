@@ -40,13 +40,20 @@ namespace NetworkOperations.Dispatching
         }
     }
     
-<# if (supportAOTCompile) {#>    
-    public static AOTSupport
-    {
-        public static void VirtualGenericMethodsDefinition()
+<# if (supportAOTCompile) {#> 
+        public static partial class AOTSupport
         {
+            public static void GeneratedDefinitions()
+            {
+<# foreach (OperationDescription op in operations){#>
+                VirtualGenericMethodsDefinition<<#=op.OperationType.FullName#>>();                                        
+<#}#>
             
+<# foreach (Type resultType in operations.Select(d => d.ResultType).Distinct()){#>
+                VirtualGenericMethodsDefinition<<#=resultType.FullName#>>();                                       
+<#}#>
+            }            
+            static partial void VirtualGenericMethodsDefinition<T>();            
         }
-    }
-<# } #>        
+<# } #> 
 }

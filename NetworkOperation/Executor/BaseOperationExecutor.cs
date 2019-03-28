@@ -128,16 +128,9 @@ namespace NetworkOperation
                         {
                             response = new Task<OperationResult<TResult>>(state =>
                             {
-                                var s = (State) state;
-                                var message = s.Result;
-                                _states.Put(s);
-                            
-                                _logger.Write(LogLevel.Debug,"Receive response {response}", message);
-                                
-                                if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
-                                return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.StatusCode);
-                            
+                                return OperationResultHandle<TResult>(state);
                             }, _states.Rent(), composite.Token, TaskCreationOptions.PreferFairness);
+                            
                             _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
                             return await response;
                         }
@@ -158,6 +151,24 @@ namespace NetworkOperation
                 await SendCancel(receivers, forAll, op);
                 throw;
             }
+        }
+
+        private OperationResult<TResult> OperationResultHandle<TResult>(object state)
+        {
+            var s = (State) state;
+            var message = s.Result;
+            _states.Put(s);
+
+            _logger.Write(LogLevel.Debug, "Receive response {response}", message);
+            if (message.StatusCode == (uint) BuiltInOperationState.InternalError)
+            {
+                _logger.Write(LogLevel.Error, "Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
+                return new OperationResult<TResult>(default, message.StatusCode);
+            }
+
+            if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
+            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()),
+                message.StatusCode);
         }
 
         private async Task SendCancel(IReadOnlyList<Session> receivers, bool forAll, TRequest request)

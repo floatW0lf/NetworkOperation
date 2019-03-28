@@ -30,7 +30,6 @@ namespace NetOperationTest
         [Fact]
         public void OperationResultCustomCodeTest()
         {
-            StatusEncoding.UnregisterAll();
             StatusEncoding.Register(typeof(CustomCodes));
             var delMoq = new Mock<Action>();
             var successMoq = new Mock<Action<int>>();

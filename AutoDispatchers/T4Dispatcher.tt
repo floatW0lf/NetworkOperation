@@ -24,7 +24,7 @@ namespace NetworkOperations.Dispatching
     public sealed class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
            where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
-        public T4Dispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
+        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
         {
         }
 

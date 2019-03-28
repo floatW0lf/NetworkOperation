@@ -182,6 +182,8 @@ namespace NetworkOperation
                 : _serializer.Deserialize<T>(segArray);
 
             var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
+            
+            if (!operationDescription.WaitResponse) return default;
             if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.StatusCode);
             
             return new DataWithStateCode(operationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.StatusCode);

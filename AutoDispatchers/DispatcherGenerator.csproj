@@ -3,7 +3,11 @@
   <PropertyGroup>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <TargetFramework>net472</TargetFramework>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
+    <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
+    <RootNamespace>TemplateDispatcher</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -11,8 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contract\Contract.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="mscorlib" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,10 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="T4Dispatcher.generated.cs">
+    <Compile Update="PreGeneratedDispatcherTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>T4Dispatcher.tt</DependentUpon>
+      <DependentUpon>PreGeneratedDispatcherTemplate.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -32,10 +39,15 @@
       <Generator>ScriptyGenerator</Generator>
       <LastGenOutput>ScriptyDispatcher.log</LastGenOutput>
     </None>
-    <None Update="T4Dispatcher.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>T4Dispatcher.generated.cs</LastGenOutput>
+    <None Update="PreGeneratedDispatcherTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>PreGeneratedDispatcherTemplate.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.4.3" />
+    <PackageReference Include="System.CodeDom" Version="4.5.0" />
   </ItemGroup>
 
 </Project>

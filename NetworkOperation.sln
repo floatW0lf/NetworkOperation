@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tcp.Server", "Tcp.Server\Tc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tcp.Core", "Tcp.Core\Tcp.Core.csproj", "{6AA1754D-3AF7-4086-A8B4-E36BF6E27748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplateDispatcher", "AutoDispatchers\TemplateDispatcher.csproj", "{9224C04A-3B48-44E6-902F-739E2259C3A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatcherGenerator", "AutoDispatchers\DispatcherGenerator.csproj", "{9224C04A-3B48-44E6-902F-739E2259C3A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "Host\Host.csproj", "{1FD14304-21A4-4218-AE6D-BC8C4AC52ED7}"
 EndProject

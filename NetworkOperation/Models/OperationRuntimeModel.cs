@@ -30,7 +30,9 @@ namespace NetworkOperation
 
                 }).OrderBy(d => d.Code).ToArray();
 
-           ThrowIfFindDuplicates(models);
+            if (models.Length == 0) throw new Exception("Not found operations");
+            
+            ThrowIfFindDuplicates(models);
            
             var resultModels = new OperationDescription[models.Last().Code + 1];
 
@@ -68,7 +70,7 @@ namespace NetworkOperation
                     {
                         return e.Types.Where(type => type != null);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return Array.Empty<Type>();
                     }

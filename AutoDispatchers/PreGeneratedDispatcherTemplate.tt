@@ -1,17 +1,13 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="..\NetworkOperation\bin\Debug\net472\NetworkOperation.dll" #>
-<#@ assembly name="..\Contract\bin\Debug\net472\Contract.dll" #>
 <#@ import namespace="NetworkOperation" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ parameter type="System.Boolean" name="AOTSupport" #>
+<#@ parameter type="NetworkOperation.Side" name="Side" #>
+<#@ parameter type="NetworkOperation.OperationRuntimeModel" name="Model" #>
 <#@ output extension=".generated.cs" #>
-<#
-    var operations = OperationRuntimeModel.CreateFromAttribute();
-    var currentSide = Side.Server; /*or Side.Client */
-    var supportAOTCompile = true;
-#>
 
 using System;
 using System.Threading.Tasks;
@@ -32,7 +28,7 @@ namespace NetworkOperations.Dispatching
         {
             switch (operationDescription.Code)
             {
-<# foreach (OperationDescription op in operations) { if (op == null || !op.Handle.HasFlag(currentSide)) continue; #>
+<# foreach (OperationDescription op in Model) { if (op == null || !op.Handle.HasFlag(Side)) continue; #>
                case <#=op.Code#>: return GenericHandle<<#=op.OperationType.FullName#>, <#=op.ResultType.FullName#>>(session, message, operationDescription, token);
 <# } #>
             }
@@ -40,16 +36,16 @@ namespace NetworkOperations.Dispatching
         }
     }
     
-<# if (supportAOTCompile) {#> 
+<# if (AOTSupport) {#> 
         public static partial class AOTSupport
         {
             public static void GeneratedDefinitions()
             {
-<# foreach (OperationDescription op in operations){#>
+<# foreach (OperationDescription op in Model){#>
                 VirtualGenericMethodsDefinition<<#=op.OperationType.FullName#>>();                                        
 <#}#>
             
-<# foreach (Type resultType in operations.Select(d => d.ResultType).Distinct()){#>
+<# foreach (Type resultType in Model.Select(d => d.ResultType).Distinct()){#>
                 VirtualGenericMethodsDefinition<<#=resultType.FullName#>>();                                       
 <#}#>
             }            

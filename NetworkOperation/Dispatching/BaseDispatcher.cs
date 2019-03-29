@@ -173,14 +173,13 @@ namespace NetworkOperation
 
         protected async Task<DataWithStateCode> GenericHandle<T, TResult>(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token) where T : IOperation<T,TResult>
         {
-            // TODO: время жизни обработчика
-            var typedHandler = _factory.Create<T,TResult,TRequest>(); 
             var segArray = message.OperationData.To();
-            
             var arg = operationDescription.UseAsyncSerialize
                 ? await _serializer.DeserializeAsync<T>(segArray)
                 : _serializer.Deserialize<T>(segArray);
-
+            
+            // TODO: время жизни обработчика
+            var typedHandler = _factory.Create<T,TResult,TRequest>(); 
             var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
             
             if (!operationDescription.WaitResponse) return default;

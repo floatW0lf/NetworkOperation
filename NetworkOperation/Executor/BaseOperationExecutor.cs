@@ -160,7 +160,7 @@ namespace NetworkOperation
             _states.Put(s);
 
             _logger.Write(LogLevel.Debug, "Receive response {response}", message);
-            if (message.StatusCode == (uint) BuiltInOperationState.InternalError)
+            if (message.OperationData != null && message.StatusCode == (uint) BuiltInOperationState.InternalError)
             {
                 _logger.Write(LogLevel.Error, "Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
                 return new OperationResult<TResult>(default, message.StatusCode);

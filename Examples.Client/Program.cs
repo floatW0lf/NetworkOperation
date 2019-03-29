@@ -22,7 +22,7 @@ namespace Client
         static async Task Main(string[] args)
         {
             await WithBuilder();
-            //await WithDI();
+            await WithDI();
         }
 
         private static async Task WithBuilder()
@@ -33,6 +33,7 @@ namespace Client
             var res = await client.Executor.Execute<PlusOp, float>(new PlusOp {A = 100, B = 200});
             Console.WriteLine(res.Result);
             await Task.Delay(2000);
+            await client.DisconnectAsync();
         }
         private static async Task WithDI()
         {
@@ -43,7 +44,7 @@ namespace Client
             evtsession.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress}");
             evtsession.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress}");
 
-            await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("localhost"), Port));
+            await client.ConnectAsync("localhost", Port);
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
             var res = await client.Executor.Execute<PlusOp, float>(new PlusOp {A = 100, B = 200});
@@ -59,10 +60,7 @@ namespace Client
             {
                 Console.WriteLine(e);
             }
-
-            Console.ReadLine();
             await client.DisconnectAsync();
-            Console.ReadLine();
             cts.Dispose();
         }
 

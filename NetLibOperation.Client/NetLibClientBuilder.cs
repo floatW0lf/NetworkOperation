@@ -13,11 +13,12 @@ namespace NetLibOperation.Client
     public class NetLibClientBuilder<TRequest,TResponse> : IClientBuilder<TRequest,TResponse> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private readonly Dictionary<Type,Type> _handlers = new Dictionary<Type, Type>();
-        public Func<ClientBuilderContext,IFactory<NetPeer,Session>> SessionSetup { get; set; } = ctx => new SessionFactory(ctx.HandlerFactory);
-        public Func<ClientBuilderContext,IFactory<Session,IClientOperationExecutor>> ExecutorSetup { get; set; } = context => new DefaultClientOperationExecutorFactory<TRequest,TResponse>(context.Model,context.Serializer, context.StructuralLogger);
+        internal Func<ClientBuilderContext,IFactory<NetPeer,Session>> SessionSetup = ctx => new SessionFactory(ctx.HandlerFactory);
+        internal Func<ClientBuilderContext,IFactory<Session,IClientOperationExecutor>> ExecutorSetup = context => new DefaultClientOperationExecutorFactory<TRequest,TResponse>(context.Model,context.Serializer, context.StructuralLogger);
        
-        public Func<ClientBuilderContext,BaseDispatcher<TRequest,TResponse>> DispatcherSetup { get; set; } = context => new ExpressionDispatcher<TRequest,TResponse>(context.Serializer,context.HandlerFactory, context.Model,context.StructuralLogger);
+        internal Func<ClientBuilderContext,BaseDispatcher<TRequest,TResponse>> DispatcherSetup = context => new ExpressionDispatcher<TRequest,TResponse>(context.Serializer,context.HandlerFactory, context.Model,context.StructuralLogger);
 
+        
 
         public ClientBuilderContext BuilderContext { get; set; } = new ClientBuilderContext();
 

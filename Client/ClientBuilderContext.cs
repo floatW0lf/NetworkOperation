@@ -1,3 +1,4 @@
+using System;
 using NetworkOperation.Logger;
 
 namespace NetworkOperation.Client
@@ -8,5 +9,6 @@ namespace NetworkOperation.Client
         public BaseSerializer Serializer { get; set; }
         public OperationRuntimeModel Model { get; set; } = OperationRuntimeModel.CreateFromAttribute();
         public IStructuralLogger StructuralLogger { get; set; } = new ConsoleStructuralLogger();
+        
     }
 }

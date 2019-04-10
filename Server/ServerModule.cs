@@ -25,6 +25,7 @@ namespace NetworkOperation
         }
         public override void Load()
         {
+            Bind<SessionRequestHandler>().To<ExampleSessionRequestHandler>().InSingletonScope();
             Bind<OperationRuntimeModel>().ToConstant(OperationRuntimeModel.CreateFromAttribute());
             Bind<IFactory<NetPeer, Session>>().To<SessionFactory>().InSingletonScope();
             Bind<IFactory<Socket, Session>>().To<Tcp.Core.SessionFactory>().InSingletonScope();

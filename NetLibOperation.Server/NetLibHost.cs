@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using LiteNetLib;
 using NetworkOperation;
 using NetworkOperation.Factories;
@@ -11,21 +12,21 @@ using NetworkOperation.Host;
 
 namespace NetLibOperation
 {
-    public class NetLibHost<TMessage, TResponse> : AbstractHost<TMessage, TResponse, NetPeer, NetManager>,
+    public class NetLibHost<TMessage, TResponse> : AbstractHost<TMessage, TResponse, NetManager>,
         INetEventListener where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
-        private readonly string _connectionKey;
+        
         private Task _pollTask;
 
         private readonly CancellationTokenSource _source = new CancellationTokenSource();
 
         public NetLibHost(IFactory<NetManager, MutableSessionCollection> sessionsFactory,
-            IFactory<NetPeer, Session> sessionFactory,
             IFactory<SessionCollection, IHostOperationExecutor> executorFactory,
-            BaseDispatcher<TMessage, TResponse> dispatcher, string connectionKey) : base(sessionsFactory,
-            sessionFactory, executorFactory, dispatcher)
+            BaseDispatcher<TMessage, TResponse> dispatcher, 
+            SessionRequestHandler handler) : base(sessionsFactory,executorFactory, dispatcher,handler)
         {
-            _connectionKey = connectionKey;
+           
+
             Manager = new NetManager(this);
         }
 
@@ -34,12 +35,18 @@ namespace NetLibOperation
         public int MaxConnection { get; set; } = 10000;
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
-            SessionOpen(peer);
+            SessionOpen(Sessions.GetSession(peer.Id));
         }
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Sessions.GetSession(peer.Id)?.Close();
+            var session = Sessions.GetSession(peer.Id);
+            if (session != null)
+            {
+                session.FillDisconnectInfo(disconnectInfo);
+                session.Close();
+            }
+            
         }
 
         void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
@@ -67,10 +74,7 @@ namespace NetLibOperation
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
-            if (Manager.PeersCount < MaxConnection)
-                request.AcceptIfKey(_connectionKey);
-            else
-                request.Reject();
+            BeforeSessionOpen(new LiteSessionRequest(request));
         }
 
         public override void Start(int port)

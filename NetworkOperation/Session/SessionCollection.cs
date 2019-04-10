@@ -61,12 +61,16 @@ namespace NetworkOperation
 
     public abstract class MutableSessionCollection : SessionCollection, ICollection<Session>
     {
+        public void OpenSession(Session session)
+        {
+            RaiseOpened(session);
+        }
+        
         public void Add(Session item)
         {
             if (IdToSessions.TryAdd(item.Id, item))
             {
                 item.SessionCollection = this;
-                RaiseOpened(item);
             }
         }
 

@@ -7,23 +7,22 @@ using NetworkOperation.Server;
 
 namespace NetworkOperation.Host
 {
-    public abstract class AbstractHost<TRequest,TResponse, TConnection, TConnectionCollection> : IHost where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public abstract class AbstractHost<TRequest,TResponse, TConnectionCollection> : IHost where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private readonly IFactory<TConnectionCollection, MutableSessionCollection> _sessionsFactory;
-        private readonly IFactory<TConnection, Session> _sessionFactory;
+        
         private readonly IFactory<MutableSessionCollection, IHostOperationExecutor> _executorFactory;
+        private readonly SessionRequestHandler _handler;
 
         public int PollTimeInMs { get; set; } = 10;
         
-        protected AbstractHost(
-            IFactory<TConnectionCollection,MutableSessionCollection> sessionsFactory, 
-            IFactory<TConnection,Session> sessionFactory,
-            IFactory<SessionCollection,IHostOperationExecutor> executorFactory,
-            BaseDispatcher<TRequest,TResponse> dispatcher)
+        protected AbstractHost(IFactory<TConnectionCollection, MutableSessionCollection> sessionsFactory,
+            IFactory<SessionCollection, IHostOperationExecutor> executorFactory,
+            BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler)
         {
             _sessionsFactory = sessionsFactory;
-            _sessionFactory = sessionFactory;
             _executorFactory = executorFactory;
+            _handler = handler;
             Dispatcher = dispatcher;
             Dispatcher.ExecutionSide = Side.Server;
         }
@@ -31,9 +30,9 @@ namespace NetworkOperation.Host
         private MutableSessionCollection _mutableSessions;
 
         
-        protected void SessionOpen(TConnection connection)
+        protected void SessionOpen(Session session)
         {
-            _mutableSessions.Add(_sessionFactory.Create(connection));
+            _mutableSessions.OpenSession(session);
         }
 
         protected void ServerStarted(TConnectionCollection connectionCollection)
@@ -41,6 +40,12 @@ namespace NetworkOperation.Host
             _mutableSessions = _sessionsFactory.Create(connectionCollection);
             Executor = _executorFactory.Create(_mutableSessions);
             Dispatcher.Subscribe((IResponseReceiver<TResponse>) Executor);
+        }
+
+        protected void BeforeSessionOpen(SessionRequest sessionRequest)
+        {
+            sessionRequest.SessionCollection = _mutableSessions;
+            _handler.Handle(sessionRequest);
         }
 
 

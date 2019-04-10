@@ -12,11 +12,9 @@ using NetworkOperation.Logger;
 
 namespace NetLibOperation.Client
 {
-    public class Client<TRequest, TResponse> : AbstractClient<TRequest, TResponse, NetPeer>, INetEventListener,
-        IDisposable where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class Client<TRequest, TResponse> : AbstractClient<TRequest, TResponse, NetPeer>, INetEventListener
+        where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
-        private readonly string _connectKey;
-        
         private bool _eventLoopRun;
 
         private CancellationTokenSource _globalCancellationTokenSource;
@@ -27,10 +25,9 @@ namespace NetLibOperation.Client
         public Client(IFactory<NetPeer, Session> sessionFactory,
                       IFactory<Session, IClientOperationExecutor> executorFactory, 
                       BaseDispatcher<TRequest, TResponse> dispatcher,
-                      IStructuralLogger logger,
-                      string connectKey) : base(sessionFactory, executorFactory, dispatcher, logger)
+                      IStructuralLogger logger) : base(sessionFactory, executorFactory, dispatcher, logger)
         {
-            _connectKey = connectKey;
+           
             Manager = new NetManager(this);
         }
 
@@ -76,8 +73,10 @@ namespace NetLibOperation.Client
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             GlobalCancel();
+            Session.FillDisconnectInfo(disconnectInfo);
             CloseSession();
         }
+       
 
         void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
         {
@@ -136,13 +135,20 @@ namespace NetLibOperation.Client
 
         public override async Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default)
         {
+            var rawPayload = ConnectionPayload.Resolve();
+            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(rawPayload.Array, rawPayload.Offset, rawPayload.Count));
+        }
+
+        private async Task InternalConnect(EndPoint remote, CancellationToken cancellationToken,NetDataWriter writer)
+        {
             try
             {
                 if (Session == null || Session.State == SessionState.Closed)
                 {
                     InitEventLoop();
-                    _connectTask = new Task(() => {}, cancellationToken, TaskCreationOptions.PreferFairness);
-                    Manager.Connect((IPEndPoint)remote, _connectKey);
+                    _connectTask = new Task(() => { }, cancellationToken, TaskCreationOptions.PreferFairness);
+
+                    Manager.Connect((IPEndPoint) remote, writer);
                     await _connectTask;
                     return;
                 }
@@ -152,7 +158,14 @@ namespace NetLibOperation.Client
                 Manager.Stop();
                 throw;
             }
-            Logger.Write(LogLevel.Warning,"Client already connected");
+
+            Logger.Write(LogLevel.Warning, "Client already connected");
+        }
+
+        public override async Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
+        {
+            var raw = ConnectionPayload.Resolve(payload);
+            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(raw.Array,raw.Offset,raw.Count));
         }
 
         public override async Task DisconnectAsync()

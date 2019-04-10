@@ -27,7 +27,8 @@ namespace NetworkOperation.Client
         private IFactory<Session,IClientOperationExecutor> _executorFactory;
         private readonly BaseDispatcher<TRequest,TResponse> _dispatcher;
         private IClientOperationExecutor _executor;
-
+        
+        public IPayloadResolver ConnectionPayload { get; set; } = new NullPayloadResolver();
         public ClientState Current
         {
             get
@@ -54,6 +55,10 @@ namespace NetworkOperation.Client
         }
 
         public abstract Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
+
+        public abstract Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default) where T : IConnectPayload;
+        
+
         public abstract Task DisconnectAsync();
         
         protected void CloseSession()

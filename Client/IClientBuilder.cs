@@ -7,10 +7,8 @@ namespace NetworkOperation.Client
         where TRequest : IOperationMessage, new() 
         where TResponse : IOperationMessage, new()
     {
-        IHandlerFactory HandlerFactory { get; set; }
-        BaseSerializer Serializer { get; set; }
-        OperationRuntimeModel Model { get; set; }
-        IStructuralLogger StructuralLogger { get; set; }
+        ClientBuilderContext BuilderContext { get; set; }
+        
         void RegisterHandler<THandler>() where THandler : IHandler;
         void RegisterHandler(Type handler);
         IClient Build();

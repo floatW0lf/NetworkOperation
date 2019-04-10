@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading.Tasks;
 using LiteNetLib;
+using LiteNetLib.Utils;
 using NetworkOperation;
 using NetworkOperation.Extensions;
 
@@ -55,13 +56,18 @@ namespace NetLibOperation
         protected override IHandler<TOp, TResult,TRequest> GetHandler<TOp, TResult,TRequest>()
         {
             return (IHandler<TOp, TResult,TRequest>)_perSessionHandler.GetOrAdd(typeof(IHandler<TOp, TResult,TRequest>), type => _factory.Create<TOp, TResult,TRequest>());
-        }
-        
-        protected override void OnClosedSession()
+        }        
+
+        protected override void OnClosedSession(ArraySegment<byte> payload = default)
         {
             if (_peer.ConnectionState == ConnectionState.Connected)
             {
-                _peer.NetManager.DisconnectPeer(_peer);
+                if (payload.Array != null)
+                {
+                    _peer.Disconnect(NetDataWriter.FromBytes(payload.Array,payload.Offset,payload.Count));
+                    return;
+                }
+                _peer.Disconnect();
             }
 
             foreach (var handler in _perSessionHandler.Values)

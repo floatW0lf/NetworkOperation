@@ -46,6 +46,11 @@ namespace Tcp.Client
             PollEvents();
         }
 
+        public override Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public override async Task DisconnectAsync()
         {
             if (_pollTask == null) return;

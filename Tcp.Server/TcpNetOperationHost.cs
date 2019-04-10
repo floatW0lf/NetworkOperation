@@ -12,7 +12,7 @@ using Tcp.Core;
 
 namespace Tcp.Server
 {
-    public class TcpNetOperationHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse, Socket, Socket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class TcpNetOperationHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse, Socket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public Socket Listener { get; private set; }
 
@@ -25,14 +25,14 @@ namespace Tcp.Server
         public override void Start(int port)
         {
             CreateServerSocket(port);
-            ServerStarted(Listener);
+            
             
             acceptConnectionTask = Task.Factory.StartNew(async () =>
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
                     var newSocket = await Listener.AcceptAsync();
-                    SessionOpen(newSocket);
+                    
                     await Task.Delay(PollTimeInMs);
                 }
 
@@ -89,7 +89,7 @@ namespace Tcp.Server
             Listener = null;
         }
 
-        public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<Socket, Session> sessionFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher) : base(sessionsFactory, sessionFactory, executorFactory, dispatcher)
+        public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler) : base(sessionsFactory, executorFactory, dispatcher, handler)
         {
         }
     }

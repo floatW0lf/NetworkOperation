@@ -15,7 +15,10 @@ namespace NetworkOperation.Client
     {
         ClientState Current { get; }
         IClientOperationExecutor Executor { get; }
+        IPayloadResolver ConnectionPayload { get; set; }
+        
         Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
+        Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default) where T : IConnectPayload;
         Task DisconnectAsync();
     }
 }

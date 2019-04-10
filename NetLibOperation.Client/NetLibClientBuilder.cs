@@ -13,19 +13,13 @@ namespace NetLibOperation.Client
     public class NetLibClientBuilder<TRequest,TResponse> : IClientBuilder<TRequest,TResponse> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private readonly Dictionary<Type,Type> _handlers = new Dictionary<Type, Type>();
-        public IHandlerFactory HandlerFactory { get; set; } = new DefaultHandlerFactory();
-        public BaseSerializer Serializer { get; set; }
-        public OperationRuntimeModel Model { get; set; } = OperationRuntimeModel.CreateFromAttribute();
-        
-        public IStructuralLogger StructuralLogger { get; set; } = new ConsoleStructuralLogger();
-        public string ConnectionKey { get; set; }
-        
-        
-        public Func<IClientBuilder<TRequest,TResponse>,IFactory<NetPeer,Session>> SessionSetup { get; set; } = builder => new SessionFactory(builder.HandlerFactory);
-        public Func<IClientBuilder<TRequest,TResponse>,IFactory<Session,IClientOperationExecutor>> ExecutorSetup { get; set; } = builder => new DefaultClientOperationExecutorFactory<TRequest,TResponse>(builder.Model,builder.Serializer, builder.StructuralLogger);
+        public Func<ClientBuilderContext,IFactory<NetPeer,Session>> SessionSetup { get; set; } = ctx => new SessionFactory(ctx.HandlerFactory);
+        public Func<ClientBuilderContext,IFactory<Session,IClientOperationExecutor>> ExecutorSetup { get; set; } = context => new DefaultClientOperationExecutorFactory<TRequest,TResponse>(context.Model,context.Serializer, context.StructuralLogger);
        
-        public Func<IClientBuilder<TRequest,TResponse>,BaseDispatcher<TRequest,TResponse>> DispatcherSetup { get; set; } = builder => new ExpressionDispatcher<TRequest,TResponse>(builder.Serializer,builder.HandlerFactory, builder.Model,builder.StructuralLogger);
+        public Func<ClientBuilderContext,BaseDispatcher<TRequest,TResponse>> DispatcherSetup { get; set; } = context => new ExpressionDispatcher<TRequest,TResponse>(context.Serializer,context.HandlerFactory, context.Model,context.StructuralLogger);
 
+
+        public ClientBuilderContext BuilderContext { get; set; } = new ClientBuilderContext();
 
         public void RegisterHandler<THandler>() where THandler : IHandler
         {
@@ -40,12 +34,11 @@ namespace NetLibOperation.Client
 
         public IClient Build()
         {
-            if (Serializer == null) ThrowCannotBuild(nameof(Serializer));
-            if (string.IsNullOrEmpty(ConnectionKey)) ThrowCannotBuild(nameof(ConnectionKey));
+            if (BuilderContext.Serializer == null) ThrowCannotBuild(nameof(BuilderContext.Serializer));
             
-            ((IInterfaceMapAccessor) HandlerFactory).InterfaceToClassMap = _handlers;
+            ((IInterfaceMapAccessor) BuilderContext.HandlerFactory).InterfaceToClassMap = _handlers;
             
-            return new Client<TRequest, TResponse>(SessionSetup(this), ExecutorSetup(this), DispatcherSetup(this), StructuralLogger, ConnectionKey);
+            return new Client<TRequest, TResponse>(SessionSetup(BuilderContext), ExecutorSetup(BuilderContext), DispatcherSetup(BuilderContext), BuilderContext.StructuralLogger);
         }
 
         private static void ThrowCannotBuild(string missing)

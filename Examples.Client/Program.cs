@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Async;
 using System.Collections.Concurrent;
+using System.IO.Pipes;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,13 +23,16 @@ namespace Client
         static async Task Main(string[] args)
         {
             await WithBuilder();
-            await WithDI();
+            //await WithDI();
         }
 
         private static async Task WithBuilder()
         {
-            var client = new NetLibClientBuilder<DefaultMessage, DefaultMessage>().UseConnectKey("key").UseSerializer(new MsgSerializer()).Register(typeof(ClientOpHandler)).Build();
+            var serializer = new MsgSerializer();
+            var client = new NetLibClientBuilder<DefaultMessage, DefaultMessage>().UseSerializer(serializer).Register(typeof(ClientOpHandler)).Build();
             
+            client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(new ExampleConnectPayload(){Version = "1.1",Authorize = "token",AppId = "example"},  serializer);
+                
             await client.ConnectAsync("localhost", Port);
             var res = await client.Executor.Execute<PlusOp, float>(new PlusOp {A = 100, B = 200});
             Console.WriteLine(res.Result);

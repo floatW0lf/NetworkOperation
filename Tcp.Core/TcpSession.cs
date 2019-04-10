@@ -30,7 +30,7 @@ namespace Tcp.Core
 
         public override SessionStatistics Statistics => throw new System.NotImplementedException();
 
-        protected override void OnClosedSession()
+        protected override void OnClosedSession(ArraySegment<byte> payload = default)
         {
             if (_client.Connected) _client.Close();
             foreach (var handler in _perSessionHandler.Values)

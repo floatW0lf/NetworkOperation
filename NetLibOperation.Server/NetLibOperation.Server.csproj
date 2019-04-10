@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

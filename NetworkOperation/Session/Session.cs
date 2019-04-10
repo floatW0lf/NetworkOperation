@@ -2,50 +2,51 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkOperation
 {
     public abstract class Session
     {
-        private ConcurrentDictionary<string, object> _sessionParams;
         public object this[string paramName]
         {
             get
             {
-                object p = null;
-                CreateOrGet()?.TryGetValue(paramName, out p);
+                _options.Value.TryGetValue(paramName, out var p);
                 return p;
             }
             set
             {
-                CreateOrGet()?.AddOrUpdate(paramName, value, (s, o) => o);
+                _options.Value.AddOrUpdate(paramName, value, (s, o) => o);
             }
         }
-        
-        private ConcurrentDictionary<string, object> CreateOrGet()
-        {
-           return _sessionParams = _sessionParams ?? new ConcurrentDictionary<string, object>();
-        }
 
+        private readonly Lazy<ConcurrentDictionary<string, object>> _options = new Lazy<ConcurrentDictionary<string, object>>(true);
+        
         internal ICollection<Session> SessionCollection { get; set; }
         public abstract EndPoint NetworkAddress { get; }
         public abstract object UntypedConnection { get; }
         public abstract long Id { get; }
         public abstract SessionStatistics Statistics { get; }
 
-        public void Close()
+        public void Close(ArraySegment<byte> payload = default)
         {
-            _sessionParams?.Clear();
             if (SessionCollection != null)
             {
                 SessionCollection.Remove(this);
                 return;
             }
-            OnClosedSession();
+
+            if (_options.IsValueCreated)
+            {
+                _options.Value.Clear();
+            }
+            
+            OnClosedSession(payload);
         }
 
-        protected internal abstract void OnClosedSession();
+        protected internal abstract void OnClosedSession(ArraySegment<byte> payload = default);
 
         public abstract SessionState State { get; }
 

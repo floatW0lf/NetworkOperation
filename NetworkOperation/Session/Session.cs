@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +23,8 @@ namespace NetworkOperation
                 _options.Value.AddOrUpdate(paramName, value, (s, o) => o);
             }
         }
+
+        public IEnumerable<SessionProperty> Properties => _options.Value.Select(pair => new SessionProperty(pair.Key, pair.Value));
 
         private readonly Lazy<ConcurrentDictionary<string, object>> _options = new Lazy<ConcurrentDictionary<string, object>>(true);
         

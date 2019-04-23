@@ -10,11 +10,9 @@ namespace NetLibOperation
             return (byte[]) session[SessionConstants.DisconnectBytesPayload];
         }
 
-        public static DisconnectReason GetReason(this Session session)
+        public static DisconnectReason? GetReason(this Session session)
         {
-            var value = session[SessionConstants.DisconnectReason];
-            if (value == null) return DisconnectReason.DisconnectPeerCalled;
-            return (DisconnectReason)value;
+            return session[SessionConstants.DisconnectReason] as DisconnectReason?;
         }
         
         internal static void FillDisconnectInfo(this Session session, DisconnectInfo disconnectInfo)

@@ -18,7 +18,7 @@ namespace NetworkOperation.Host
            return _serializer.Deserialize<T>(request.RequestPayload);
         }
 
-        protected void RejectWithPayload<T>(SessionRequest request,T payload) where T : IRejectionPayload
+        protected void RejectWithPayload<T>(SessionRequest request,T payload) where T : IDisconnectPayload
         {
             request.Reject(_serializer.Serialize(payload).To());
         }

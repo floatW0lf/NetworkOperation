@@ -1,10 +1,14 @@
 namespace NetworkOperation
 {
-    public interface IOperationMessage
+    public interface IStatus
+    {
+        uint StatusCode { get; set; }
+    }
+
+    public interface IOperationMessage : IStatus
     {
         int Id { get; set; }
         uint OperationCode { get; set; }
         byte[] OperationData { get; set; }
-        uint StatusCode { get; set; }
     }
 }

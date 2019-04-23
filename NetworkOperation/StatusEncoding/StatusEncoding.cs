@@ -63,7 +63,7 @@ namespace NetworkOperation.StatusCodes
                 new EnumRangeValue((uint) values.GetValue(0), (uint) values.GetValue(values.Length - 1)));
         }
 
-        public static bool IsValidValue<TOperation, TEnum>(TOperation operation) where TOperation : IOperationMessage
+        public static bool IsValidValue<TOperation, TEnum>(TOperation operation) where TOperation : IStatus
         {
             return IsValidValue<TEnum>(operation.StatusCode);
         }
@@ -87,8 +87,9 @@ namespace NetworkOperation.StatusCodes
         }
 
         public static void Encode<TEnum, TMessage>(ref TMessage message, TEnum status) where TEnum : IConvertible
-            where TMessage : IOperationMessage
+            where TMessage : IStatus
         {
+            
             var code = status.ToUInt32(CultureInfo.InvariantCulture);
             if (!IsValidValue<TEnum>(code)) CannotDecodeThrow<TEnum>(message.StatusCode);
             message.StatusCode = code;
@@ -101,7 +102,7 @@ namespace NetworkOperation.StatusCodes
                 $"Status code {AsString(statusCode)} cannot encode as {typeof(TEnum)}");
         }
 
-        public static TEnum Decode<TEnum, TMessage>(TMessage message, TEnum like) where TMessage : IOperationMessage
+        public static TEnum Decode<TEnum, TMessage>(TMessage message, TEnum like) where TMessage : IStatus
             where TEnum : IConvertible
         {
             if (!IsValidValue<TMessage, TEnum>(message))
@@ -114,7 +115,7 @@ namespace NetworkOperation.StatusCodes
         }
 
         public static bool IsStatus<TEnum, TMessage>(TMessage message, TEnum status)
-            where TMessage : IOperationMessage where TEnum : IConvertible
+            where TMessage : IStatus where TEnum : IConvertible
         {
             return message.StatusCode == status.ToUInt32(CultureInfo.InvariantCulture);
         }

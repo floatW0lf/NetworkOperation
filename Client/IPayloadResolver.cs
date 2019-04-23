@@ -49,14 +49,15 @@ namespace NetworkOperation.Client
 
     public sealed class NullPayloadResolver : IPayloadResolver
     {
+        private static readonly byte[] NullPayload = { 0 };
         public ArraySegment<byte> Resolve()
         {
-            return new ArraySegment<byte>();
+            return NullPayload.To();
         }
 
         public ArraySegment<byte> Resolve<T>(T payload) where T : IConnectPayload
         {
-            return new ArraySegment<byte>();
+            return NullPayload.To();
         }
     }
 }

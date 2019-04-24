@@ -54,9 +54,6 @@ namespace NetLibOperation.Client
         
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
-            if (_globalCancellationTokenSource == null)
-                _globalCancellationTokenSource = new CancellationTokenSource();
-            
             OpenSession(peer);
             ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
             TryStart(_connectTask);
@@ -145,12 +142,16 @@ namespace NetLibOperation.Client
             {
                 if (Session == null || Session.State == SessionState.Closed)
                 {
+                    _globalCancellationTokenSource = _globalCancellationTokenSource ?? new CancellationTokenSource();
+                    
                     InitEventLoop();
-                    _connectTask = new Task(() => { }, cancellationToken, TaskCreationOptions.PreferFairness);
-
-                    Manager.Connect((IPEndPoint) remote, writer);
-                    await _connectTask;
-                    return;
+                    using (var compound = CancellationTokenSource.CreateLinkedTokenSource(_globalCancellationTokenSource.Token, cancellationToken))
+                    {
+                        _connectTask = new Task(() => { }, compound.Token,TaskCreationOptions.PreferFairness);
+                        Manager.Connect((IPEndPoint) remote, writer);
+                        await _connectTask;
+                        return;
+                    }
                 }
             }
             catch (OperationCanceledException e)

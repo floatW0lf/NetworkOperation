@@ -21,6 +21,7 @@ namespace NetworkOperation.Client
             _dispatcher = dispatcher;
             _dispatcher.ExecutionSide = Side.Client;
             Logger = logger;
+            Session = new NotConnectedSession();
         }
 
         private IFactory<TConnection,Session> _sessionFactory;
@@ -67,6 +68,7 @@ namespace NetworkOperation.Client
             if (Session == null) return;
             OnSessionClosed?.Invoke(Session);
             Session.Close();
+            Session = new NotConnectedSession();
         }
 
         protected Session Session { get; private set; }
@@ -93,5 +95,34 @@ namespace NetworkOperation.Client
         public event Action<Session> OnSessionOpened;
         public event Action<Session, EndPoint, SocketError> OnSessionError;
         public abstract void Dispose();
+        
+        class NotConnectedSession : Session
+        {
+            public override EndPoint NetworkAddress { get; }
+            public override object UntypedConnection { get; }
+            public override long Id { get; }
+            public override SessionStatistics Statistics { get; }
+            protected internal override void OnClosedSession(ArraySegment<byte> payload = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override SessionState State { get; } = SessionState.Closed;
+            protected internal override bool HasAvailableData { get; }
+            protected internal override Task SendMessageAsync(ArraySegment<byte> data)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected internal override Task<ArraySegment<byte>> ReceiveMessageAsync()
+            {
+                throw new NotImplementedException();
+            }
+
+            protected internal override IHandler<TOp, TResult, TRequest1> GetHandler<TOp, TResult, TRequest1>()
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

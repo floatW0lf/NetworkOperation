@@ -17,15 +17,10 @@ namespace NetLibOperation
         
         internal static void FillDisconnectInfo(this Session session, DisconnectInfo disconnectInfo)
         {
-            
-            if (!disconnectInfo.AdditionalData.IsNull && disconnectInfo.AdditionalData.UserDataSize > 0)
+            if (!disconnectInfo.AdditionalData.IsNull && disconnectInfo.AdditionalData.AvailableBytes > 0)
             {
-                var payload = new byte[disconnectInfo.AdditionalData.UserDataSize];
-                disconnectInfo.AdditionalData.GetBytes(payload, disconnectInfo.AdditionalData.UserDataOffset,
-                    disconnectInfo.AdditionalData.UserDataSize);
-                session[SessionConstants.DisconnectBytesPayload] = payload;
+                session[SessionConstants.DisconnectBytesPayload] = disconnectInfo.AdditionalData.GetRemainingBytes();
             }
-            
             session[SessionConstants.DisconnectReason] = disconnectInfo.Reason;
         }
     }

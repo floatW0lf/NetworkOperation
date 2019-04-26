@@ -10,6 +10,7 @@
 namespace TemplateDispatcher
 {
     using NetworkOperation;
+    using TemplateDispatcher;
     using System.Linq;
     using System.Text;
     using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace TemplateDispatcher
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+    #line 1 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
     public partial class PreGeneratedDispatcherTemplate : PreGeneratedDispatcherTemplateBase
     {
@@ -51,35 +52,35 @@ namespace NetworkOperations.Dispatching
             {
 ");
             
-            #line 31 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 32 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (OperationDescription op in Model) { if (op == null || !op.Handle.HasFlag(Side)) continue; 
             
             #line default
             #line hidden
             this.Write("               case ");
             
-            #line 32 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 33 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.Code));
             
             #line default
             #line hidden
             this.Write(": return GenericHandle<");
             
-            #line 32 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 33 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.OperationType.FullName));
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 32 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 33 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.ResultType.FullName));
             
             #line default
             #line hidden
             this.Write(">(session, message, operationDescription, token);\r\n");
             
-            #line 33 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 34 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  } 
             
             #line default
@@ -87,7 +88,7 @@ namespace NetworkOperations.Dispatching
             this.Write("            }\r\n            throw new InvalidOperationException($\"Wrong code opera" +
                     "tion {operationDescription.Code}\");\r\n        }\r\n    }\r\n    \r\n");
             
-            #line 39 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 40 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  if (AOTSupport) {
             
             #line default
@@ -95,42 +96,42 @@ namespace NetworkOperations.Dispatching
             this.Write(" \r\n        public static partial class AOTSupport\r\n        {\r\n            public " +
                     "static void GeneratedDefinitions()\r\n            {\r\n");
             
-            #line 44 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 45 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (OperationDescription op in Model){
             
             #line default
             #line hidden
             this.Write("                VirtualGenericMethodsDefinition<");
             
-            #line 45 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 46 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.OperationType.FullName));
             
             #line default
             #line hidden
             this.Write(">();                                        \r\n");
             
-            #line 46 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 47 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("            \r\n");
             
-            #line 48 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 49 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (Type resultType in Model.Select(d => d.ResultType).Distinct()){
             
             #line default
             #line hidden
             this.Write("                VirtualGenericMethodsDefinition<");
             
-            #line 49 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(resultType.FullName));
+            #line 50 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(resultType.ToCSharpFormat()));
             
             #line default
             #line hidden
             this.Write(">();                                       \r\n");
             
-            #line 50 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 51 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 }
             
             #line default
@@ -138,7 +139,7 @@ namespace NetworkOperations.Dispatching
             this.Write("            }            \r\n            static partial void VirtualGenericMethodsD" +
                     "efinition<T>();            \r\n        }\r\n");
             
-            #line 54 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 55 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  } 
             
             #line default
@@ -147,7 +148,7 @@ namespace NetworkOperations.Dispatching
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 1 "D:\projects\NetOperationGit\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+        #line 1 "C:\Users\setyaev_v\Downloads\NetworkOperation-feature-client_builder\NetworkOperation-feature-client_builder\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 
 private bool _AOTSupportField;
 

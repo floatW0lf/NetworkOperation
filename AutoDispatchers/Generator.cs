@@ -55,6 +55,7 @@ namespace TemplateDispatcher
                 Console.WriteLine(error);
             }
             File.WriteAllText(Path.Combine(arg.Output,"PreGeneratedDispatcher.cs"), dispatcher.TransformText());
+            
         }
     }
 }

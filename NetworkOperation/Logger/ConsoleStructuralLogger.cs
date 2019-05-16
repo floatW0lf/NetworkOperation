@@ -4,6 +4,7 @@ namespace NetworkOperation.Logger
 {
     public class ConsoleStructuralLogger : IStructuralLogger
     {
+        
         public ConsoleStructuralLogger()
         {
         }

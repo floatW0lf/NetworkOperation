@@ -11,7 +11,7 @@ namespace NetworkOperation.Logger
     public interface IStructuralLogger
     {
         string Name { get; }
-        LogLevel MinLogLevel { get; set; }
+        LogLevel MinLogLevel { get; }
         void Write(LogLevel level, string message);
 #if !AOT
         void Write<T>(LogLevel level, string message, T arg);

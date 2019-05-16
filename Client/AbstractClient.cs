@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace NetworkOperation.Client
             _dispatcher = dispatcher;
             _dispatcher.ExecutionSide = Side.Client;
             Logger = logger;
-            Session = new NotConnectedSession();
+            Session = NotConnectedSession.Default;
         }
 
         private IFactory<TConnection,Session> _sessionFactory;
@@ -68,14 +69,14 @@ namespace NetworkOperation.Client
             if (Session == null) return;
             OnSessionClosed?.Invoke(Session);
             Session.Close();
-            Session = new NotConnectedSession();
+            Session = NotConnectedSession.Default;
         }
 
         protected Session Session { get; private set; }
         
-        protected void OpenSession(TConnection session)
+        protected void OpenSession(TConnection connection)
         {
-            Session = _sessionFactory.Create(session);
+            Session = _sessionFactory.Create(connection);
             _executor = _executorFactory.Create(Session);
             _dispatcher.Subscribe((IResponseReceiver<TResponse>) _executor);
             OnSessionOpened?.Invoke(Session);
@@ -98,30 +99,30 @@ namespace NetworkOperation.Client
         
         class NotConnectedSession : Session
         {
-            public override EndPoint NetworkAddress { get; }
+            NotConnectedSession(){}
+            public static NotConnectedSession Default = new NotConnectedSession();
+            public override EndPoint NetworkAddress { get; } = new IPEndPoint(IPAddress.None, 0);
             public override object UntypedConnection { get; }
             public override long Id { get; }
             public override SessionStatistics Statistics { get; }
-            protected internal override void OnClosedSession(ArraySegment<byte> payload = default)
-            {
-                throw new NotImplementedException();
-            }
+            protected internal override void OnClosedSession(ArraySegment<byte> payload = default) {}
 
             public override SessionState State { get; } = SessionState.Closed;
             protected internal override bool HasAvailableData { get; }
+
             protected internal override Task SendMessageAsync(ArraySegment<byte> data)
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException();
             }
 
             protected internal override Task<ArraySegment<byte>> ReceiveMessageAsync()
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException();
             }
 
             protected internal override IHandler<TOp, TResult, TRequest1> GetHandler<TOp, TResult, TRequest1>()
             {
-                throw new NotImplementedException();
+               throw new InvalidOperationException();
             }
         }
     }

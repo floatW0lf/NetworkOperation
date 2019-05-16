@@ -32,7 +32,7 @@ namespace Client
             var client = new NetLibClientBuilder<DefaultMessage, DefaultMessage>().UseSerializer(serializer).Register(typeof(ClientOpHandler)).Build();
             
             client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(new ExampleConnectPayload(){Version = "1.1",Authorize = "token",AppId = "example"},  serializer);
-                
+
             await client.ConnectAsync("localhost", Port);
             
             var res = await client.Executor.Execute<PlusOp, float>(new PlusOp {A = 100, B = 200});

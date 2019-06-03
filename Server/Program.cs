@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Contract;
+using Microsoft.Extensions.Hosting;
 using NetLibOperation;
 using NetworkOperation.Server;
 using Ninject;
@@ -18,10 +20,12 @@ namespace NetworkOperation
             var useTcp = Read_YesNo("Use TCP ?");
             var kernel = new StandardKernel(new ServerModule(useTcp));
             
-            var server = kernel.Get<IHost>();
-            server.Start(Port);
-            server.Sessions.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress} {session["appid"]}");
-            server.Sessions.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress} {session.GetReason()}" );
+            var hostedService = kernel.Get<IHostedService>();
+            await hostedService.StartAsync(CancellationToken.None);
+            
+            var hostOperation = kernel.Get<IHostContext>();
+            hostOperation.Sessions.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress} {session["appid"]}");
+            hostOperation.Sessions.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress} {session.GetReason()}" );
 
             Console.WriteLine("Server started");
 
@@ -29,10 +33,10 @@ namespace NetworkOperation
 
             Console.WriteLine("Send message");
             var msg = Console.ReadLine();
-            await server.Executor.Execute<ClientOp, Empty>(new ClientOp() { Message = msg });
+            await hostOperation.Executor.Execute<ClientOp, Empty>(new ClientOp() { Message = msg });
 
             Console.ReadLine();
-            await server.ShutdownAsync();
+            await hostedService.StopAsync(CancellationToken.None);
             Console.ReadLine();
         }
 

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using NetworkOperation.Factories;
 using NetworkOperation.Server;
 
 namespace NetworkOperation.Host
 {
-    public abstract class AbstractHost<TRequest,TResponse, TConnectionCollection> : IHost where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public abstract class AbstractHost<TRequest,TResponse, TConnectionCollection> : IHostedService, IHostContext where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private readonly IFactory<TConnectionCollection, MutableSessionCollection> _sessionsFactory;
         
@@ -64,6 +66,8 @@ namespace NetworkOperation.Host
         public abstract void Shutdown();
         public SessionCollection Sessions => _mutableSessions;
         public abstract Task ShutdownAsync();
-        
+
+        public abstract Task StartAsync(CancellationToken cancellationToken);
+        public abstract Task StopAsync(CancellationToken cancellationToken);
     }
 }

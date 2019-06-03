@@ -15,6 +15,7 @@ namespace NetLibOperation
     public class NetLibHost<TMessage, TResponse> : AbstractHost<TMessage, TResponse, NetManager>,
         INetEventListener where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
+        public int ListenPort { get; set; }
         
         private Task _pollTask;
 
@@ -117,6 +118,17 @@ namespace NetLibOperation
             });
             _source.Cancel();
             _pollTask = null;
+        }
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            Start(ListenPort);
+            return Task.CompletedTask;
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            await ShutdownAsync();
         }
 
         ~NetLibHost()

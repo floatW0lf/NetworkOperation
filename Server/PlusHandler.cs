@@ -10,9 +10,9 @@ namespace Handlers
 {
     public class PlusHandler : IHandler<PlusOp,float,DefaultMessage>
     {
-        private readonly IHost _host;
+        private readonly IHostContext _host;
 
-        public PlusHandler(IHost host)
+        public PlusHandler(IHostContext host)
         {
             _host = host;
         }

@@ -89,6 +89,16 @@ namespace Tcp.Server
             Listener = null;
         }
 
+        public override async Task StartAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler) : base(sessionsFactory, executorFactory, dispatcher, handler)
         {
         }

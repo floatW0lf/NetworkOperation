@@ -10,9 +10,9 @@ namespace Server
 {
     public class MultiplayHandler : IHandler<Multiplay,float,DefaultMessage>
     {
-        private readonly IHost _host;
+        private readonly IHostContext _host;
 
-        public MultiplayHandler(IHost host)
+        public MultiplayHandler(IHostContext host)
         {
             _host = host;
         }

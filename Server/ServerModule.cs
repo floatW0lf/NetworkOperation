@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using LiteNetLib;
+using Microsoft.Extensions.Hosting;
 using NetLibOperation;
 using NetOperationTest;
 using NetworkOperation.Dispatching;
@@ -42,12 +43,12 @@ namespace NetworkOperation
             
             if (_useTcp)
             {
-                Bind<IHost>().To<TcpNetOperationHost<DefaultMessage,DefaultMessage>>().InSingletonScope();
+                Bind<IHostContext, IHostedService>().To<TcpNetOperationHost<DefaultMessage, DefaultMessage>>().InSingletonScope();
             }
             else
             {
                 Bind<string>().ToConstant("key").WhenInjectedInto<NetLibHost<DefaultMessage,DefaultMessage>>();
-                Bind<IHost>().To<NetLibHost<DefaultMessage,DefaultMessage>>().InSingletonScope();
+                Bind<IHostContext,IHostedService>().To<NetLibHost<DefaultMessage,DefaultMessage>>().InSingletonScope().OnActivation(host => host.ListenPort = 9050);
             }
             
             Bind<IHandlerFactory>().To<NinjectHandlerFactory>().InSingletonScope();

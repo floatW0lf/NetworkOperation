@@ -5,11 +5,13 @@ namespace NetworkOperation
     [DataContract]
     public struct DefaultMessage : IOperationMessage
     {
-        [DataMember]
+        [DataMember(Order = 0)]
+        public int Id { get; set; }
+        [DataMember(Order = 1)]
         public uint OperationCode { get; set; }
-        [DataMember]
+        [DataMember(Order = 2)]
         public byte[] OperationData { get; set; }
-        [DataMember]
-        public uint StateCode { get; set; }
+        [DataMember(Order = 3)]
+        public uint StatusCode { get; set; }
     }
 }

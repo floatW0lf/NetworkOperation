@@ -1,116 +1,184 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using NetworkOperation;
 using NetworkOperation.Client;
-using System.Threading;
-using System.Threading.Tasks;
 using NetworkOperation.Factories;
+using NetworkOperation.Logger;
 
 namespace NetLibOperation.Client
 {
-    public class Client<TRequest,TResponse> : AbstractClient<TRequest,TResponse,NetPeer>, INetEventListener where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class Client<TRequest, TResponse> : AbstractClient<TRequest, TResponse, NetPeer>, INetEventListener
+        where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
-        public NetManager Manager { get; }
+        private bool _eventLoopRun;
+
+        private CancellationTokenSource _globalCancellationTokenSource;
+
         private Task _pollingTask;
         private Task _connectTask;
         
-        private CancellationTokenSource _cts = new CancellationTokenSource();
-
-        public override void Connect(string address, int port)
+        public Client(IFactory<NetPeer, Session> sessionFactory,
+                      IFactory<Session, IClientOperationExecutor> executorFactory, 
+                      BaseDispatcher<TRequest, TResponse> dispatcher,
+                      IStructuralLogger logger) : base(sessionFactory, executorFactory, dispatcher, logger)
         {
-            PreConnect(address, port);
-            _connectTask.Wait();
+           
+            Manager = new NetManager(this);
         }
 
-        private void StartPoll()
+        public NetManager Manager { get; private set; }
+
+        public override void Dispose()
         {
+            GC.SuppressFinalize(this);
+            Disposed();
+        }
+
+        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        {
+            
+        }
+
+        void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
+        {
+        }
+
+        void INetEventListener.OnConnectionRequest(ConnectionRequest request)
+        {
+        }
+        
+        void INetEventListener.OnPeerConnected(NetPeer peer)
+        {
+            OpenSession(peer);
+            ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
+            TryStart(_connectTask);
+        }
+
+        private void TryStart(Task task)
+        {
+            if (task != null && task.Status == TaskStatus.Created)
+            {
+                task.Start();
+            }
+        }
+
+        void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+        {
+            GlobalCancel();
+            Session.FillDisconnectInfo(disconnectInfo);
+            CloseSession();
+        }
+       
+
+        void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
+        {
+            DoErrorSession(endPoint,socketError);
+        }
+
+        void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+        {
+            ((NetLibSession) Session).OnReceiveData(new ArraySegment<byte>(reader.RawData,reader.UserDataOffset,reader.UserDataSize));
+            Dispatch().GetAwaiter();
+        }
+
+        
+
+        private void InitEventLoop()
+        {
+            _eventLoopRun = true;
             Manager.Start();
-            _pollingTask = Task.Factory.StartNew(async() =>
+            if (_pollingTask != null) return;
+
+            _pollingTask = Task.Factory.StartNew(async () =>
             {
                 do
                 {
                     Manager.PollEvents();
                     await Task.Delay(PollTimeInMs);
-
-                } while (!_cts.Token.IsCancellationRequested);
-
+                } while (_eventLoopRun);
             }, TaskCreationOptions.LongRunning);
         }
-
-
-        public override Task ConnectAsync(string address, int port)
+        private void GlobalCancel(bool stopEventLoop = false)
         {
-            PreConnect(address, port);
-            return _connectTask;
+            if (stopEventLoop)
+            {
+                Manager.Stop();
+                _eventLoopRun = false;
+                _pollingTask = null;
+            }
+            
+            if (_globalCancellationTokenSource != null)
+            {
+                _globalCancellationTokenSource.Cancel();
+                _globalCancellationTokenSource.Dispose();
+                _globalCancellationTokenSource = null;
+            }
+        }
+        private void Disposed()
+        {
+            GlobalCancel(true);
+            Manager = null;
         }
 
-        private void PreConnect(string address, int port)
+        ~Client()
         {
-            StartPoll();
-            Manager.Connect(address, port);
-            _connectTask = new Task(() => {}, TaskCreationOptions.PreferFairness);
+            Disposed();
         }
 
-        public override void Disconnect()
+        public override async Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default)
         {
-            if (_pollingTask == null) return;
-            Manager.Stop();
-            _cts.Cancel();
-            _pollingTask.Wait();
-            _pollingTask = null;
+            var rawPayload = ConnectionPayload.Resolve();
+            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(rawPayload.Array, rawPayload.Offset, rawPayload.Count));
+        }
+
+        private async Task InternalConnect(EndPoint remote, CancellationToken cancellationToken,NetDataWriter writer)
+        {
+            try
+            {
+                if (Session == null || Session.State == SessionState.Closed)
+                {
+                    _globalCancellationTokenSource = _globalCancellationTokenSource ?? new CancellationTokenSource();
+                    
+                    InitEventLoop();
+                    using (var compound = CancellationTokenSource.CreateLinkedTokenSource(_globalCancellationTokenSource.Token, cancellationToken))
+                    {
+                        _connectTask = new Task(() => { }, compound.Token,TaskCreationOptions.PreferFairness);
+                        Manager.Connect((IPEndPoint) remote, writer);
+                        await _connectTask;
+                        return;
+                    }
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                Manager.Stop();
+                throw;
+            }
+
+            Logger.Write(LogLevel.Warning, "Client already connected");
+        }
+
+        public override async Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
+        {
+            var raw = ConnectionPayload.Resolve(payload);
+            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(raw.Array,raw.Offset,raw.Count));
         }
 
         public override async Task DisconnectAsync()
         {
-            if (_pollingTask == null) return;
-
-            await Task.Run(() =>
+            if (Session?.State == SessionState.Opened)
             {
-                Manager.Stop();
-                while (Manager.IsRunning) { }
-            });
-            _cts.Cancel();
-            await _pollingTask;
-            _pollingTask = null;
-        }
-
-        void INetEventListener.OnNetworkError(NetEndPoint endPoint, int socketErrorCode)
-        {
-            DoErrorSession($"Error {endPoint}", socketErrorCode);
-        }
-
-        void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
-        {
+                await Task.Factory.StartNew(() => Manager.Stop());
+                CloseSession();
+                return;
+            }
+            Logger.Write(LogLevel.Warning,"Client already disconnect");
             
-        }
-
-        void INetEventListener.OnNetworkReceive(NetPeer peer, NetDataReader reader)
-        {
-            ((NetLibSession)Session).OnReceiveData(reader.Data);
-            Dispatch().GetAwaiter();
-        }
-
-        void INetEventListener.OnNetworkReceiveUnconnected(NetEndPoint remoteEndPoint, NetDataReader reader, UnconnectedMessageType messageType)
-        {
-        }
-
-        void INetEventListener.OnPeerConnected(NetPeer peer)
-        {
-            OpenSession(peer);
-            _connectTask.Start();
-        }
-
-        void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
-        {
-            CloseSession();
-        }
-
-        public Client(IFactory<NetPeer, Session> sessionFactory,
-            IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher,
-            string connectKey) : base(sessionFactory, executorFactory, dispatcher)
-        {
-            Manager = new NetManager(this, connectKey); 
         }
     }
 }

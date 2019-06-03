@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Threading.Tasks;
 using LiteNetLib;
+using LiteNetLib.Utils;
 using NetworkOperation;
+using NetworkOperation.Extensions;
 
 namespace NetLibOperation
 {
@@ -19,43 +22,52 @@ namespace NetLibOperation
             _factory = factory;
         }
 
-        public override string NetworkAddress => _peer.EndPoint.ToString();
+        public override EndPoint NetworkAddress => _peer.EndPoint;
         public override object UntypedConnection => _peer;
-        public override long Id => _peer.ConnectId;
+        public override long Id => _peer.Id;
         public override SessionStatistics Statistics { get; }
 
-        protected override bool HasAvailableData => _data != null;
+        protected override bool HasAvailableData => _hasData;
 
+        private bool _hasData;
+        
         protected override Task SendMessageAsync(ArraySegment<byte> data)
         {
-            _peer.Send(data.Array, data.Offset, data.Count, SendOptions.ReliableOrdered);
+            _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
             return Task.CompletedTask;
         }
 
-        private byte[] _data;
+        private ArraySegment<byte> _data;
 
-        public void OnReceiveData(byte[] data)
+        public void OnReceiveData(ArraySegment<byte> data)
         {
+            _hasData = true;
             _data = data;
         }
 
         protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
+            _hasData = false;
             var copy = _data;
-            _data = null;
-            return Task.FromResult(new ArraySegment<byte>(copy));
+            _data = default;
+            return Task.FromResult(copy);
         }
 
         protected override IHandler<TOp, TResult,TRequest> GetHandler<TOp, TResult,TRequest>()
         {
             return (IHandler<TOp, TResult,TRequest>)_perSessionHandler.GetOrAdd(typeof(IHandler<TOp, TResult,TRequest>), type => _factory.Create<TOp, TResult,TRequest>());
-        }
-        
-        protected override void OnClosedSession()
+        }        
+
+        protected override void OnClosedSession(ArraySegment<byte> payload = default)
         {
             if (_peer.ConnectionState == ConnectionState.Connected)
             {
-                _peer.NetManager.DisconnectPeer(_peer);
+                if (payload.Array != null)
+                {
+                    _peer.Disconnect(NetDataWriter.FromBytes(payload.Array,payload.Offset,payload.Count));
+                    return;
+                }
+                _peer.Disconnect();
             }
 
             foreach (var handler in _perSessionHandler.Values)
@@ -70,12 +82,14 @@ namespace NetLibOperation
             {
                 switch (_peer.ConnectionState)
                 {
-                    case ConnectionState.InProgress:
+                    case ConnectionState.Incoming:
                         return SessionState.Opening;
+                    
                     case ConnectionState.Connected:
                         return SessionState.Opened;
+                    
                     case ConnectionState.Disconnected:
-                        return SessionState.Opened;
+                        return SessionState.Closed;
                 }
                 throw new ArgumentException();
             }

@@ -7,9 +7,9 @@ namespace Contract
     [Operation(2,Handle = Side.All)]
     public struct Minus : IOperation<Minus,float>
     {
-        [DataMember]
+        [DataMember(Order = 0)]
         public float A;
-        [DataMember]
+        [DataMember(Order = 1)]
         public float B;
     }
 
@@ -17,9 +17,9 @@ namespace Contract
     [Operation(4, Handle = Side.All)]
     public class Multiplay : IOperation<Multiplay, float>
     {
-        [DataMember]
+        [DataMember(Order = 0)]
         public float A;
-        [DataMember]
+        [DataMember(Order = 1)]
         public float B;
     }
 }

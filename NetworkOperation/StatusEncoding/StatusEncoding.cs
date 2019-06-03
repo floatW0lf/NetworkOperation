@@ -63,9 +63,9 @@ namespace NetworkOperation.StatusCodes
                 new EnumRangeValue((uint) values.GetValue(0), (uint) values.GetValue(values.Length - 1)));
         }
 
-        public static bool IsValidValue<TOperation, TEnum>(TOperation operation) where TOperation : IOperationMessage
+        public static bool IsValidValue<TOperation, TEnum>(TOperation operation) where TOperation : IStatus
         {
-            return IsValidValue<TEnum>(operation.StateCode);
+            return IsValidValue<TEnum>(operation.StatusCode);
         }
 
         public static bool IsValidValue<TEnum>(uint code)
@@ -87,33 +87,42 @@ namespace NetworkOperation.StatusCodes
         }
 
         public static void Encode<TEnum, TMessage>(ref TMessage message, TEnum status) where TEnum : IConvertible
-            where TMessage : IOperationMessage
+            where TMessage : IStatus
         {
+            
             var code = status.ToUInt32(CultureInfo.InvariantCulture);
-            if (!IsValidValue<TEnum>(code))
-                throw new InvalidOperationException(
-                    $"Status code {AsString(message.StateCode)} cannot encode as {typeof(TEnum)}");
-            message.StateCode = code;
+            if (!IsValidValue<TEnum>(code)) CannotDecodeThrow<TEnum>(message.StatusCode);
+            message.StatusCode = code;
         }
 
-        public static TEnum Decode<TEnum, TMessage>(TMessage message, TEnum likeThis) where TMessage : IOperationMessage
+        private static void CannotDecodeThrow<TEnum>(uint statusCode)
+            where TEnum : IConvertible 
+        {
+            throw new InvalidOperationException(
+                $"Status code {AsString(statusCode)} cannot encode as {typeof(TEnum)}");
+        }
+
+        public static TEnum Decode<TEnum, TMessage>(TMessage message, TEnum like) where TMessage : IStatus
             where TEnum : IConvertible
         {
             if (!IsValidValue<TMessage, TEnum>(message))
-                throw new InvalidOperationException(
-                    $"Status code {AsString(message.StateCode)} cannot decode as {typeof(TEnum)}");
+            {
+                CannotDecodeThrow<TEnum>(message.StatusCode);
+            }
+                
 
-            return (TEnum) Enum.ToObject(typeof(TEnum), message.StateCode);
+            return (TEnum) Enum.ToObject(typeof(TEnum), message.StatusCode);
         }
 
         public static bool IsStatus<TEnum, TMessage>(TMessage message, TEnum status)
-            where TMessage : IOperationMessage where TEnum : IConvertible
+            where TMessage : IStatus where TEnum : IConvertible
         {
-            return message.StateCode == status.ToUInt32(CultureInfo.InvariantCulture);
+            return message.StatusCode == status.ToUInt32(CultureInfo.InvariantCulture);
         }
 
         public static string AsString(uint code)
         {
+            // ReSharper disable once InconsistentlySynchronizedField
             foreach (var enumRange in EnumRegistry)
                 if (enumRange.Value.Contain(code))
                     return $"{enumRange.Key.Name}.{Enum.ToObject(enumRange.Key, code)}";

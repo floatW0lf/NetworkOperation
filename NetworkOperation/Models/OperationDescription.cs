@@ -17,5 +17,7 @@ namespace NetworkOperation
         public uint Code { get; }
         public Type OperationType { get; }
         public Type ResultType { get; }
+
+        public bool WaitResponse { get; set; } = true;
     }
 }

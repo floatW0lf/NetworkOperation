@@ -5,6 +5,8 @@ using NetLibOperation;
 using NetOperationTest;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Factories;
+using NetworkOperation.Host;
+using NetworkOperation.Logger;
 using NetworkOperation.Server;
 using Ninject.Extensions.Conventions;
 using Ninject.Modules;
@@ -23,30 +25,29 @@ namespace NetworkOperation
         }
         public override void Load()
         {
+            Bind<SessionRequestHandler>().To<ExampleSessionRequestHandler>().InSingletonScope();
             Bind<OperationRuntimeModel>().ToConstant(OperationRuntimeModel.CreateFromAttribute());
             Bind<IFactory<NetPeer, Session>>().To<SessionFactory>().InSingletonScope();
             Bind<IFactory<Socket, Session>>().To<Tcp.Core.SessionFactory>().InSingletonScope();
             Bind<IFactory<Socket, MutableSessionCollection>>().To<Tcp.Server.SessionsFactory>().InSingletonScope();
             Bind<IFactory<NetManager, MutableSessionCollection>>().To<NetLibOperation.SessionsFactory>().InSingletonScope();
+            Bind<IStructuralLogger>().To<ConsoleStructuralLogger>().InSingletonScope();
             
-            Bind<IFactory<SessionCollection, IServerOperationExecutor>>()
+            Bind<IFactory<SessionCollection, IHostOperationExecutor>>()
                 .To<DefaultServerOperationExecutorFactory<DefaultMessage,DefaultMessage>>().InSingletonScope();
             
 
             Bind<BaseSerializer>().To<MsgSerializer>().InSingletonScope();
             Bind<BaseDispatcher<DefaultMessage,DefaultMessage>>().To<ExpressionDispatcher<DefaultMessage,DefaultMessage>>().InSingletonScope();
-            Bind<IRequestPlaceHolder<DefaultMessage>>().ToConstant(NullRequestPlaceHolder<DefaultMessage>.Instance);
-            Bind<IResponsePlaceHolder<DefaultMessage, DefaultMessage>>()
-                .ToConstant(NullResponsePlaceHolder<DefaultMessage, DefaultMessage>.Instance);
             
             if (_useTcp)
             {
-                Bind<IServer>().To<TcpNetOperationServer<DefaultMessage,DefaultMessage>>().InSingletonScope();
+                Bind<IHost>().To<TcpNetOperationHost<DefaultMessage,DefaultMessage>>().InSingletonScope();
             }
             else
             {
-                Bind<string>().ToConstant("key").WhenInjectedInto<Server<DefaultMessage,DefaultMessage>>();
-                Bind<IServer>().To<Server<DefaultMessage,DefaultMessage>>().InSingletonScope();
+                Bind<string>().ToConstant("key").WhenInjectedInto<NetLibHost<DefaultMessage,DefaultMessage>>();
+                Bind<IHost>().To<NetLibHost<DefaultMessage,DefaultMessage>>().InSingletonScope();
             }
             
             Bind<IHandlerFactory>().To<NinjectHandlerFactory>().InSingletonScope();

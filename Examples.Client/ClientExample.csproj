@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <LangVersion>7.1</LangVersion>
+    <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
+    <Configurations>Debug;Release;AOT</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncEnumerator" Version="2.2.2" />
+    <PackageReference Include="MessagePack" Version="1.7.3.4" />
+    <PackageReference Include="Ninject" Version="3.3.4" />
+    <PackageReference Include="Ninject.Extensions.Conventions" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\NetLibOperation.Client\NetLibOperation.Client.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\Tcp.Client\Tcp.Client.csproj" />
+    <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
+  </ItemGroup>
+
+</Project>

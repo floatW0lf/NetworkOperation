@@ -1,4 +1,5 @@
-﻿using NetworkOperation;
+﻿using System;
+using NetworkOperation;
 using Xunit;
 
 namespace NetOperationTest
@@ -11,6 +12,11 @@ namespace NetOperationTest
     [Operation(4)]
     public class Op4 : IOperation<Op4, float> { }
 
+    [Operation(4)]
+    public class Op5 : IOperation<Op5,float>{}
+    
+    [Operation(2)]
+    public class Op6 : IOperation<Op6,float>{}
     public class RuntimeModelTest
     {
         [Fact]
@@ -24,6 +30,12 @@ namespace NetOperationTest
             foreach (var d in model)
             {
             }
+        }
+
+        [Fact]
+        public void DuplicateTest()
+        {
+            Assert.Throws<ArgumentException>(() => { OperationRuntimeModel.CreateFromAttribute(new[] {typeof(Op), typeof(Op2), typeof(Op4),typeof(Op5),typeof(Op6)});});
         }
     }
 }

@@ -1,11 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
+    <LangVersion>7.1</LangVersion>
+    <Configurations>Debug;Release;AOT</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
+    <ProjectReference Include="..\Client\Client.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
     <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
   </ItemGroup>

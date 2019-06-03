@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Configurations>Debug;Release;AOT</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteNetLib" Version="0.7.7.3" />
+    <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
     <PackageReference Include="MessagePack" Version="1.7.3.4" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Host\Host.csproj" />
     <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
-    <ProjectReference Include="..\NetworkOperation.Server\NetworkOperation.Server.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
   </ItemGroup>
 

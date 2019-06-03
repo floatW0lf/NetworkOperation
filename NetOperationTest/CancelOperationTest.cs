@@ -9,6 +9,7 @@ using Moq;
 using NetworkOperation;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
+using NetworkOperation.Logger;
 using NetworkOperation.Server;
 using Xunit;
 using Xunit.Sdk;
@@ -19,7 +20,7 @@ namespace NetOperationTest
     {
         public class FooTestHandler : IHandler<Foo,int,DefaultMessage>
         {
-            public Task<OperationResult<int>> Handle(Foo objectData, OperationContext<DefaultMessage> context, CancellationToken token)
+            public Task<OperationResult<int>> Handle(Foo objectData, RequestContext<DefaultMessage> context, CancellationToken token)
             {
                 return Task.Run(() =>
                 {
@@ -49,12 +50,12 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             var mockSession = new Mock<SessionCollection>();
-            var mockSetting = new ServerOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(Foo) }),serializeMock.Object, mockSession.Object,NullRequestPlaceHolder<DefaultMessage>.Instance);
+            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(Foo) }),serializeMock.Object, mockSession.Object,new ConsoleStructuralLogger());
             var cts = new CancellationTokenSource();
             var task = mockSetting.Execute<Foo,int>(new Foo(), cts.Token);
             cts.Cancel();
             Assert.Equal(TaskStatus.Canceled,task.Status);
-            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<byte[]>()), Times.Exactly(2));
+            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>()), Times.Exactly(2));
         }
         
         [Fact]
@@ -68,7 +69,12 @@ namespace NetOperationTest
             var factory = new Mock<IHandlerFactory>();
             factory.Setup(f => f.Create<Foo, int,DefaultMessage>()).Returns(fooHandler);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }), NullResponsePlaceHolder<DefaultMessage,DefaultMessage>.Instance);
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(
+                new MsgSerializer(), 
+                factory.Object, 
+                OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }), 
+                new Mock<IStructuralLogger>().Object);
+            
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
@@ -88,7 +94,7 @@ namespace NetOperationTest
             {
                 hasCancelData = false;
                 return MessagePackSerializer.Serialize(new DefaultMessage()
-                    {OperationCode = 0, StateCode = (uint)BuiltInOperationState.Cancel});
+                    {OperationCode = 0, StatusCode = (uint)BuiltInOperationState.Cancel});
             });
             
             generatedDispatcher.DispatchAsync(mockSession.Object).GetAwaiter();

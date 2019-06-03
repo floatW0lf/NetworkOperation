@@ -10,17 +10,17 @@ namespace Server
 {
     public class MultiplayHandler : IHandler<Multiplay,float,DefaultMessage>
     {
-        private readonly IServer _server;
+        private readonly IHost _host;
 
-        public MultiplayHandler(IServer server)
+        public MultiplayHandler(IHost host)
         {
-            _server = server;
+            _host = host;
         }
 
-        public async Task<OperationResult<float>> Handle(Multiplay objectData, OperationContext<DefaultMessage> context, CancellationToken token)
+        public async Task<OperationResult<float>> Handle(Multiplay objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
             Console.WriteLine("Multiplay Handle");
-            await _server.Executor.Execute<ClientOp, Empty>(new ClientOp() {Message = "multyply"});
+            await _host.Executor.Execute<ClientOp, Empty>(new ClientOp() {Message = "multyply"});
             return this.Return(objectData.A * objectData.B);
         }
     }

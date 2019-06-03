@@ -1,11 +1,10 @@
-﻿using LiteNetLib;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 using Contract;
+using NetLibOperation;
 using NetworkOperation.Server;
 using Ninject;
-using Ninject.Infrastructure;
+
 
 namespace NetworkOperation
 {
@@ -15,13 +14,14 @@ namespace NetworkOperation
         
         static async Task Main(string[] args)
         {
+            
             var useTcp = Read_YesNo("Use TCP ?");
             var kernel = new StandardKernel(new ServerModule(useTcp));
             
-            var server = kernel.Get<IServer>();
+            var server = kernel.Get<IHost>();
             server.Start(Port);
-            server.Sessions.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress}");
-            server.Sessions.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress}");
+            server.Sessions.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress} {session["appid"]}");
+            server.Sessions.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress} {session.GetReason()}" );
 
             Console.WriteLine("Server started");
 

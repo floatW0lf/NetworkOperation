@@ -7,9 +7,9 @@ namespace Contract
     [Operation(1, Handle = Side.Server)]
     public struct PlusOp : IOperation<PlusOp, float>
     {
-        [DataMember]
+        [DataMember(Order = 0)]
         public float A;
-        [DataMember]
+        [DataMember(Order = 1)]
         public float B;
     }
 }

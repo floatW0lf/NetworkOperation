@@ -11,6 +11,8 @@ namespace NetworkOperation
         public uint Code { get; }
         public Side Handle { get; set; } = Side.All;
         public bool UseAsyncSerialize { get; set; }
-        
+
+        public bool WaitResponse { get; set; } = true;
+
     }
 }

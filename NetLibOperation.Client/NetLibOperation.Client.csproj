@@ -1,17 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>net472;netcoreapp2.2</TargetFrameworks>
+    <LangVersion>7.1</LangVersion>
+    <Configurations>Debug;Release;AOT</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'AOT' ">
+    <DefineConstants>TRACE;AOT</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteNetLib" Version="0.7.7.3" />
+    <ProjectReference Include="..\Client\Client.csproj" />
+    <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
-    <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
   </ItemGroup>
 
 </Project>

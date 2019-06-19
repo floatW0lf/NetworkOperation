@@ -28,7 +28,7 @@ namespace NetworkOperation.Extensions
         
         public static OperationResult<TResult> ReturnCode<TOperation, TResult, TEnum, TRequest>(this IHandler<TOperation, TResult,TRequest> handler, TEnum code, TResult value = default) where TOperation : IOperation<TOperation, TResult> where TEnum : IConvertible where TRequest : IOperationMessage
         {
-            if (StatusEncoding.IsEnumRegistered<TEnum>()) throw new ArgumentException($"{typeof(TEnum)} must be registered. Use {nameof(StatusEncoding)}.{nameof(StatusEncoding.Register)} for registration.");
+            if (!StatusEncoding.IsEnumRegistered<TEnum>()) throw new ArgumentException($"{typeof(TEnum)} must be registered. Use {nameof(StatusEncoding)}.{nameof(StatusEncoding.Register)} for registration.");
             return new OperationResult<TResult>(value, code.ToUInt32(CultureInfo.InvariantCulture)); 
         }
 

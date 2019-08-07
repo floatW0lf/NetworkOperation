@@ -26,14 +26,10 @@ namespace NetLibOperation
             BaseDispatcher<TMessage, TResponse> dispatcher, 
             SessionRequestHandler handler) : base(sessionsFactory,executorFactory, dispatcher,handler)
         {
-           
-
             Manager = new NetManager(this);
         }
 
         public NetManager Manager { get; }
-
-        public int MaxConnection { get; set; } = 10000;
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
             SessionOpen(Sessions.GetSession(peer.Id));

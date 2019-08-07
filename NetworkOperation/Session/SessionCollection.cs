@@ -78,9 +78,16 @@ namespace NetworkOperation
         {
             foreach (var session in IdToSessions)
             {
-                RaiseClosed(session.Value);
-                session.Value.OnClosedSession();
+                try
+                {
+                    RaiseClosed(session.Value);
+                }
+                finally
+                {
+                    session.Value.OnClosedSession();
+                }
             }
+            
             IdToSessions.Clear();
         }
 
@@ -99,8 +106,14 @@ namespace NetworkOperation
             var removed = IdToSessions.TryRemove(item.Id, out _);
             if (removed)
             {
-                RaiseClosed(item);
-                item.OnClosedSession();
+                try
+                {
+                    RaiseClosed(item);
+                }
+                finally
+                {
+                    item.OnClosedSession();
+                }
             }
             return removed;
         }

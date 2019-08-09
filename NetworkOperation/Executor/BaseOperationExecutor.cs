@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.ObjectPool;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
 using NetworkOperation.Logger;
@@ -45,8 +46,8 @@ namespace NetworkOperation
         private readonly ConcurrentDictionary<OperationId, Task> _responseQueue = new ConcurrentDictionary<OperationId, Task>();
 
         private readonly BaseSerializer _serializer;
-
-        private readonly Pool<State> _states = new Pool<State>(() => new State(), 10, 100);
+        
+        private static readonly ObjectPool<State> StatesPool = new DefaultObjectPool<State>(new DefaultPooledObjectPolicy<State>());
         private readonly Side _currentSide;
         private readonly Session _session;
         private readonly SessionCollection _sessions;
@@ -129,7 +130,7 @@ namespace NetworkOperation
                             response = new Task<OperationResult<TResult>>(state =>
                             {
                                 return OperationResultHandle<TResult>(state);
-                            }, _states.Rent(), composite.Token, TaskCreationOptions.PreferFairness);
+                            }, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
                             
                             _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
                             return await response;
@@ -138,7 +139,7 @@ namespace NetworkOperation
                         {
                             if (response != null)
                             {
-                                _states.Put((State)response.AsyncState);
+                                StatesPool.Return((State)response.AsyncState);
                             }
                             throw;
                         }
@@ -157,7 +158,7 @@ namespace NetworkOperation
         {
             var s = (State) state;
             var message = s.Result;
-            _states.Put(s);
+            StatesPool.Return(s);
 
             _logger.Write(LogLevel.Debug, "Receive response {response}", message);
             if (message.OperationData != null && message.StatusCode == (uint) BuiltInOperationState.InternalError)
@@ -175,7 +176,7 @@ namespace NetworkOperation
         {
             if (_responseQueue.TryRemove(new OperationId(request.Id, request.OperationCode), out var canceledTask))
             {
-                _states.Put((State) canceledTask.AsyncState);
+                StatesPool.Return((State) canceledTask.AsyncState);
                 
                 await SendRawOperation(receivers, forAll,
                     _serializer.Serialize(new TRequest

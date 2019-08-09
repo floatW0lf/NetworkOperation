@@ -1,11 +1,11 @@
 namespace NetworkOperation
 {
-    public enum BuiltInOperationState : uint
+    public enum BuiltInOperationState : ushort
     {
         None = 0,
         InternalError,
         Success,
         NoWaiting,
-        Cancel = 50
+        Cancel
     }
 }

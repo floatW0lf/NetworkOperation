@@ -94,7 +94,7 @@ namespace NetOperationTest
             {
                 hasCancelData = false;
                 return MessagePackSerializer.Serialize(new DefaultMessage()
-                    {OperationCode = 0, StatusCode = (uint)BuiltInOperationState.Cancel});
+                    {OperationCode = 0, Status = BuiltInOperationState.Cancel});
             });
             
             generatedDispatcher.DispatchAsync(mockSession.Object).GetAwaiter();

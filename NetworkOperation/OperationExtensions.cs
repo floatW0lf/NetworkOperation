@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
-using NetworkOperation.StatusCodes;
 
 namespace NetworkOperation.Extensions
 {
@@ -23,13 +21,12 @@ namespace NetworkOperation.Extensions
 
         public static OperationResult<TResult> Return<TOperation, TResult, TRequest>(this IHandler<TOperation, TResult, TRequest> handler, TResult value) where TOperation : IOperation<TOperation, TResult> where TRequest : IOperationMessage
         {
-            return new OperationResult<TResult>(value,(uint)BuiltInOperationState.Success); 
+            return new OperationResult<TResult>(value,BuiltInOperationState.Success); 
         }
         
-        public static OperationResult<TResult> ReturnCode<TOperation, TResult, TEnum, TRequest>(this IHandler<TOperation, TResult,TRequest> handler, TEnum code, TResult value = default) where TOperation : IOperation<TOperation, TResult> where TEnum : IConvertible where TRequest : IOperationMessage
+        public static OperationResult<TResult> ReturnCode<TOperation, TResult, TEnum, TRequest>(this IHandler<TOperation, TResult,TRequest> handler, TEnum code, TResult value = default) where TOperation : IOperation<TOperation, TResult> where TEnum : Enum where TRequest : IOperationMessage
         {
-            if (!StatusEncoding.IsEnumRegistered<TEnum>()) throw new ArgumentException($"{typeof(TEnum)} must be registered. Use {nameof(StatusEncoding)}.{nameof(StatusEncoding.Register)} for registration.");
-            return new OperationResult<TResult>(value, code.ToUInt32(CultureInfo.InvariantCulture)); 
+            return new OperationResult<TResult>(value, code); 
         }
 
         public static ArraySegment<T> To<T>(this T[] array)

@@ -24,8 +24,8 @@ namespace NetworkOperation
             await hostedService.StartAsync(CancellationToken.None);
             
             var hostOperation = kernel.Get<IHostContext>();
-            hostOperation.Sessions.OnSessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress} {session["appid"]}");
-            hostOperation.Sessions.OnSessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress} {session.GetReason()}" );
+            hostOperation.Sessions.SessionOpened += session => Console.WriteLine($"Session Opened {session.NetworkAddress} {session["appid"]}");
+            hostOperation.Sessions.SessionClosed += session => Console.WriteLine($"Session Closed {session.NetworkAddress} {session.GetReason()}" );
 
             Console.WriteLine("Server started");
 

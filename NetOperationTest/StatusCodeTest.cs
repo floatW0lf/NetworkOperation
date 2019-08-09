@@ -22,6 +22,7 @@ namespace NetOperationTest
     {
         public StatusCodeTest()
         {
+            StatusCode.UnregisterAll();
             StatusCode.Register(typeof(FooCodes), typeof(BarCodes));
         }
         

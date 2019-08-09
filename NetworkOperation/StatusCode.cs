@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NetworkOperation.StatusCodes;
 
 namespace NetworkOperation
 {
@@ -43,7 +41,7 @@ namespace NetworkOperation
         {
             if (IsEnumRegistered(enumType)) return;
             throw new InvalidOperationException(
-                $"{enumType} must be registered. Use {nameof(StatusEncoding)}.{nameof(Register)}");
+                $"{enumType} must be registered. Use {nameof(StatusCode)}.{nameof(Register)}");
         }
         
         public static bool IsEnumRegistered(Type enumType)

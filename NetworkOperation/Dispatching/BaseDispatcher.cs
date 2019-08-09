@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
 using NetworkOperation.Logger;
-using NetworkOperation.StatusCodes;
 
 namespace NetworkOperation
 {
     public struct DataWithStateCode
     {
         public readonly byte[] Data;
-        public readonly uint StatusCode;
+        public readonly StatusCode Status;
 
-        public DataWithStateCode(byte[] data, uint statusCode)
+        public DataWithStateCode(byte[] data, StatusCode status)
         {
             Data = data;
-            StatusCode = statusCode;
+            Status = status;
         }
     }
     
@@ -77,7 +75,7 @@ namespace NetworkOperation
                     {
                         var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
                         response.Id = request.Id;
-                        if (response.StatusCode != (uint)BuiltInOperationState.Success)
+                        if (response.Status != BuiltInOperationState.Success)
                         {
                             await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response));
                             continue;
@@ -107,7 +105,7 @@ namespace NetworkOperation
                         {
                             Id = request.Id,
                             OperationCode = request.OperationCode,
-                            StatusCode = (uint) BuiltInOperationState.InternalError,
+                            Status = BuiltInOperationState.InternalError,
                             OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
                         };
                         await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response));
@@ -133,7 +131,7 @@ namespace NetworkOperation
 
         private bool TryOperationCancel(TRequest op)
         {
-            if (op.StatusCode == (uint)BuiltInOperationState.Cancel)
+            if (op.Status == BuiltInOperationState.Cancel)
             {
                 if (_cancellationMap.TryRemove(op.OperationCode, out var cts))
                 {
@@ -148,7 +146,7 @@ namespace NetworkOperation
 
         private void RemoveCancellationSource(TRequest op)
         {
-            if (op.StatusCode == (uint)BuiltInOperationState.Cancel && _cancellationMap.TryRemove(op.OperationCode, out var cts))
+            if (op.Status == BuiltInOperationState.Cancel && _cancellationMap.TryRemove(op.OperationCode, out var cts))
             {
                 cts.Dispose();
             }
@@ -161,7 +159,7 @@ namespace NetworkOperation
                 Id = request.Id,
                 OperationCode = request.OperationCode,
                 OperationData = rawResponse.Data,
-                StatusCode = rawResponse.StatusCode
+                Status = rawResponse.Status
             };
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
@@ -183,9 +181,9 @@ namespace NetworkOperation
             var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
             
             if (!operationDescription.WaitResponse) return default;
-            if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.StatusCode);
+            if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.Status);
             
-            return new DataWithStateCode(operationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.StatusCode);
+            return new DataWithStateCode(operationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.Status);
         }
 
         protected internal Side ExecutionSide { get; internal set; }

@@ -9,13 +9,22 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using MessagePack.Formatters;
+using MessagePack.Resolvers;
 using NetworkOperation.Logger;
+using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace NetOperationTest
 {
     public class DispatcherTest
     {
+        static DispatcherTest()
+        {
+            CompositeResolver.Register(new IMessagePackFormatter[] {new StatusCodeFormatter()},new [] {BuiltinResolver.Instance,PrimitiveObjectResolver.Instance, StandardResolver.Instance });
+            MessagePackSerializer.SetDefaultResolver(CompositeResolver.Instance);
+        }
+        
         [DataContract]
         [Operation(0,Handle = Side.All)]
         public struct A : IOperation<A,int>

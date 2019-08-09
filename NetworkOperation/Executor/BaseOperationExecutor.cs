@@ -161,15 +161,15 @@ namespace NetworkOperation
             StatesPool.Return(s);
 
             _logger.Write(LogLevel.Debug, "Receive response {response}", message);
-            if (message.OperationData != null && message.StatusCode == (uint) BuiltInOperationState.InternalError)
+            if (message.OperationData != null && message.Status == BuiltInOperationState.InternalError)
             {
                 _logger.Write(LogLevel.Error, "Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
-                return new OperationResult<TResult>(default, message.StatusCode);
+                return new OperationResult<TResult>(default, message.Status);
             }
 
-            if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.StatusCode);
+            if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.Status);
             return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()),
-                message.StatusCode);
+                message.Status);
         }
 
         private async Task SendCancel(IReadOnlyList<Session> receivers, bool forAll, TRequest request)
@@ -183,7 +183,7 @@ namespace NetworkOperation
                     {
                         Id = MessageIdGenerator.Generate(),
                         OperationCode = request.OperationCode, 
-                        StatusCode = (uint)BuiltInOperationState.Cancel
+                        Status = BuiltInOperationState.Cancel
                     }));
             }
         }
@@ -199,9 +199,10 @@ namespace NetworkOperation
                 case Side.Server:
                 {
                     var rawWithMessageType = request.AppendInBegin(TypeMessage.Request);
-                    foreach (var r in receivers)
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    for (int i = 0; i < receivers.Count; i++)
                     {
-                        await r.SendMessageAsync(rawWithMessageType);
+                        await receivers[i].SendMessageAsync(rawWithMessageType);
                     }
                     break;
                 }

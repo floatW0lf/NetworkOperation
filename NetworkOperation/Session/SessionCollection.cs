@@ -41,22 +41,22 @@ namespace NetworkOperation
         
         protected void RaiseClosed(Session session)
         {
-            OnSessionClosed?.Invoke(session);
+            SessionClosed?.Invoke(session);
         }
 
         protected void RaiseOpened(Session session)
         {
-            OnSessionOpened?.Invoke(session);
+            SessionOpened?.Invoke(session);
         }
 
         protected void RaiseError(Session session, EndPoint endPoint, SocketError code)
         {
-            OnSessionError?.Invoke(session, endPoint, code);
+            SessionError?.Invoke(session, endPoint, code);
         }
 
-        public event Action<Session> OnSessionClosed;
-        public event Action<Session> OnSessionOpened;
-        public event Action<Session, EndPoint, SocketError> OnSessionError;
+        public event Action<Session> SessionClosed;
+        public event Action<Session> SessionOpened;
+        public event Action<Session, EndPoint, SocketError> SessionError;
     }
 
     public abstract class MutableSessionCollection : SessionCollection, ICollection<Session>

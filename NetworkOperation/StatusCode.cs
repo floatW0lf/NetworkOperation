@@ -11,7 +11,6 @@ namespace NetworkOperation
     {
         [FieldOffset(0)]
         private readonly uint _code;
-
         [FieldOffset(0)]
         private readonly ushort _typeCode;
         [FieldOffset(2)]
@@ -19,6 +18,7 @@ namespace NetworkOperation
         
         private static Type[] _enumRegistry = { typeof(BuiltInOperationState) };
         private static bool _freeze;
+        
         public static void UnregisterAll()
         {
             _enumRegistry = new[] {typeof(BuiltInOperationState)};
@@ -28,15 +28,24 @@ namespace NetworkOperation
         public static void Register(params Type[] enums)
         {
             if (_freeze) throw new InvalidOperationException($"{nameof(StatusCode)} registry is freeze.");
+            if (enums.Length + _enumRegistry.Length >= ushort.MaxValue) throw new InvalidOperationException("Max registered enum");
             if (enums.Any(type => !type.IsEnum)) throw new InvalidOperationException("Register type must be enum");
             
             var newRegistry = new Type[enums.Length + _enumRegistry.Length];
             Array.Copy(_enumRegistry,newRegistry, _enumRegistry.Length);
             Array.Copy(enums,0,newRegistry,_enumRegistry.Length, enums.Length);
             _enumRegistry = newRegistry;
+            _freeze = true;
         }
-       
 
+        public Type GetEnumType()
+        {
+            if (_typeCode < _enumRegistry.Length)
+            {
+                return _enumRegistry[_typeCode];
+            }
+            return null;
+        }
         private static void ThrowIfNotRegistered(Type enumType)
         {
             if (IsEnumRegistered(enumType)) return;
@@ -46,21 +55,19 @@ namespace NetworkOperation
         
         public static bool IsEnumRegistered(Type enumType)
         {
-            foreach (var t in _enumRegistry)
-            {   
-                if (t == enumType) return true;
-            }
-            return false;
+            return GetEnumTypeCode(enumType) != ushort.MaxValue;
         }
+        
         public static bool IsEnumRegistered<TEnum>() where TEnum : Enum
         {
             return IsEnumRegistered(typeof(TEnum));
         }
+        
         public override string ToString()
         {
             if (_typeCode < _enumRegistry.Length)
             {
-                return Enum.GetName(_enumRegistry[_typeCode], _value);
+                return Enum.GetName(_enumRegistry[_typeCode], _value) ?? "null";
             }
             return $"Unknown.{_code}";
         }
@@ -79,12 +86,14 @@ namespace NetworkOperation
             _value = 0;
             _code = raw;
         }
+        
         public uint Code => _code;
 
         public bool Equals(StatusCode other)
         {
             return _code == other._code;
         }
+        
         public override bool Equals(object obj)
         {
             return obj is StatusCode other && Equals(other);
@@ -99,10 +108,32 @@ namespace NetworkOperation
         {
             return _code.CompareTo(other._code);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ushort ConvertToValue(Enum @enum)
+        {
+            return Convert.ToUInt16(@enum);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ushort GetEnumTypeCode(Type enumType)
+        {
+            for (ushort i = 0; i < _enumRegistry.Length; i++)
+            {
+                if (_enumRegistry[i] == enumType) return i;
+            }
+            return ushort.MaxValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static StatusCode ConvertToStatusCode(Enum @enum) 
+        {
+            return new StatusCode(GetEnumTypeCode(@enum.GetType()), ConvertToValue(@enum));
+        }
 
         #region Operators
         
-        public static implicit operator StatusCode(uint rawCode)
+        public static explicit operator StatusCode(uint rawCode)
         {
             return new StatusCode(rawCode);
         }
@@ -127,16 +158,7 @@ namespace NetworkOperation
         {
             return !(a == b);
         }
-
-        public static bool operator ==(StatusCode a, uint b)
-        {
-            return a._code == b;
-        }
-
-        public static bool operator !=(StatusCode a, uint b)
-        {
-            return !(a == b);
-        }
+       
         public static bool operator ==(StatusCode a, Enum b)
         {
             return a == ConvertToStatusCode(b);
@@ -164,7 +186,7 @@ namespace NetworkOperation
 
         public static bool operator <(StatusCode a, StatusCode b)
         {
-            return a._code <= b._code;
+            return a._code < b._code;
         }
         
         public static bool operator >(StatusCode a, Enum b)
@@ -184,32 +206,12 @@ namespace NetworkOperation
 
         public static bool operator <(StatusCode a, Enum b)
         {
-            return a <= ConvertToStatusCode(b);
+            return a < ConvertToStatusCode(b);
         }
+        
         public bool Equals<TEnum>(TEnum @enum) where TEnum : Enum, IConvertible
         {
             return GetEnumTypeCode(typeof(TEnum)) == _typeCode && _value == @enum.ToUInt16(CultureInfo.InvariantCulture);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ushort ConvertToValue(Enum @enum)
-        {
-            return Convert.ToUInt16(@enum);
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ushort GetEnumTypeCode(Type enumType)
-        {
-            unchecked
-            {
-                return (ushort)Array.IndexOf(_enumRegistry, enumType);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static StatusCode ConvertToStatusCode(Enum @enum) 
-        {
-            return new StatusCode(GetEnumTypeCode(@enum.GetType()), ConvertToValue(@enum));
         }
         
         #endregion

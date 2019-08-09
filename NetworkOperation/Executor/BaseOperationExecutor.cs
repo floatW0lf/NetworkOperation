@@ -145,7 +145,7 @@ namespace NetworkOperation
                         }
                     }
                 }
-                return new OperationResult<TResult>(default, (uint)BuiltInOperationState.NoWaiting);
+                return new OperationResult<TResult>(default, BuiltInOperationState.NoWaiting);
             }
             catch (OperationCanceledException)
             {

@@ -13,7 +13,7 @@ namespace NetOperationTest
 
         public StatusCode Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
         {
-            return MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
+            return (StatusCode) MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
         }
     }
 }

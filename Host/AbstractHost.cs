@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using NetworkOperation.Factories;
+using NetworkOperation.Logger;
 using NetworkOperation.Server;
 
 namespace NetworkOperation.Host
@@ -16,12 +17,14 @@ namespace NetworkOperation.Host
         private readonly IFactory<MutableSessionCollection, IHostOperationExecutor> _executorFactory;
         private readonly SessionRequestHandler _handler;
 
+        protected IStructuralLogger Logger { get; }
         public int PollTimeInMs { get; set; } = 10;
         
         protected AbstractHost(IFactory<TConnectionCollection, MutableSessionCollection> sessionsFactory,
             IFactory<SessionCollection, IHostOperationExecutor> executorFactory,
-            BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler)
+            BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory)
         {
+            Logger = loggerFactory.Create(GetType().FullName);
             _sessionsFactory = sessionsFactory;
             _executorFactory = executorFactory;
             _handler = handler;
@@ -62,11 +65,7 @@ namespace NetworkOperation.Host
         }
         
         public IHostOperationExecutor Executor { get; private set; }
-        public abstract void Start(int port);
-        public abstract void Shutdown();
         public SessionCollection Sessions => _mutableSessions;
-        public abstract Task ShutdownAsync();
-
         public abstract Task StartAsync(CancellationToken cancellationToken);
         public abstract Task StopAsync(CancellationToken cancellationToken);
     }

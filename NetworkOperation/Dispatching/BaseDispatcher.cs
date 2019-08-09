@@ -129,24 +129,27 @@ namespace NetworkOperation
             return cts.Token;
         }
 
+        private bool RemoveAndGetCts(TRequest op, out CancellationTokenSource cancellationTokenSource)
+        {
+            cancellationTokenSource = null; 
+            return op.Status == BuiltInOperationState.Cancel &&
+                   _cancellationMap.TryRemove(op.OperationCode, out cancellationTokenSource);
+        }
         private bool TryOperationCancel(TRequest op)
         {
-            if (op.Status == BuiltInOperationState.Cancel)
+            if (RemoveAndGetCts(op, out var cts))
             {
-                if (_cancellationMap.TryRemove(op.OperationCode, out var cts))
-                {
-                    cts.Cancel();
-                    cts.Dispose();
-                }
-                
+                cts.Cancel();
+                cts.Dispose();
                 return true;
             }
             return false;
         }
 
+        
         private void RemoveCancellationSource(TRequest op)
         {
-            if (op.Status == BuiltInOperationState.Cancel && _cancellationMap.TryRemove(op.OperationCode, out var cts))
+            if (RemoveAndGetCts(op,out var cts))
             {
                 cts.Dispose();
             }

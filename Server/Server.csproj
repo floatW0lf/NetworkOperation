@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
     <PackageReference Include="MessagePack" Version="1.7.3.4" />
+    <PackageReference Include="Moq" Version="4.12.0" />
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Extensions.Conventions" Version="3.3.0" />
   </ItemGroup>

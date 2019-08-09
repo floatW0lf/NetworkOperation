@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using LiteNetLib;
 using Microsoft.Extensions.Hosting;
+using Moq;
 using NetLibOperation;
 using NetOperationTest;
 using NetworkOperation.Dispatching;
@@ -33,7 +34,12 @@ namespace NetworkOperation
             Bind<IFactory<Socket, MutableSessionCollection>>().To<Tcp.Server.SessionsFactory>().InSingletonScope();
             Bind<IFactory<NetManager, MutableSessionCollection>>().To<NetLibOperation.SessionsFactory>().InSingletonScope();
             Bind<IStructuralLogger>().To<ConsoleStructuralLogger>().InSingletonScope();
-            
+            Bind<ILoggerFactory>().ToMethod(context =>
+            {
+                var m = new Mock<ILoggerFactory>();
+                m.Setup(factory => factory.Create(It.IsAny<string>())).Returns(new ConsoleStructuralLogger());
+                return m.Object;
+            }).InSingletonScope();
             Bind<IFactory<SessionCollection, IHostOperationExecutor>>()
                 .To<DefaultServerOperationExecutorFactory<DefaultMessage,DefaultMessage>>().InSingletonScope();
             

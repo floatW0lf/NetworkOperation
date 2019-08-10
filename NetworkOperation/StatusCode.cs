@@ -40,11 +40,7 @@ namespace NetworkOperation
 
         public Type GetEnumType()
         {
-            if (_typeCode < _enumRegistry.Length)
-            {
-                return _enumRegistry[_typeCode];
-            }
-            return null;
+            return _typeCode < _enumRegistry.Length ? _enumRegistry[_typeCode] : null;
         }
         private static void ThrowIfNotRegistered(Type enumType)
         {
@@ -130,6 +126,11 @@ namespace NetworkOperation
         {
             return new StatusCode(GetEnumTypeCode(@enum.GetType()), ConvertToValue(@enum));
         }
+        
+        public bool Equals<TEnum>(TEnum @enum) where TEnum : Enum, IConvertible
+        {
+            return GetEnumTypeCode(typeof(TEnum)) == _typeCode && _value == @enum.ToUInt16(CultureInfo.InvariantCulture);
+        }
 
         #region Operators
         
@@ -207,11 +208,6 @@ namespace NetworkOperation
         public static bool operator <(StatusCode a, Enum b)
         {
             return a < ConvertToStatusCode(b);
-        }
-        
-        public bool Equals<TEnum>(TEnum @enum) where TEnum : Enum, IConvertible
-        {
-            return GetEnumTypeCode(typeof(TEnum)) == _typeCode && _value == @enum.ToUInt16(CultureInfo.InvariantCulture);
         }
         
         #endregion

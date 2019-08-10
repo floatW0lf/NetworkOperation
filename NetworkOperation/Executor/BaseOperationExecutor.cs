@@ -114,7 +114,7 @@ namespace NetworkOperation
             _logger.Write(LogLevel.Debug,"Operation serialized {operation}", operation);
             
             var rawResult = _serializer.Serialize(op);
-            await SendRawOperation(receivers, forAll, rawResult);
+            await SendRequest(receivers, forAll, rawResult);
            
             _logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
             
@@ -125,13 +125,9 @@ namespace NetworkOperation
                     using (var composite = CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken))
                     {
                         Task<OperationResult<TResult>> response = null;
-                        try 
+                        try
                         {
-                            response = new Task<OperationResult<TResult>>(state =>
-                            {
-                                return OperationResultHandle<TResult>(state);
-                            }, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
-                            
+                            response = new Task<OperationResult<TResult>>(OperationResultHandle<TResult>, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
                             _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
                             return await response;
                         }
@@ -178,7 +174,7 @@ namespace NetworkOperation
             {
                 StatesPool.Return((State) canceledTask.AsyncState);
                 
-                await SendRawOperation(receivers, forAll,
+                await SendRequest(receivers, forAll,
                     _serializer.Serialize(new TRequest
                     {
                         Id = MessageIdGenerator.Generate(),
@@ -188,26 +184,26 @@ namespace NetworkOperation
             }
         }
 
-        private async Task SendRawOperation(IReadOnlyList<Session> receivers, bool forAll, byte[] request)
+        private async Task SendRequest(IReadOnlyList<Session> receivers, bool forAll, byte[] request)
         {
+            var requestWithMessageType = request.AppendInBegin(TypeMessage.Request);
             switch (_currentSide)
             {
                 case Side.Server when forAll:
-                    await _sessions.SendToAllAsync(request.AppendInBegin(TypeMessage.Request));
+                    await _sessions.SendToAllAsync(requestWithMessageType);
                     break;
                 
                 case Side.Server:
                 {
-                    var rawWithMessageType = request.AppendInBegin(TypeMessage.Request);
                     // ReSharper disable once ForCanBeConvertedToForeach
                     for (int i = 0; i < receivers.Count; i++)
                     {
-                        await receivers[i].SendMessageAsync(rawWithMessageType);
+                        await receivers[i].SendMessageAsync(requestWithMessageType);
                     }
                     break;
                 }
                 case Side.Client:
-                    await _session.SendMessageAsync(request.AppendInBegin(TypeMessage.Request));
+                    await _session.SendMessageAsync(requestWithMessageType);
                     break;
             }
         }

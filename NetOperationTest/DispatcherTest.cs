@@ -13,17 +13,13 @@ using MessagePack.Formatters;
 using MessagePack.Resolvers;
 using NetworkOperation.Logger;
 using Newtonsoft.Json.Serialization;
+using Serializer.MessagePack;
 using Xunit;
 
 namespace NetOperationTest
 {
     public class DispatcherTest
     {
-        static DispatcherTest()
-        {
-            CompositeResolver.Register(new IMessagePackFormatter[] {new StatusCodeFormatter()},new [] {BuiltinResolver.Instance,PrimitiveObjectResolver.Instance, StandardResolver.Instance });
-            MessagePackSerializer.SetDefaultResolver(CompositeResolver.Instance);
-        }
         
         [DataContract]
         [Operation(0,Handle = Side.All)]
@@ -43,8 +39,6 @@ namespace NetOperationTest
         
         class TestDispatcher : BaseDispatcher<DefaultMessage,DefaultMessage>
         {
-            
-
             protected override Task<DataWithStateCode> ProcessHandler(Session session, DefaultMessage message, OperationDescription operationDescription, CancellationToken token)
             {
                 switch (message.OperationCode)

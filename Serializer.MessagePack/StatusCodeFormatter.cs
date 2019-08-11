@@ -2,7 +2,7 @@ using MessagePack;
 using MessagePack.Formatters;
 using NetworkOperation;
 
-namespace NetOperationTest
+namespace Serializer.MessagePack
 {
     public class StatusCodeFormatter : IMessagePackFormatter<StatusCode>
     {

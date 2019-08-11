@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Contract;
+using IntegrationTests.Contract;
 using NetworkOperation;
 using NetworkOperation.Extensions;
 using NetworkOperation.Server;
 
-namespace Server
+namespace IntegrationTests.Server
 {
     public class MultiplayHandler : IHandler<Multiplay,float,DefaultMessage>
     {

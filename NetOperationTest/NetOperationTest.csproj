@@ -17,7 +17,6 @@
   <ItemGroup>
     <PackageReference Include="AutoFixture.AutoMoq" Version="4.6.0" />
     <PackageReference Include="AutoFixture.Xunit" Version="4.6.0" />
-    <PackageReference Include="MessagePack" Version="1.7.3.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
     <PackageReference Include="Moq" Version="4.10.1" />
     <PackageReference Include="System.Reactive" Version="4.1.2" />
@@ -30,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Host\Host.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
   </ItemGroup>
 
 </Project>

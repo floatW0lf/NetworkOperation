@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Contract;
+using IntegrationTests.Contract;
 using NetworkOperation;
 using NetworkOperation.Extensions;
 using NetworkOperation.Server;
 
-namespace Handlers
+namespace IntegrationTests.Server
 {
     public class PlusHandler : IHandler<PlusOp,float,DefaultMessage>
     {

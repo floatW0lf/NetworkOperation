@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Contract;
+using IntegrationTests.Contract;
 using NetworkOperation;
 
-namespace Server
+namespace IntegrationTests.Server
 {
     public class LongTimeOperationHandler : IHandler<LongTimeOperation, int, DefaultMessage>
     {

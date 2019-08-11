@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using NetworkOperation;
 
-namespace Contract
+namespace IntegrationTests.Contract
 {
     [DataContract]
     [Operation(0,Handle = Side.Client)]

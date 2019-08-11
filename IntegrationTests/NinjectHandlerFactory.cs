@@ -1,7 +1,7 @@
 ﻿using NetworkOperation;
 using Ninject;
 
-namespace Server
+namespace IntegrationTests
 {
     public class NinjectHandlerFactory : IHandlerFactory
     {

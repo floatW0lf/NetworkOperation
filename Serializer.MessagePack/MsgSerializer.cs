@@ -2,12 +2,19 @@
 using System.IO;
 using System.Threading.Tasks;
 using MessagePack;
+using MessagePack.Formatters;
+using MessagePack.Resolvers;
 using NetworkOperation;
 
-namespace NetOperationTest
+namespace Serializer.MessagePack
 {
     public class MsgSerializer : BaseSerializer
     {
+        static MsgSerializer()
+        {
+            CompositeResolver.Register(new IMessagePackFormatter[] {new StatusCodeFormatter()},new [] {BuiltinResolver.Instance,PrimitiveObjectResolver.Instance, StandardResolver.Instance });
+            MessagePackSerializer.SetDefaultResolver(CompositeResolver.Instance);
+        }
         public override T Deserialize<T>(ArraySegment<byte> rawBytes)
         {
             return MessagePackSerializer.Deserialize<T>(rawBytes);

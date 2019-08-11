@@ -1,18 +1,18 @@
-using Contract;
+using IntegrationTests.Contract;
 using LiteNetLib;
 using NetLibOperation;
 using NetworkOperation;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
 
-namespace Server
+namespace IntegrationTests
 {
-    public class ExampleSessionRequestHandler : DefaultLiteSessionOpenHandler
+    public class TestSessionRequestHandler : DefaultLiteSessionOpenHandler
     {
         public string Auth { get; set; } = "token";
         public string version = "1.1";
         
-        public ExampleSessionRequestHandler(IFactory<NetPeer, Session> sessionFactory, BaseSerializer serializer) : base(sessionFactory, serializer)
+        public TestSessionRequestHandler(IFactory<NetPeer, Session> sessionFactory, BaseSerializer serializer) : base(sessionFactory, serializer)
         {
         }
 

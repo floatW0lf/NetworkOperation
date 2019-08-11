@@ -20,6 +20,7 @@
     <ItemGroup>
       <ProjectReference Include="..\NetLibOperation.Client\NetLibOperation.Client.csproj" />
       <ProjectReference Include="..\NetLibOperation.Server\NetLibOperation.Server.csproj" />
+      <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
       <ProjectReference Include="..\Tcp.Client\Tcp.Client.csproj" />
       <ProjectReference Include="..\Tcp.Server\Tcp.Server.csproj" />
     </ItemGroup>

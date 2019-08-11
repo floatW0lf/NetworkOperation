@@ -11,6 +11,7 @@ using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
 using NetworkOperation.Logger;
 using NetworkOperation.Server;
+using Serializer.MessagePack;
 using Xunit;
 using Xunit.Sdk;
 

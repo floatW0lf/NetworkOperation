@@ -4,8 +4,8 @@ using NetworkOperation;
 namespace IntegrationTests.Contract
 {
     [DataContract]
-    [Operation(1, Handle = Side.Server)]
-    public struct PlusOp : IOperation<PlusOp, float>
+    [Operation(4, Handle = Side.All)]
+    public class Multiply : IOperation<Multiply, float>
     {
         [DataMember(Order = 0)]
         public float A;

@@ -7,11 +7,11 @@ using NetworkOperation.Extensions;
 
 namespace IntegrationTests.Client
 {
-    public class ClientOpHandler : IHandler<ClientOp,Empty,DefaultMessage>
+    public class ClientOpHandler : IHandler<ClientOp,string,DefaultMessage>
     {
-        public async Task<OperationResult<Empty>> Handle(ClientOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)
+        public async Task<OperationResult<string>> Handle(ClientOp objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            return this.Return(default);
+            return this.Return(objectData.Message + "_client");
         }
     }
 }

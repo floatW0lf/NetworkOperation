@@ -22,6 +22,7 @@ namespace IntegrationTests
             if (payload.Authorize == Auth && payload.Version == version)
             {
                 request.Accept()["appid"] = payload.AppId;
+                return;
             }
             
             request.Reject();

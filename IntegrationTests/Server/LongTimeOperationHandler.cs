@@ -11,21 +11,11 @@ namespace IntegrationTests.Server
         public async Task<OperationResult<int>> Handle(LongTimeOperation objectData,
             RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            Console.WriteLine("LongTimeOperationHandler");
-            try
+            while (true)
             {
-                while (true)
-                {
-                    token.ThrowIfCancellationRequested();
-                    await Task.Delay(10, token);
-                }
+                token.ThrowIfCancellationRequested();
+                await Task.Delay(10, token);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            return new OperationResult<int>();
         }
     }
 }

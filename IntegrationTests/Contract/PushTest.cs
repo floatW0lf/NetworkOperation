@@ -4,10 +4,10 @@ using NetworkOperation;
 namespace IntegrationTests.Contract
 {
     [DataContract]
-    [Operation(0,Handle = Side.Client)]
-    public struct ClientOp : IOperation<ClientOp,string>
+    [Operation(1, Handle = Side.Server)]
+    public struct PushTest : IOperation<PushTest, string>
     {
-        [DataMember(Order = 0)]
+        [DataMember]
         public string Message;
     }
 }

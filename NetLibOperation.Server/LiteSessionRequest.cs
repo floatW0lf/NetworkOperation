@@ -9,7 +9,7 @@ namespace NetLibOperation
     public class LiteSessionRequest : SessionRequest
     {
         private readonly ConnectionRequest _connectionRequest;
-        public IFactory<NetPeer, Session> SessionFactory { get; set; }
+        internal IFactory<NetPeer, Session> SessionFactory { get; set; }
 
         public LiteSessionRequest(ConnectionRequest connectionRequest)
         {

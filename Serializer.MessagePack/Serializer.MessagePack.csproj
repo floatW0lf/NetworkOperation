@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Client\Client.csproj" />
       <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
     </ItemGroup>
 

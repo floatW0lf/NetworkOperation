@@ -8,7 +8,7 @@ using NetworkOperation.Server;
 
 namespace IntegrationTests.Server
 {
-    public class MultiplayHandler : IHandler<Multiplay,float,DefaultMessage>
+    public class MultiplayHandler : IHandler<Multiply,float,DefaultMessage>
     {
         private readonly IHostContext _host;
 
@@ -17,10 +17,8 @@ namespace IntegrationTests.Server
             _host = host;
         }
 
-        public async Task<OperationResult<float>> Handle(Multiplay objectData, RequestContext<DefaultMessage> context, CancellationToken token)
+        public async Task<OperationResult<float>> Handle(Multiply objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            Console.WriteLine("Multiplay Handle");
-            await _host.Executor.Execute<ClientOp, Empty>(new ClientOp() {Message = "multyply"});
             return this.Return(objectData.A * objectData.B);
         }
     }

@@ -118,36 +118,36 @@ namespace NetworkOperation
            
             _logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
             
-            try
+            if (description.WaitResponse)
             {
-                if (description.WaitResponse)
+                using (var composite = CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken))
                 {
-                    using (var composite = CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken))
+                    Task<OperationResult<TResult>> response = null;
+                    try
                     {
-                        Task<OperationResult<TResult>> response = null;
-                        try
+                        response = new Task<OperationResult<TResult>>(OperationResultHandle<TResult>, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
+                        _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
+                        return await response;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        await SendCancel(receivers, forAll, op);
+                        throw;
+                    }
+                    catch (Exception)
+                    {
+                        if (response != null)
                         {
-                            response = new Task<OperationResult<TResult>>(OperationResultHandle<TResult>, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
-                            _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
-                            return await response;
+                            _responseQueue.TryRemove(new OperationId(op.Id, op.OperationCode), out _);
+                            StatesPool.Return((State)response.AsyncState);
                         }
-                        catch (Exception)
-                        {
-                            if (response != null)
-                            {
-                                StatesPool.Return((State)response.AsyncState);
-                            }
-                            throw;
-                        }
+                        throw;
                     }
                 }
-                return new OperationResult<TResult>(default, BuiltInOperationState.NoWaiting);
             }
-            catch (OperationCanceledException)
-            {
-                await SendCancel(receivers, forAll, op);
-                throw;
-            }
+            return new OperationResult<TResult>(default, BuiltInOperationState.NoWaiting);
+            
+            
         }
 
         private OperationResult<TResult> OperationResultHandle<TResult>(object state)

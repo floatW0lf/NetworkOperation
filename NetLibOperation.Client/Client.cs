@@ -20,7 +20,7 @@ namespace NetLibOperation.Client
         private CancellationTokenSource _globalCancellationTokenSource;
 
         private Task _pollingTask;
-        private Task _connectTask;
+        private TaskCompletionSource<byte> _connectSource;
         
         public Client(IFactory<NetPeer, Session> sessionFactory,
                       IFactory<Session, IClientOperationExecutor> executorFactory, 
@@ -56,15 +56,7 @@ namespace NetLibOperation.Client
         {
             OpenSession(peer);
             ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
-            TryStart(_connectTask);
-        }
-
-        private void TryStart(Task task)
-        {
-            if (task != null && task.Status == TaskStatus.Created)
-            {
-                task.Start();
-            }
+            _connectSource.SetResult(0);
         }
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
@@ -98,7 +90,15 @@ namespace NetLibOperation.Client
             {
                 do
                 {
-                    Manager.PollEvents();
+                    try
+                    {
+                        Manager.PollEvents();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Write(LogLevel.Warning, "Client event loop error",e);
+                    }
+                    
                     await Task.Delay(PollTimeInMs);
                 } while (_eventLoopRun);
             }, TaskCreationOptions.LongRunning);
@@ -136,7 +136,7 @@ namespace NetLibOperation.Client
             await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(rawPayload.Array, rawPayload.Offset, rawPayload.Count));
         }
 
-        private async Task InternalConnect(EndPoint remote, CancellationToken cancellationToken,NetDataWriter writer)
+        private async Task InternalConnect(EndPoint remote, CancellationToken cancellationToken, NetDataWriter writer)
         {
             try
             {
@@ -147,9 +147,10 @@ namespace NetLibOperation.Client
                     InitEventLoop();
                     using (var compound = CancellationTokenSource.CreateLinkedTokenSource(_globalCancellationTokenSource.Token, cancellationToken))
                     {
-                        _connectTask = new Task(() => { }, compound.Token,TaskCreationOptions.PreferFairness);
+                        _connectSource = new TaskCompletionSource<byte>();
+                        compound.Token.Register(() => _connectSource.SetCanceled());
                         Manager.Connect((IPEndPoint) remote, writer);
-                        await _connectTask;
+                        await _connectSource.Task;
                         return;
                     }
                 }

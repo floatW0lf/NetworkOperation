@@ -9,13 +9,18 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using MessagePack.Formatters;
+using MessagePack.Resolvers;
 using NetworkOperation.Logger;
+using Newtonsoft.Json.Serialization;
+using Serializer.MessagePack;
 using Xunit;
 
 namespace NetOperationTest
 {
     public class DispatcherTest
     {
+        
         [DataContract]
         [Operation(0,Handle = Side.All)]
         public struct A : IOperation<A,int>
@@ -34,8 +39,6 @@ namespace NetOperationTest
         
         class TestDispatcher : BaseDispatcher<DefaultMessage,DefaultMessage>
         {
-            
-
             protected override Task<DataWithStateCode> ProcessHandler(Session session, DefaultMessage message, OperationDescription operationDescription, CancellationToken token)
             {
                 switch (message.OperationCode)

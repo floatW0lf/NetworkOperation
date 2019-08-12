@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
+using NetworkOperation.Logger;
 using Tcp.Core;
 
 namespace Tcp.Server
@@ -22,7 +23,7 @@ namespace Tcp.Server
 
         private CancellationTokenSource cts = new CancellationTokenSource();
 
-        public override void Start(int port)
+        private void Start(int port)
         {
             CreateServerSocket(port);
             
@@ -74,12 +75,12 @@ namespace Tcp.Server
             }
         }
 
-        public override void Shutdown()
+        private void Shutdown()
         {
             ShutdownAsync().RunSynchronously();
         }
 
-        public override async Task ShutdownAsync()
+        private async Task ShutdownAsync()
         {
             CloseAllSession();
             cts.Cancel();
@@ -89,7 +90,17 @@ namespace Tcp.Server
             Listener = null;
         }
 
-        public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler) : base(sessionsFactory, executorFactory, dispatcher, handler)
+        public override async Task StartAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(sessionsFactory, executorFactory, dispatcher, handler, loggerFactory)
         {
         }
     }

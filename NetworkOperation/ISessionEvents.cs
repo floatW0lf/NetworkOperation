@@ -6,8 +6,8 @@ namespace NetworkOperation
 {
     public interface ISessionEvents
     {
-        event Action<Session> OnSessionClosed;
-        event Action<Session> OnSessionOpened;
-        event Action<Session, EndPoint, SocketError> OnSessionError;
+        event Action<Session> SessionClosed;
+        event Action<Session> SessionOpened;
+        event Action<Session, EndPoint, SocketError> SessionError;
     }
 }

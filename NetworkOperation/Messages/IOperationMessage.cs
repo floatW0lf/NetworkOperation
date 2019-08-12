@@ -2,7 +2,7 @@ namespace NetworkOperation
 {
     public interface IStatus
     {
-        uint StatusCode { get; set; }
+        StatusCode Status { get; set; }
     }
 
     public interface IOperationMessage : IStatus

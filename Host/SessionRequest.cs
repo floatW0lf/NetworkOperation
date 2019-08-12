@@ -17,5 +17,7 @@ namespace NetworkOperation.Host
         protected abstract Session Accepted();
         public abstract void Reject(ArraySegment<byte> payload = default);
 
+        public SessionCollection Sessions => SessionCollection;
+
     }
 }

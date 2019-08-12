@@ -44,7 +44,7 @@ namespace NetOperationTest
             executor.MessageIdGenerator = mockGenerator.Object;
             IResponseReceiver<DefaultMessage> e = executor;
             
-            Task.Delay(100).ContinueWith(_ => e.Receive(new DefaultMessage() {OperationCode = 0, StatusCode = (uint)BuiltInOperationState.Success, OperationData = new byte[10],Id = 100}))
+            Task.Delay(100).ContinueWith(_ => e.Receive(new DefaultMessage() {OperationCode = 0, Status = BuiltInOperationState.Success, OperationData = new byte[10],Id = 100}))
                 .GetAwaiter();
             
             var result =  await executor.Execute<A, int>(new A());

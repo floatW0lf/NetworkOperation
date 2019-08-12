@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -67,7 +66,7 @@ namespace NetworkOperation.Client
         {
             _executor = null;
             if (Session == null) return;
-            OnSessionClosed?.Invoke(Session);
+            SessionClosed?.Invoke(Session);
             Session.Close();
             Session = NotConnectedSession.Default;
         }
@@ -79,12 +78,12 @@ namespace NetworkOperation.Client
             Session = _sessionFactory.Create(connection);
             _executor = _executorFactory.Create(Session);
             _dispatcher.Subscribe((IResponseReceiver<TResponse>) _executor);
-            OnSessionOpened?.Invoke(Session);
+            SessionOpened?.Invoke(Session);
         }
 
         protected void DoErrorSession(EndPoint endPoint, SocketError code)
         {
-            OnSessionError?.Invoke(Session, endPoint, code);
+            SessionError?.Invoke(Session, endPoint, code);
         }
 
         protected Task Dispatch()
@@ -92,9 +91,9 @@ namespace NetworkOperation.Client
             return _dispatcher.DispatchAsync(Session);
         }
             
-        public event Action<Session> OnSessionClosed;
-        public event Action<Session> OnSessionOpened;
-        public event Action<Session, EndPoint, SocketError> OnSessionError;
+        public event Action<Session> SessionClosed;
+        public event Action<Session> SessionOpened;
+        public event Action<Session, EndPoint, SocketError> SessionError;
         public abstract void Dispose();
         
         class NotConnectedSession : Session

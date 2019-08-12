@@ -10,17 +10,21 @@ namespace NetworkOperation.Client
     {
         public static async Task ConnectAsync(this IClient client, string address, int port, CancellationToken cancellationToken = default)
         {
-            if (IPAddress.TryParse(address, out var ip)){}
-            else
-            {
-               var addresses = await Dns.GetHostAddressesAsync(address);
-               ip = addresses.FirstOrDefault();
-            }
-            if (ip == null) throw new ArgumentException($"{address} wrong address");
-            await client.ConnectAsync(new IPEndPoint(ip, port), cancellationToken); 
-            
+            var ip = await GetIpAddress(address);
+            await client.ConnectAsync(new IPEndPoint(ip, port), cancellationToken);
         }
-        
+
+        private static async Task<IPAddress> GetIpAddress(string address)
+        {
+            if (IPAddress.TryParse(address, out var ip)) return ip;
+            
+            var addresses = await Dns.GetHostAddressesAsync(address);
+            ip = addresses.FirstOrDefault();
+            if (ip == null) throw new ArgumentException($"{address} wrong address");
+            
+            return ip;
+        }
+
         public static async Task ConnectAsync(this IClient client, string addressWithPort, CancellationToken cancellationToken = default)
         {
             var strings = addressWithPort.Split(':');

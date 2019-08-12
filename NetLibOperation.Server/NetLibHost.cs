@@ -9,12 +9,14 @@ using LiteNetLib;
 using NetworkOperation;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
+using NetworkOperation.Logger;
 
 namespace NetLibOperation
 {
     public class NetLibHost<TMessage, TResponse> : AbstractHost<TMessage, TResponse, NetManager>,
         INetEventListener where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
+        public int ListenPort { get; set; } = 8888;
         
         private Task _pollTask;
 
@@ -23,16 +25,12 @@ namespace NetLibOperation
         public NetLibHost(IFactory<NetManager, MutableSessionCollection> sessionsFactory,
             IFactory<SessionCollection, IHostOperationExecutor> executorFactory,
             BaseDispatcher<TMessage, TResponse> dispatcher, 
-            SessionRequestHandler handler) : base(sessionsFactory,executorFactory, dispatcher,handler)
+            SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(sessionsFactory,executorFactory, dispatcher,handler,loggerFactory)
         {
-           
-
             Manager = new NetManager(this);
         }
 
         public NetManager Manager { get; }
-
-        public int MaxConnection { get; set; } = 10000;
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
             SessionOpen(Sessions.GetSession(peer.Id));
@@ -60,7 +58,7 @@ namespace NetLibOperation
             var session = Sessions.GetSession(peer.Id);
             ((NetLibSession) session).OnReceiveData(new ArraySegment<byte>(reader.RawData, reader.UserDataOffset,
                 reader.UserDataSize));
-            Dispatcher.DispatchAsync(session).GetAwaiter();
+            Dispatcher.DispatchAsync(session).ConfigureAwait(false).GetAwaiter();
         }
 
         void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader,
@@ -72,12 +70,12 @@ namespace NetLibOperation
         {
         }
 
-        public void OnConnectionRequest(ConnectionRequest request)
+        void INetEventListener.OnConnectionRequest(ConnectionRequest request)
         {
             BeforeSessionOpen(new LiteSessionRequest(request));
         }
 
-        public override void Start(int port)
+        private void Start(int port)
         {
             if (Manager.Start(port))
             {
@@ -85,8 +83,15 @@ namespace NetLibOperation
                 {
                     do
                     {
-                        Manager.PollEvents();
-                        await Task.Delay(PollTimeInMs);
+                        try
+                        {
+                            Manager.PollEvents();
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Write(LogLevel.Error,"Poll event thread error", e);
+                        }
+                        await Task.Delay(PollTimeInMs).ConfigureAwait(false);
                         
                     } while (!_source.Token.IsCancellationRequested);
                     
@@ -95,7 +100,7 @@ namespace NetLibOperation
             }
         }
 
-        public override void Shutdown()
+        private void Shutdown()
         {
             if (_pollTask == null) return;
             Manager.Stop();
@@ -104,24 +109,26 @@ namespace NetLibOperation
             _pollTask = null;
         }
 
-        public override async Task ShutdownAsync()
+        private async Task ShutdownAsync()
         {
             if (_pollTask == null) return;
-
-            await Task.Run(() =>
-            {
-                Manager.Stop();
-                while (Manager.IsRunning)
-                {
-                }
-            });
+            await Task.Run(() => Manager.Stop());
             _source.Cancel();
+            await _pollTask;
             _pollTask = null;
         }
 
-        ~NetLibHost()
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
-            Shutdown();
+            Start(ListenPort);
+            Logger.Write(LogLevel.Info,"Network operation host started");
+            return Task.CompletedTask;
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            await ShutdownAsync();
+            Logger.Write(LogLevel.Info,"Network operation host stopped");
         }
     }
 }

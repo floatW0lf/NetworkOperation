@@ -1,11 +1,11 @@
 ﻿using System.Runtime.Serialization;
 using NetworkOperation;
 
-namespace Contract
+namespace IntegrationTests.Contract
 {
     [DataContract]
     [Operation(0,Handle = Side.Client)]
-    public struct ClientOp : IOperation<ClientOp,Empty>
+    public struct ClientOp : IOperation<ClientOp,string>
     {
         [DataMember(Order = 0)]
         public string Message;

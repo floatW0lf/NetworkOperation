@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace NetworkOperation
 {
@@ -103,6 +104,11 @@ namespace NetworkOperation
         public int CompareTo(StatusCode other)
         {
             return _code.CompareTo(other._code);
+        }
+
+        public TEnum AsEnum<TEnum>() where TEnum : Enum
+        {
+            return (TEnum) Enum.ToObject(GetEnumType(), _value);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

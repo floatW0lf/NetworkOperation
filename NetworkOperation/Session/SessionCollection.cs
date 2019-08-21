@@ -84,7 +84,7 @@ namespace NetworkOperation
                 }
                 finally
                 {
-                    session.Value.OnClosedSession();
+                    session.Value.OnClosingSession();
                 }
             }
             
@@ -112,7 +112,7 @@ namespace NetworkOperation
                 }
                 finally
                 {
-                    item.OnClosedSession();
+                    item.OnClosingSession();
                 }
             }
             return removed;

@@ -40,6 +40,11 @@ namespace NetworkOperation.Host
             _mutableSessions.OpenSession(session);
         }
 
+        protected void SessionClose(Session session)
+        {
+            _mutableSessions.Remove(session);
+        }
+
         protected void ServerStarted(TConnectionCollection connectionCollection)
         {
             _mutableSessions = _sessionsFactory.Create(connectionCollection);

@@ -70,7 +70,7 @@ namespace Tcp.Server
             {
                 if (session.State == SessionState.Closed)
                 {
-                    session.Close();
+                    SessionClose(session);
                 }
             }
         }

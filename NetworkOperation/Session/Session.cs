@@ -33,24 +33,31 @@ namespace NetworkOperation
         public abstract object UntypedConnection { get; }
         public abstract long Id { get; }
         public abstract SessionStatistics Statistics { get; }
-
+        
         public void Close(ArraySegment<byte> payload = default)
         {
-            if (SessionCollection != null)
+            try
             {
-                SessionCollection.Remove(this);
-                return;
+                if (State == SessionState.Opened) SendClosingPayload(payload);
             }
-
-            if (_options.IsValueCreated)
+            finally
             {
-                _options.Value.Clear();
+                OnClosingSession();
+                SessionCollection?.Remove(this);
+                SessionCollection = null;
             }
-            
-            OnClosedSession(payload);
+        }
+        internal void OnClosingSession()
+        {
+            if (_closing) return;
+            _closing = true;
+            if (_options.IsValueCreated) _options.Value.Clear();
+            OnClosedSession();
         }
 
-        protected internal abstract void OnClosedSession(ArraySegment<byte> payload = default);
+        private bool _closing;
+        protected abstract void OnClosedSession();
+        protected abstract void SendClosingPayload(ArraySegment<byte> payload);
 
         public abstract SessionState State { get; }
 

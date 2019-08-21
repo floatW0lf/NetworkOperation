@@ -42,9 +42,8 @@ namespace NetLibOperation
             if (session != null)
             {
                 session.FillDisconnectInfo(disconnectInfo);
-                session.Close();
+                SessionClose(session);
             }
-            
         }
 
         void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)

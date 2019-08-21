@@ -58,22 +58,22 @@ namespace NetLibOperation
             return (IHandler<TOp, TResult,TRequest>)_perSessionHandler.GetOrAdd(typeof(IHandler<TOp, TResult,TRequest>), type => _factory.Create<TOp, TResult,TRequest>());
         }        
 
-        protected override void OnClosedSession(ArraySegment<byte> payload = default)
+        protected override void OnClosedSession()
         {
-            if (_peer.ConnectionState == ConnectionState.Connected)
-            {
-                if (payload.Array != null)
-                {
-                    _peer.Disconnect(NetDataWriter.FromBytes(payload.Array,payload.Offset,payload.Count));
-                    return;
-                }
-                _peer.Disconnect();
-            }
-
             foreach (var handler in _perSessionHandler.Values)
             {
                 _factory.Destroy(handler);
             }
+        }
+
+        protected override void SendClosingPayload(ArraySegment<byte> payload)
+        {
+            if (payload.Array != null)
+            {
+                _peer.Disconnect(NetDataWriter.FromBytes(payload.Array,payload.Offset,payload.Count));
+                return;
+            }
+            _peer.Disconnect();
         }
 
         public override SessionState State

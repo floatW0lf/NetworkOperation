@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using IntegrationTests.Client;
@@ -91,6 +92,25 @@ namespace IntegrationTests
             
             Assert.Equal(1,connectedCount);
             Assert.Equal(1,rejectedCount);
+        }
+
+        [Fact]
+        public async Task disconect_payload()
+        {
+            await StartServerAndClient();
+            var sessionEvents = (ISessionEvents) _client;
+            var closed = 0;
+            byte[] payload = null;
+            sessionEvents.SessionClosed  += session =>
+            {
+                if (session.GetReason() == DisconnectReason.RemoteConnectionClose) closed++;
+                payload = session.GetPayload();
+            };
+            var events = (IHostContext) _host;
+            events.Sessions.First().Close(new byte[]{1,1,1});
+            await Task.Delay(100);
+            Assert.Equal(1,closed);
+            Assert.Equal(new byte[]{1,1,1},payload);
         }
         
         private async Task StartServerAndClient()

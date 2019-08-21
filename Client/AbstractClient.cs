@@ -67,7 +67,7 @@ namespace NetworkOperation.Client
             _executor = null;
             if (Session == null) return;
             SessionClosed?.Invoke(Session);
-            Session.Close();
+            Session.OnClosingSession();
             Session = NotConnectedSession.Default;
         }
 
@@ -104,8 +104,8 @@ namespace NetworkOperation.Client
             public override object UntypedConnection { get; }
             public override long Id { get; }
             public override SessionStatistics Statistics { get; }
-            protected internal override void OnClosedSession(ArraySegment<byte> payload = default) {}
-
+            protected override void OnClosedSession(){}
+            protected override void SendClosingPayload(ArraySegment<byte> payload){}
             public override SessionState State { get; } = SessionState.Closed;
             protected internal override bool HasAvailableData { get; }
 

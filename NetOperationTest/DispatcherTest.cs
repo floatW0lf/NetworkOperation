@@ -71,7 +71,7 @@ namespace NetOperationTest
             var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model,new Mock<IStructuralLogger>().Object);
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var hasData = true;
-            var sessionMock = new Mock<Session>();
+            var sessionMock = new Mock<Session>(Array.Empty<SessionProperty>());
             sessionMock.SetupGet(s => s.HasAvailableData).Returns(() => hasData);
             sessionMock.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
             {
@@ -100,7 +100,7 @@ namespace NetOperationTest
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
-            var mockSession = new Mock<Session>();
+            var mockSession = new Mock<Session>(Array.Empty<SessionProperty>());
             var hasData = true;
             mockSession.SetupGet(s => s.HasAvailableData).Returns(() => hasData);
             mockSession.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>

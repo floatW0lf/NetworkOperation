@@ -1,3 +1,4 @@
+using System;
 using LiteNetLib;
 using NetworkOperation;
 using NetworkOperation.Factories;
@@ -16,13 +17,12 @@ namespace NetLibOperation
         
         public sealed override void Handle(SessionRequest request)
         {
-            ((LiteSessionRequest) request).SessionFactory = _sessionFactory;
             OnHandle(request);
         }
 
         protected virtual void OnHandle(SessionRequest request)
         {
-            request.Accept();
+            request.Accept(Array.Empty<SessionProperty>());
         }
 
     }

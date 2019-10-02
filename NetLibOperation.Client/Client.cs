@@ -54,9 +54,15 @@ namespace NetLibOperation.Client
         
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
-            OpenSession(peer);
-            ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
-            _connectSource.SetResult(0);
+            try
+            {
+                OpenSession(peer);
+            }
+            finally
+            {
+                ((IGlobalCancellation) Executor).GlobalToken = _globalCancellationTokenSource.Token;
+                _connectSource.SetResult(0);
+            }
         }
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)

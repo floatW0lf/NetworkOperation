@@ -66,9 +66,15 @@ namespace NetworkOperation.Client
         {
             _executor = null;
             if (Session == null) return;
-            SessionClosed?.Invoke(Session);
-            Session.OnClosingSession();
-            Session = NotConnectedSession.Default;
+            try
+            {
+                SessionClosed?.Invoke(Session);
+            }
+            finally
+            {
+                Session.OnClosingSession();
+                Session = NotConnectedSession.Default;
+            }
         }
 
         protected Session Session { get; private set; }
@@ -98,7 +104,7 @@ namespace NetworkOperation.Client
         
         class NotConnectedSession : Session
         {
-            NotConnectedSession(){}
+            NotConnectedSession() : base(Array.Empty<SessionProperty>()){}
             public static NotConnectedSession Default = new NotConnectedSession();
             public override EndPoint NetworkAddress { get; } = new IPEndPoint(IPAddress.None, 0);
             public override object UntypedConnection { get; }
@@ -117,11 +123,6 @@ namespace NetworkOperation.Client
             protected internal override Task<ArraySegment<byte>> ReceiveMessageAsync()
             {
                 throw new InvalidOperationException();
-            }
-
-            protected internal override IHandler<TOp, TResult, TRequest1> GetHandler<TOp, TResult, TRequest1>()
-            {
-               throw new InvalidOperationException();
             }
         }
     }

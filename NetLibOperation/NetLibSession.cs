@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using LiteNetLib;
@@ -11,15 +12,12 @@ namespace NetLibOperation
 {
     public class NetLibSession : Session
     {
-        private ConcurrentDictionary<Type, IHandler> _perSessionHandler = new ConcurrentDictionary<Type, IHandler>();
 
         private readonly NetPeer _peer;
-        private readonly IHandlerFactory _factory;
 
-        public NetLibSession(NetPeer peer, IHandlerFactory factory)
+        public NetLibSession(NetPeer peer, IEnumerable<SessionProperty> properties) : base(properties)
         {
             _peer = peer;
-            _factory = factory;
         }
 
         public override EndPoint NetworkAddress => _peer.EndPoint;
@@ -53,17 +51,8 @@ namespace NetLibOperation
             return Task.FromResult(copy);
         }
 
-        protected override IHandler<TOp, TResult,TRequest> GetHandler<TOp, TResult,TRequest>()
-        {
-            return (IHandler<TOp, TResult,TRequest>)_perSessionHandler.GetOrAdd(typeof(IHandler<TOp, TResult,TRequest>), type => _factory.Create<TOp, TResult,TRequest>());
-        }        
-
         protected override void OnClosedSession()
         {
-            foreach (var handler in _perSessionHandler.Values)
-            {
-                _factory.Destroy(handler);
-            }
         }
 
         protected override void SendClosingPayload(ArraySegment<byte> payload)

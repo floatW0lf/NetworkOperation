@@ -1,6 +1,7 @@
 ﻿using NetworkOperation;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -12,14 +13,11 @@ namespace Tcp.Core
     {
         private ArraySegment<byte> _segmentedBuffer = new ArraySegment<byte>(new byte[4092]);
         private readonly Socket _client;
-        private ConcurrentDictionary<Type, IHandler> _perSessionHandler = new ConcurrentDictionary<Type, IHandler>();
-        private IHandlerFactory factory;
         int _readBytes;
 
-        public TcpSession(Socket client, IHandlerFactory factory)
+        public TcpSession(Socket client, IEnumerable<SessionProperty> properties) : base(properties)
         {
-            this._client = client;
-            this.factory = factory;
+            _client = client;
         }
 
         public override EndPoint NetworkAddress => _client.RemoteEndPoint;
@@ -33,11 +31,6 @@ namespace Tcp.Core
         protected override void OnClosedSession()
         {
             if (_client.Connected) _client.Close();
-            foreach (var handler in _perSessionHandler.Values)
-            {
-                factory.Destroy(handler);
-            }
-            _perSessionHandler.Clear();
         }
 
         protected override void SendClosingPayload(ArraySegment<byte> payload)
@@ -68,11 +61,6 @@ namespace Tcp.Core
             if (_segmentedBuffer.Count == 0) _readBytes = 0;
             return frame;
 
-        }
-
-        protected override IHandler<TOp, TResult,TRequest> GetHandler<TOp, TResult,TRequest>()
-        {
-            return (IHandler<TOp, TResult,TRequest>)_perSessionHandler.GetOrAdd(typeof(IHandler<TOp, TResult,TRequest>), type => factory.Create<TOp, TResult,TRequest>());
         }
 
         protected override async Task SendMessageAsync(ArraySegment<byte> data)

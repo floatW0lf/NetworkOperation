@@ -79,7 +79,7 @@ namespace NetOperationTest
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
-            var mockSession = new Mock<Session>();
+            var mockSession = new Mock<Session>(Array.Empty<SessionProperty>());
             var hasData = true;
             
             mockSession.SetupGet(s => s.HasAvailableData).Returns(() => hasData);
@@ -89,7 +89,7 @@ namespace NetOperationTest
                 return CreateRawMessage(0, opFoo);
             });
             var hasCancelData = true;
-            var mockSessionWithCancel = new Mock<Session>();
+            var mockSessionWithCancel = new Mock<Session>(Array.Empty<SessionProperty>());
             mockSessionWithCancel.SetupGet(s => s.HasAvailableData).Returns(() => hasCancelData);
             mockSessionWithCancel.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
             {

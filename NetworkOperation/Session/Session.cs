@@ -11,22 +11,27 @@ namespace NetworkOperation
 {
     public abstract class Session
     {
+        protected Session(IEnumerable<SessionProperty> properties)
+        {
+            _propertyContainer = new ConcurrentDictionary<string, object>(properties.Select(p => new KeyValuePair<string, object>(p.Name,p.Value)));
+        }
+        
         public object this[string paramName]
         {
             get
             {
-                _options.Value.TryGetValue(paramName, out var p);
+                _propertyContainer.TryGetValue(paramName, out var p);
                 return p;
             }
             set
             {
-                _options.Value.AddOrUpdate(paramName, value, (s, o) => o);
+                _propertyContainer.AddOrUpdate(paramName, value, (s, o) => o);
             }
         }
 
-        public IEnumerable<SessionProperty> Properties => _options.Value.Select(pair => new SessionProperty(pair.Key, pair.Value));
+        public IEnumerable<SessionProperty> Properties => _propertyContainer.Select(pair => new SessionProperty(pair.Key, pair.Value));
 
-        private readonly Lazy<ConcurrentDictionary<string, object>> _options = new Lazy<ConcurrentDictionary<string, object>>(true);
+        private readonly ConcurrentDictionary<string, object> _propertyContainer;
         
         internal ICollection<Session> SessionCollection { get; set; }
         public abstract EndPoint NetworkAddress { get; }
@@ -51,7 +56,7 @@ namespace NetworkOperation
         {
             if (_closing) return;
             _closing = true;
-            if (_options.IsValueCreated) _options.Value.Clear();
+            _propertyContainer.Clear();
             OnClosedSession();
         }
 
@@ -65,8 +70,6 @@ namespace NetworkOperation
 
         protected internal abstract Task SendMessageAsync(ArraySegment<byte> data);
         protected internal abstract Task<ArraySegment<byte>> ReceiveMessageAsync();
-
-        protected internal abstract IHandler<TOp, TResult, TRequest> GetHandler<TOp,TResult,TRequest>() where TOp : IOperation<TOp, TResult> where TRequest : IOperationMessage;
 
     }
 }

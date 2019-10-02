@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NetworkOperation.Host
 {
@@ -7,14 +8,14 @@ namespace NetworkOperation.Host
         internal MutableSessionCollection SessionCollection { get; set; }
         public abstract ArraySegment<byte> RequestPayload { get; }
 
-        public Session Accept()
+        public Session Accept(IEnumerable<SessionProperty> properties)
         {
-            var session = Accepted();
+            var session = Accepted(properties);
             SessionCollection.Add(session);
             return session;
         }
 
-        protected abstract Session Accepted();
+        protected abstract Session Accepted(IEnumerable<SessionProperty> properties);
         public abstract void Reject(ArraySegment<byte> payload = default);
 
         public SessionCollection Sessions => SessionCollection;

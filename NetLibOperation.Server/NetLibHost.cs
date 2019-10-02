@@ -33,17 +33,18 @@ namespace NetLibOperation
         public NetManager Manager { get; }
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
-            SessionOpen(Sessions.GetSession(peer.Id));
+            var session = Sessions.GetSession(peer.Id);
+            if (session == null) return;
+            SessionOpen(session);
         }
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             var session = Sessions.GetSession(peer.Id);
-            if (session != null)
-            {
-                session.FillDisconnectInfo(disconnectInfo);
-                SessionClose(session);
-            }
+            if (session == null) return;
+            
+            session.FillDisconnectInfo(disconnectInfo);
+            SessionClose(session);
         }
 
         void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
@@ -55,6 +56,8 @@ namespace NetLibOperation
         void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
             var session = Sessions.GetSession(peer.Id);
+            if (session == null) return;
+            
             ((NetLibSession) session).OnReceiveData(new ArraySegment<byte>(reader.RawData, reader.UserDataOffset,
                 reader.UserDataSize));
             Dispatcher.DispatchAsync(session).ConfigureAwait(false).GetAwaiter();

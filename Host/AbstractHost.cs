@@ -54,7 +54,7 @@ namespace NetworkOperation.Host
 
         protected void BeforeSessionOpen(SessionRequest sessionRequest)
         {
-            sessionRequest.SessionCollection = _mutableSessions;
+            sessionRequest.SetupRequest(_mutableSessions);
             _handler.Handle(sessionRequest);
         }
 

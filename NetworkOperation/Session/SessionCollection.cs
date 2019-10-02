@@ -5,39 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkOperation
 {
-    public abstract class SessionCollection : IEnumerable<Session>, ISessionEvents
+    public abstract class SessionCollection : ISessionEvents, IReadOnlyCollection<Session>
     {
-        protected readonly ConcurrentDictionary<long, Session> IdToSessions = new ConcurrentDictionary<long, Session>();
-
-        public virtual Session GetSession(long id)
-        {
-            IdToSessions.TryGetValue(id, out var session);
-            return session;
-        }
-
-        protected internal virtual async Task SendToAllAsync(ArraySegment<byte> data)
-        {
-            foreach (var session in IdToSessions)
-            {
-                await session.Value.SendMessageAsync(data);
-            }
-        }
-
-        public virtual IEnumerator<Session> GetEnumerator()
-        {
-            return IdToSessions.Select(pair => pair.Value).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public int Count => IdToSessions.Count();
+        public abstract Session GetSession(long id);
+        protected internal abstract Task SendToAllAsync(ArraySegment<byte> data);
         
         protected void RaiseClosed(Session session)
         {
@@ -57,10 +33,37 @@ namespace NetworkOperation
         public event Action<Session> SessionClosed;
         public event Action<Session> SessionOpened;
         public event Action<Session, EndPoint, SocketError> SessionError;
+        public abstract IEnumerator<Session> GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+        public abstract int Count { get; }
     }
 
     public abstract class MutableSessionCollection : SessionCollection, ICollection<Session>
     {
+        private readonly ConcurrentDictionary<long, Session> _idToSessions = new ConcurrentDictionary<long, Session>();
+        private int _fastCount;
+        public override Session GetSession(long id)
+        {
+            _idToSessions.TryGetValue(id, out var session);
+            return session;
+        }
+
+        protected internal override async Task SendToAllAsync(ArraySegment<byte> data)
+        {
+            foreach (var session in _idToSessions)
+            {
+                await session.Value.SendMessageAsync(data);
+            }
+        }
+
+        public override IEnumerator<Session> GetEnumerator()
+        {
+            return _idToSessions.Select(pair => pair.Value).GetEnumerator();
+        }
+
         public void OpenSession(Session session)
         {
             RaiseOpened(session);
@@ -68,42 +71,52 @@ namespace NetworkOperation
         
         public void Add(Session item)
         {
-            if (IdToSessions.TryAdd(item.Id, item))
+            if (_idToSessions.TryAdd(item.Id, item))
             {
+                Interlocked.Increment(ref _fastCount);
                 item.SessionCollection = this;
             }
         }
 
+        public override int Count => _fastCount;
+
         public void Clear()
         {
-            foreach (var session in IdToSessions)
+            try
             {
-                try
+                foreach (var session in _idToSessions)
                 {
-                    RaiseClosed(session.Value);
-                }
-                finally
-                {
-                    session.Value.OnClosingSession();
+                    try
+                    {
+                        RaiseClosed(session.Value);
+                    }
+                    finally
+                    {
+                    
+                        session.Value.OnClosingSession();
+                    }
                 }
             }
-            
-            IdToSessions.Clear();
+            finally
+            {
+                _idToSessions.Clear();
+                Interlocked.Exchange(ref _fastCount, 0);
+            }
         }
 
         public bool Contains(Session item)
         {
-            return IdToSessions.ContainsKey(item.Id);
+            return _idToSessions.ContainsKey(item.Id);
         }
 
         public void CopyTo(Session[] array, int arrayIndex)
         {
-            IdToSessions.Values.CopyTo(array, arrayIndex);
+            _idToSessions.Values.CopyTo(array, arrayIndex);
         }
 
         public bool Remove(Session item)
         {
-            var removed = IdToSessions.TryRemove(item.Id, out _);
+            var removed = _idToSessions.TryRemove(item.Id, out _);
             if (removed)
             {
                 try
@@ -112,6 +125,7 @@ namespace NetworkOperation
                 }
                 finally
                 {
+                    Interlocked.Decrement(ref _fastCount);
                     item.OnClosingSession();
                 }
             }

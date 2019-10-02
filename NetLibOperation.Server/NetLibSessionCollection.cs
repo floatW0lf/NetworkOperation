@@ -19,5 +19,6 @@ namespace NetLibOperation
             _manager.SendToAll(data.Array,data.Offset,data.Count,DeliveryMethod.ReliableOrdered);
             return Task.CompletedTask;
         }
+        
     }
 }

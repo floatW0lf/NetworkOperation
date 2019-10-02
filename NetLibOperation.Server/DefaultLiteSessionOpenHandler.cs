@@ -1,18 +1,14 @@
 using System;
-using LiteNetLib;
 using NetworkOperation;
-using NetworkOperation.Factories;
 using NetworkOperation.Host;
 
 namespace NetLibOperation
 {
     public class DefaultLiteSessionOpenHandler : SessionRequestHandler
     {
-        private readonly IFactory<NetPeer,Session> _sessionFactory;
-
-        public DefaultLiteSessionOpenHandler(IFactory<NetPeer,Session> sessionFactory, BaseSerializer serializer) : base(serializer)
+        public DefaultLiteSessionOpenHandler(BaseSerializer serializer) : base(serializer)
         {
-            _sessionFactory = sessionFactory;
+            
         }
         
         public sealed override void Handle(SessionRequest request)

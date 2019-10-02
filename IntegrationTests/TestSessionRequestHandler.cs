@@ -12,7 +12,7 @@ namespace IntegrationTests
         public string Auth { get; set; } = "token";
         public string version = "1.1";
         
-        public TestSessionRequestHandler(IFactory<NetPeer, Session> sessionFactory, BaseSerializer serializer) : base(sessionFactory, serializer)
+        public TestSessionRequestHandler(BaseSerializer serializer) : base(serializer)
         {
         }
 

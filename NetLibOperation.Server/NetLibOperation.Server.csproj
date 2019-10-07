@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>7.1</LangVersion>
+    <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

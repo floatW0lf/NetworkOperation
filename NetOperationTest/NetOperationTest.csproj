@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
 
     <IsPackable>false</IsPackable>
 
@@ -12,6 +11,8 @@
     <Configurations>Debug;Release;AOT</Configurations>
 
     <Platforms>AnyCPU</Platforms>
+
+    <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

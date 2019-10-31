@@ -47,9 +47,9 @@ namespace NetworkOperation
             }
             finally
             {
-                OnClosingSession();
                 SessionCollection?.Remove(this);
                 SessionCollection = null;
+                OnClosingSession();
             }
         }
         internal void OnClosingSession()

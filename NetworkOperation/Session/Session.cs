@@ -41,27 +41,26 @@ namespace NetworkOperation
         
         public void Close(ArraySegment<byte> payload = default)
         {
+            if (State != SessionState.Opened) return;
             try
             {
-                if (State == SessionState.Opened) SendClosingPayload(payload);
+                 SendClosingPayload(payload);
             }
             finally
             {
                 SessionCollection?.Remove(this);
                 SessionCollection = null;
-                OnClosingSession();
             }
         }
         internal void OnClosingSession()
         {
-            if (_closing) return;
-            _closing = true;
             _propertyContainer.Clear();
             OnClosedSession();
         }
 
-        private bool _closing;
-        protected abstract void OnClosedSession();
+        protected virtual void OnClosedSession()
+        {
+        }
         protected abstract void SendClosingPayload(ArraySegment<byte> payload);
 
         public abstract SessionState State { get; }

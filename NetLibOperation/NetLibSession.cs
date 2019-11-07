@@ -50,11 +50,6 @@ namespace NetLibOperation
             _data = default;
             return Task.FromResult(copy);
         }
-
-        protected override void OnClosedSession()
-        {
-        }
-
         protected override void SendClosingPayload(ArraySegment<byte> payload)
         {
             if (payload.Array != null)
@@ -83,7 +78,12 @@ namespace NetLibOperation
             {
                 return SessionState.Closed;
             }
-            throw new NotSupportedException(connectionState.ToString());
+
+            if ((connectionState & ConnectionState.ShutdownRequested) != 0)
+            {
+                return SessionState.Closed;
+            }
+            return SessionState.Unknown;
         }
     }
 }

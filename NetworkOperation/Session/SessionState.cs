@@ -4,6 +4,7 @@
     {
         Closed,
         Opened,
-        Opening
+        Opening,
+        Unknown
     }
 }

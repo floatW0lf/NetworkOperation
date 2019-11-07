@@ -101,7 +101,7 @@ namespace IntegrationTests
             var sessionEvents = (ISessionEvents) _client;
             var closed = 0;
             byte[] payload = null;
-            sessionEvents.SessionClosed  += session =>
+            sessionEvents.SessionClosed += session =>
             {
                 if (session.GetReason() == DisconnectReason.RemoteConnectionClose) closed++;
                 payload = session.GetPayload();

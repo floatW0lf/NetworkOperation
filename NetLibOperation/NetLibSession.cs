@@ -65,23 +65,25 @@ namespace NetLibOperation
             _peer.Disconnect();
         }
 
-        public override SessionState State
+        public override SessionState State => DecodeState(_peer.ConnectionState);
+
+        public static SessionState DecodeState(ConnectionState connectionState)
         {
-            get
+            if ((connectionState & ConnectionState.Incoming) != 0)
             {
-                switch (_peer.ConnectionState)
-                {
-                    case ConnectionState.Incoming:
-                        return SessionState.Opening;
-                    
-                    case ConnectionState.Connected:
-                        return SessionState.Opened;
-                    
-                    case ConnectionState.Disconnected:
-                        return SessionState.Closed;
-                }
-                throw new ArgumentException();
+                return SessionState.Opening;
             }
+
+            if ((connectionState & ConnectionState.Connected) != 0)
+            {
+                return SessionState.Opened;
+            }
+
+            if ((connectionState & ConnectionState.Disconnected) != 0)
+            {
+                return SessionState.Closed;
+            }
+            throw new NotSupportedException(connectionState.ToString());
         }
     }
 }

@@ -78,7 +78,7 @@ namespace IntegrationTests
             {
                 if (session.GetReason() == DisconnectReason.ConnectionRejected) rejectedCount++;
             }; 
-            sessionEvents.SessionClosed  += session => { connectedCount++; }; 
+            sessionEvents.SessionClosed += session => { connectedCount++; }; 
             
             _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
                 new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app"},
@@ -107,6 +107,7 @@ namespace IntegrationTests
                 payload = session.GetPayload();
             };
             var events = (IHostContext) _host;
+            Assert.Equal(SessionState.Opened, events.Sessions.First().State);
             events.Sessions.First().Close(new byte[]{1,1,1});
             await Task.Delay(100);
             Assert.Equal(1,closed);
@@ -124,8 +125,8 @@ namespace IntegrationTests
 
         public void Dispose()
         {
-            _client.DisconnectAsync().ContinueWith(task => _client.Dispose()).GetAwaiter();
-            _host.StopAsync(default).GetAwaiter();
+            Task.WaitAll(_client.DisconnectAsync(), _host.StopAsync(default));
+            _client.Dispose();
         }
     }
 }

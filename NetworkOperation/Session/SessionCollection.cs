@@ -74,7 +74,6 @@ namespace NetworkOperation
             if (_idToSessions.TryAdd(item.Id, item))
             {
                 Interlocked.Increment(ref _fastCount);
-                item.SessionCollection = this;
             }
         }
 

@@ -161,7 +161,7 @@ namespace NetLibOperation.Client
                     }
                 }
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException)
             {
                 Manager.Stop();
                 throw;

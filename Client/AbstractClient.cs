@@ -111,7 +111,7 @@ namespace NetworkOperation.Client
             public override long Id { get; }
             public override SessionStatistics Statistics { get; }
             protected override void OnClosedSession(){}
-            protected override void SendClosingPayload(ArraySegment<byte> payload){}
+            protected override void SendClose(ArraySegment<byte> payload){}
             public override SessionState State { get; } = SessionState.Closed;
             protected internal override bool HasAvailableData { get; }
 

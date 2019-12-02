@@ -33,7 +33,6 @@ namespace NetworkOperation
 
         private readonly ConcurrentDictionary<string, object> _propertyContainer;
         
-        internal ICollection<Session> SessionCollection { get; set; }
         public abstract EndPoint NetworkAddress { get; }
         public abstract object UntypedConnection { get; }
         public abstract long Id { get; }
@@ -42,15 +41,7 @@ namespace NetworkOperation
         public void Close(ArraySegment<byte> payload = default)
         {
             if (State != SessionState.Opened) return;
-            try
-            {
-                 SendClosingPayload(payload);
-            }
-            finally
-            {
-                SessionCollection?.Remove(this);
-                SessionCollection = null;
-            }
+            SendClose(payload);
         }
         internal void OnClosingSession()
         {
@@ -58,10 +49,8 @@ namespace NetworkOperation
             OnClosedSession();
         }
 
-        protected virtual void OnClosedSession()
-        {
-        }
-        protected abstract void SendClosingPayload(ArraySegment<byte> payload);
+        protected virtual void OnClosedSession(){}
+        protected abstract void SendClose(ArraySegment<byte> payload);
 
         public abstract SessionState State { get; }
 

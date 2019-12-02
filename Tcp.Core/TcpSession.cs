@@ -33,7 +33,7 @@ namespace Tcp.Core
             if (_client.Connected) _client.Close();
         }
 
-        protected override void SendClosingPayload(ArraySegment<byte> payload)
+        protected override void SendClose(ArraySegment<byte> payload)
         {
             
         }

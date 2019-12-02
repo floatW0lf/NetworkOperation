@@ -50,7 +50,7 @@ namespace NetLibOperation
             _data = default;
             return Task.FromResult(copy);
         }
-        protected override void SendClosingPayload(ArraySegment<byte> payload)
+        protected override void SendClose(ArraySegment<byte> payload)
         {
             if (payload.Array != null)
             {

@@ -56,7 +56,7 @@ namespace NetOperationTest
             var task = mockSetting.Execute<Foo,int>(new Foo(), cts.Token);
             cts.Cancel();
             Assert.Equal(TaskStatus.Canceled,task.Status);
-            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>()), Times.Exactly(2));
+            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>(), DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Exactly(2));
         }
         
         [Fact]
@@ -106,8 +106,8 @@ namespace NetOperationTest
 
             
             await Task.Delay(300);
-            mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>()), Times.Never);
-            mockSessionWithCancel.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>()), Times.Never);
+            mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(), DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Never);
+            mockSessionWithCancel.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(), DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Never);
             mockSession.Verify(s => s.ReceiveMessageAsync(),Times.Once);
             mockSessionWithCancel.Verify(s => s.ReceiveMessageAsync(),Times.Once);
         }

@@ -27,7 +27,7 @@ namespace NetOperationTest
             var task = mockSetting.Execute<A,int>(new A());
             Assert.Equal(TaskStatus.WaitingForActivation, task.Status);
 
-            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>()), Times.Once);
+            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<DeliveryMode>()), Times.Once);
             serializeMock.Verify(serializer => serializer.Serialize(It.IsAny<A>()), Times.Once);
         }
 

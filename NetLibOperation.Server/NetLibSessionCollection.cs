@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Threading.Tasks;
 using LiteNetLib;
 using NetworkOperation;
@@ -14,9 +15,9 @@ namespace NetLibOperation
             _manager = manager;
         }
 
-        protected override Task SendToAllAsync(ArraySegment<byte> data)
+        protected override Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _manager.SendToAll(data.Array,data.Offset,data.Count,DeliveryMethod.ReliableOrdered);
+            _manager.SendToAll(data.Array,data.Offset,data.Count,mode.Convert());
             return Task.CompletedTask;
         }
         

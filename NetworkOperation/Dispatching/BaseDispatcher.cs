@@ -67,28 +67,28 @@ namespace NetworkOperation
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                var request = new TRequest();
+                var request = _serializer.Deserialize<TRequest>(rawMessage);
+                var description = Model.GetDescriptionBy(request.OperationCode);
                 try
                 {
-                    request = _serializer.Deserialize<TRequest>(rawMessage);
                     if (GlobalRequestFilter != null)
                     {
                         var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
                         response.Id = request.Id;
                         if (response.Status != BuiltInOperationState.Success)
                         {
-                            await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response));
+                            await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response), description.ForResponse);
                             continue;
                         }
                     }
                     
                     if (IsContinue(request)) continue;
     
-                    var description = Model.GetDescriptionBy(request.OperationCode);
+                    
                     var rawResponse = await ProcessHandler(session, request, description, CreateCancellationToken(request, description));
                     if (description.WaitResponse)
                     {
-                        await SendAsync(session, rawResponse, request);
+                        await SendAsync(session, rawResponse, request, description.ForResponse);
                     }
                     
                 }
@@ -108,7 +108,7 @@ namespace NetworkOperation
                             Status = BuiltInOperationState.InternalError,
                             OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
                         };
-                        await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response));
+                        await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response), MinRequiredDeliveryMode.ReliableWithOrdered);
                     }
                 }
                 finally
@@ -155,7 +155,7 @@ namespace NetworkOperation
             }
         }
         
-        private async Task SendAsync(Session session, DataWithStateCode rawResponse, TRequest request)
+        private async Task SendAsync(Session session, DataWithStateCode rawResponse, TRequest request, DeliveryMode mode)
         {
             var sendOp = new TResponse
             {
@@ -167,7 +167,7 @@ namespace NetworkOperation
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
             var resultRaw = _serializer.Serialize(sendOp);
-            await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response));
+            await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response), mode);
         }
 
         protected abstract Task<DataWithStateCode> ProcessHandler(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token);

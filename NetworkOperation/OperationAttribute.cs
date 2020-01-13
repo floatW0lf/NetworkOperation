@@ -12,6 +12,8 @@ namespace NetworkOperation
         public Side Handle { get; set; } = Side.All;
         public bool UseAsyncSerialize { get; set; }
 
+        public DeliveryMode ForRequest { get; set; } = DeliveryMode.Reliable | DeliveryMode.Ordered;
+        public DeliveryMode ForResponse { get; set; } = DeliveryMode.Reliable | DeliveryMode.Ordered;
         public bool WaitResponse { get; set; } = true;
 
     }

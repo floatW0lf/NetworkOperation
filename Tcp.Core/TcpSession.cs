@@ -63,7 +63,7 @@ namespace Tcp.Core
 
         }
 
-        protected override async Task SendMessageAsync(ArraySegment<byte> data)
+        protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
         {
             var prefix = BitConverter.GetBytes(data.Count);
             await _client.SendAsync(new[] {prefix.To(), data}, SocketFlags.None);

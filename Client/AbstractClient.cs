@@ -115,7 +115,7 @@ namespace NetworkOperation.Client
             public override SessionState State { get; } = SessionState.Closed;
             protected internal override bool HasAvailableData { get; }
 
-            protected internal override Task SendMessageAsync(ArraySegment<byte> data)
+            protected internal override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
             {
                 throw new InvalidOperationException();
             }

@@ -114,7 +114,7 @@ namespace NetworkOperation
             _logger.Write(LogLevel.Debug,"Operation serialized {operation}", operation);
             
             var rawResult = _serializer.Serialize(op);
-            await SendRequest(receivers, forAll, rawResult);
+            await SendRequest(receivers, forAll, rawResult, description.ForRequest);
            
             _logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
             
@@ -180,17 +180,17 @@ namespace NetworkOperation
                         Id = MessageIdGenerator.Generate(),
                         OperationCode = request.OperationCode, 
                         Status = BuiltInOperationState.Cancel
-                    }));
+                    }), MinRequiredDeliveryMode.ReliableWithOrdered);
             }
         }
 
-        private async Task SendRequest(IReadOnlyList<Session> receivers, bool forAll, byte[] request)
+        private async Task SendRequest(IReadOnlyList<Session> receivers, bool forAll, byte[] request, DeliveryMode mode)
         {
             var requestWithMessageType = request.AppendInBegin(TypeMessage.Request);
             switch (_currentSide)
             {
                 case Side.Server when forAll:
-                    await _sessions.SendToAllAsync(requestWithMessageType);
+                    await _sessions.SendToAllAsync(requestWithMessageType,mode);
                     break;
                 
                 case Side.Server:
@@ -198,12 +198,12 @@ namespace NetworkOperation
                     // ReSharper disable once ForCanBeConvertedToForeach
                     for (int i = 0; i < receivers.Count; i++)
                     {
-                        await receivers[i].SendMessageAsync(requestWithMessageType);
+                        await receivers[i].SendMessageAsync(requestWithMessageType,mode);
                     }
                     break;
                 }
                 case Side.Client:
-                    await _session.SendMessageAsync(requestWithMessageType);
+                    await _session.SendMessageAsync(requestWithMessageType,mode);
                     break;
             }
         }

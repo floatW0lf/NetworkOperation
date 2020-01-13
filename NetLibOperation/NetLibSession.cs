@@ -29,9 +29,9 @@ namespace NetLibOperation
 
         private bool _hasData;
         
-        protected override Task SendMessageAsync(ArraySegment<byte> data)
+        protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
+            _peer.Send(data.Array, data.Offset, data.Count, mode.Convert());
             return Task.CompletedTask;
         }
 

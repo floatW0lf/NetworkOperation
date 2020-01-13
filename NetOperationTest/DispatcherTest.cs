@@ -65,8 +65,8 @@ namespace NetOperationTest
             factory.Setup(f => f.Create<A, int,DefaultMessage>()).ReturnsUsingFixture(fixture);
             var model = new OperationRuntimeModel(new[]
             {
-                new OperationDescription(0, typeof(A), typeof(int), Side.Server),
-                new OperationDescription(1, typeof(B), typeof(float), Side.Server)
+                new OperationDescription(0, typeof(A), typeof(int), Side.Server,DeliveryMode.Ordered, DeliveryMode.Ordered),
+                new OperationDescription(1, typeof(B), typeof(float), Side.Server, DeliveryMode.Ordered, DeliveryMode.Ordered)
             });
             var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model,new Mock<IStructuralLogger>().Object);
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
@@ -110,7 +110,7 @@ namespace NetOperationTest
             });
 
             await generatedDispatcher.DispatchAsync(mockSession.Object);            
-            mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>()), Times.Once);
+            mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(),DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Once);
             handlerA.Verify(handler => handler.Handle(opA,It.IsAny<RequestContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
             handlerB.Verify(h => h.Handle(It.IsAny<B>(), It.IsAny<RequestContext<DefaultMessage>>(),It.IsAny<CancellationToken>()), Times.Never);
         }

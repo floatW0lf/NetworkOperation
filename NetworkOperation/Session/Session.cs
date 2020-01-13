@@ -56,7 +56,7 @@ namespace NetworkOperation
 
         protected internal abstract bool HasAvailableData { get; }
 
-        protected internal abstract Task SendMessageAsync(ArraySegment<byte> data);
+        protected internal abstract Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode);
         protected internal abstract Task<ArraySegment<byte>> ReceiveMessageAsync();
 
     }

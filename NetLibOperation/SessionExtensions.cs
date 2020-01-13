@@ -23,5 +23,28 @@ namespace NetLibOperation
             }
             session[SessionConstants.DisconnectReason] = disconnectInfo.Reason;
         }
+
+        internal static DeliveryMethod Convert(this DeliveryMode mode)
+        {
+            if ((mode & (DeliveryMode.Reliable | DeliveryMode.Ordered)) != 0)
+            {
+                return DeliveryMethod.ReliableOrdered;
+            }
+            if ((mode & (DeliveryMode.Reliable | DeliveryMode.Sequenced)) != 0)
+            {
+                return DeliveryMethod.ReliableSequenced;
+            }
+            if ((mode & DeliveryMode.Reliable) != 0)
+            {
+                return DeliveryMethod.ReliableUnordered;
+            }
+            if (mode == DeliveryMode.Sequenced)
+            {
+                return DeliveryMethod.Sequenced;
+            }
+                
+            return DeliveryMethod.Unreliable;
+            
+        }
     }
 }

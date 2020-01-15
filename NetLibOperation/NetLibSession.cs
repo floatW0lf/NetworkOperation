@@ -12,9 +12,8 @@ namespace NetLibOperation
 {
     internal class NetLibSession : Session
     {
-
         private readonly NetPeer _peer;
-
+        private readonly ConcurrentQueue<ArraySegment<byte>> _queue = new ConcurrentQueue<ArraySegment<byte>>();
         public NetLibSession(NetPeer peer, IEnumerable<SessionProperty> properties) : base(properties)
         {
             _peer = peer;
@@ -26,9 +25,7 @@ namespace NetLibOperation
         public override long Id => _peer.Id;
         public override NetworkStatistics Statistics { get; }
 
-        protected override bool HasAvailableData => _hasData;
-
-        private bool _hasData;
+        protected override bool HasAvailableData => !_queue.IsEmpty;
         
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
@@ -45,20 +42,15 @@ namespace NetLibOperation
             return Task.CompletedTask;
         }
 
-        private ArraySegment<byte> _data;
-
         public void OnReceiveData(ArraySegment<byte> data)
         {
-            _hasData = true;
-            _data = data;
+            _queue.Enqueue(data);
         }
 
         protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
-            _hasData = false;
-            var copy = _data;
-            _data = default;
-            return Task.FromResult(copy);
+            _queue.TryDequeue(out var data);
+            return Task.FromResult(data);
         }
         protected override void SendClose(ArraySegment<byte> payload)
         {

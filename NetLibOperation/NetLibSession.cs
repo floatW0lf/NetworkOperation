@@ -31,7 +31,16 @@ namespace NetLibOperation
         
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _peer.Send(data.Array, data.Offset, data.Count, mode.Convert());
+            var delivery = mode.Convert();
+            if (data.Count > _peer.GetMaxSinglePacketSize(delivery))
+            {
+                _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
+            }
+            else
+            {
+                _peer.Send(data.Array, data.Offset, data.Count, delivery);
+            }
+            
             return Task.CompletedTask;
         }
 

@@ -5,6 +5,9 @@ namespace NetLibOperation
 {
     public static class SessionExtensions
     {
+        
+
+
         public static byte[] GetPayload(this Session session)
         {
             return (byte[]) session[SessionConstants.DisconnectBytesPayload];
@@ -26,11 +29,13 @@ namespace NetLibOperation
 
         internal static DeliveryMethod Convert(this DeliveryMode mode)
         {
-            if ((mode & (DeliveryMode.Reliable | DeliveryMode.Ordered)) != 0)
+            const DeliveryMode ro = DeliveryMode.Reliable | DeliveryMode.Ordered;
+            const DeliveryMode rs = (DeliveryMode.Reliable | DeliveryMode.Sequenced);
+            if ((mode & ro) == ro)
             {
                 return DeliveryMethod.ReliableOrdered;
             }
-            if ((mode & (DeliveryMode.Reliable | DeliveryMode.Sequenced)) != 0)
+            if ((mode & rs) == rs)
             {
                 return DeliveryMethod.ReliableSequenced;
             }
@@ -42,7 +47,6 @@ namespace NetLibOperation
             {
                 return DeliveryMethod.Sequenced;
             }
-                
             return DeliveryMethod.Unreliable;
             
         }

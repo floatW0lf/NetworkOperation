@@ -7,8 +7,8 @@ namespace NetworkOperation
     {
         Unreliable = 0,
         Reliable = 1,
-        Ordered = 1 << 1,
-        Sequenced = 1 << 2
+        Ordered = 2,
+        Sequenced = 4
     }
 
     public static class MinRequiredDeliveryMode

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.ObjectPool;
@@ -44,36 +45,19 @@ namespace NetworkOperation
         }
         
         private readonly ConcurrentDictionary<OperationId, Task> _responseQueue = new ConcurrentDictionary<OperationId, Task>();
-
         private readonly BaseSerializer _serializer;
-        
         private static readonly ObjectPool<State> StatesPool = new DefaultObjectPool<State>(new DefaultPooledObjectPolicy<State>());
-        private readonly Side _currentSide;
-        private readonly Session _session;
-        private readonly SessionCollection _sessions;
-        private readonly IStructuralLogger _logger;
-
+        protected IStructuralLogger Logger { get; }
 
         public CancellationToken GlobalToken { get; set; }
         
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, IStructuralLogger logger)
+        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer,IStructuralLogger logger)
         {
             Model = model;
             _serializer = serializer;
-            _sessions = sessions;
-            _logger = logger;
-            _currentSide = Side.Server;
+            Logger = logger;
         }
-
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, IStructuralLogger logger)
-        {
-            
-            Model = model;
-            _serializer = serializer;
-            _session = session;
-            _logger = logger;
-            _currentSide = Side.Client;
-        }
+        
 
 
         public IGeneratorId MessageIdGenerator { get; set; } = new TimeGeneratorId();
@@ -92,13 +76,12 @@ namespace NetworkOperation
             return false;
         }
 
-        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IReadOnlyList<Session> receivers,
-            bool forAll, CancellationToken token) where TOp : IOperation<TOp, TResult>
+        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IReadOnlyList<Session> receivers, CancellationToken token) where TOp : IOperation<TOp, TResult>
         {
             
             var description = Model.GetDescriptionBy(typeof(TOp));
             
-            _logger.Write(LogLevel.Debug,"Start send operation {operation}, code: {code}",operation,description.Code);
+            Logger.Write(LogLevel.Debug,"Start send operation {operation}, code: {code}",operation,description.Code);
             
             var op = new TRequest
             {
@@ -111,12 +94,12 @@ namespace NetworkOperation
             
             MessagePlaceHolder?.Fill(ref op, operation);
             
-            _logger.Write(LogLevel.Debug,"Operation serialized {operation}", operation);
+            Logger.Write(LogLevel.Debug,"Operation serialized {operation}", operation);
             
             var rawResult = _serializer.Serialize(op);
-            await SendRequest(receivers, forAll, rawResult, description.ForRequest);
+            await SendRequest(receivers, rawResult, description.ForRequest);
            
-            _logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
+            Logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
             
             if (description.WaitResponse)
             {
@@ -131,7 +114,7 @@ namespace NetworkOperation
                     }
                     catch (OperationCanceledException)
                     {
-                        await SendCancel(receivers, forAll, op);
+                        await SendCancel(receivers, op);
                         throw;
                     }
                     catch (Exception)
@@ -156,10 +139,10 @@ namespace NetworkOperation
             var message = s.Result;
             StatesPool.Return(s);
 
-            _logger.Write(LogLevel.Debug, "Receive response {response}", message);
+            Logger.Write(LogLevel.Debug, "Receive response {response}", message);
             if (message.OperationData != null && message.Status == BuiltInOperationState.InternalError)
             {
-                _logger.Write(LogLevel.Error, "Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
+                Logger.Write(LogLevel.Error, "Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
                 return new OperationResult<TResult>(default, message.Status);
             }
 
@@ -168,13 +151,13 @@ namespace NetworkOperation
                 message.Status);
         }
 
-        private async Task SendCancel(IReadOnlyList<Session> receivers, bool forAll, TRequest request)
+        private async Task SendCancel(IReadOnlyList<Session> receivers, TRequest request)
         {
             if (_responseQueue.TryRemove(new OperationId(request.Id, request.OperationCode), out var canceledTask))
             {
                 StatesPool.Return((State) canceledTask.AsyncState);
                 
-                await SendRequest(receivers, forAll,
+                await SendRequest(receivers,
                     _serializer.Serialize(new TRequest
                     {
                         Id = MessageIdGenerator.Generate(),
@@ -184,29 +167,7 @@ namespace NetworkOperation
             }
         }
 
-        private async Task SendRequest(IReadOnlyList<Session> receivers, bool forAll, byte[] request, DeliveryMode mode)
-        {
-            var requestWithMessageType = request.AppendInBegin(TypeMessage.Request);
-            switch (_currentSide)
-            {
-                case Side.Server when forAll:
-                    await _sessions.SendToAllAsync(requestWithMessageType,mode);
-                    break;
-                
-                case Side.Server:
-                {
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (int i = 0; i < receivers.Count; i++)
-                    {
-                        await receivers[i].SendMessageAsync(requestWithMessageType,mode);
-                    }
-                    break;
-                }
-                case Side.Client:
-                    await _session.SendMessageAsync(requestWithMessageType,mode);
-                    break;
-            }
-        }
+        protected abstract Task SendRequest(IReadOnlyList<Session> receivers, byte[] request, DeliveryMode mode);
 
         private class State
         {

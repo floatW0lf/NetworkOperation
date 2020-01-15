@@ -2,14 +2,14 @@ using System;
 
 namespace NetworkOperation.Dispatching
 {
-    internal enum TypeMessage
+    public enum TypeMessage
     {
         None,
         Request = 1,
         Response
     }
     
-    internal static class TypeMessageExtensions
+    public static class TypeMessageExtensions
     {
         public static ArraySegment<byte> ReadMessageType(this ArraySegment<byte> source, out TypeMessage type)
         {

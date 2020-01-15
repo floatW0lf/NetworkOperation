@@ -6,7 +6,7 @@ using NetworkOperation;
 
 namespace NetLibOperation
 {
-    public class NetLibSessionCollection : MutableSessionCollection
+    internal class NetLibSessionCollection : MutableSessionCollection
     {
         private readonly NetManager _manager;
 

@@ -4,7 +4,7 @@ using NetworkOperation;
 
 namespace NetLibOperation
 {
-    public class LiteNetStatistics : NetworkStatistics
+    internal class LiteNetStatistics : NetworkStatistics
     {
         private readonly NetStatistics _liteStat;
 

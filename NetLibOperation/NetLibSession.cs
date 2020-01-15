@@ -10,7 +10,7 @@ using NetworkOperation.Extensions;
 
 namespace NetLibOperation
 {
-    public class NetLibSession : Session
+    internal class NetLibSession : Session
     {
 
         private readonly NetPeer _peer;

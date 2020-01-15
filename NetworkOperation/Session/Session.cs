@@ -36,7 +36,7 @@ namespace NetworkOperation
         public abstract EndPoint NetworkAddress { get; }
         public abstract object UntypedConnection { get; }
         public abstract long Id { get; }
-        public abstract SessionStatistics Statistics { get; }
+        public abstract NetworkStatistics Statistics { get; }
         
         public void Close(ArraySegment<byte> payload = default)
         {

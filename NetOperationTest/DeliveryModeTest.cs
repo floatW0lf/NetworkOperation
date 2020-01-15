@@ -12,8 +12,6 @@ namespace NetOperationTest
         public void ConvertToLiteNetLib()
         {
             var abstractMode = DeliveryMode.Sequenced;
-            var d = DeliveryMode.Reliable | DeliveryMode.Sequenced;
-            
             Assert.Equal(DeliveryMethod.Sequenced,abstractMode.Convert());
             abstractMode = DeliveryMode.Reliable | DeliveryMode.Sequenced | DeliveryMode.Ordered;
             Assert.Equal(DeliveryMethod.ReliableOrdered,abstractMode.Convert());

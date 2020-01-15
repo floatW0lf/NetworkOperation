@@ -18,12 +18,13 @@ namespace NetLibOperation
         public NetLibSession(NetPeer peer, IEnumerable<SessionProperty> properties) : base(properties)
         {
             _peer = peer;
+            Statistics = new LiteNetStatistics(peer.Statistics);
         }
 
         public override EndPoint NetworkAddress => _peer.EndPoint;
         public override object UntypedConnection => _peer;
         public override long Id => _peer.Id;
-        public override SessionStatistics Statistics { get; }
+        public override NetworkStatistics Statistics { get; }
 
         protected override bool HasAvailableData => _hasData;
 
@@ -32,7 +33,7 @@ namespace NetLibOperation
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
             var delivery = mode.Convert();
-            if (data.Count > _peer.GetMaxSinglePacketSize(delivery))
+            if ((mode & DeliveryMode.Reliable) != DeliveryMode.Reliable && data.Count > _peer.GetMaxSinglePacketSize(delivery))
             {
                 _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
             }

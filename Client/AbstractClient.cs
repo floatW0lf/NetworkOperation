@@ -109,7 +109,7 @@ namespace NetworkOperation.Client
             public override EndPoint NetworkAddress { get; } = new IPEndPoint(IPAddress.None, 0);
             public override object UntypedConnection { get; }
             public override long Id { get; }
-            public override SessionStatistics Statistics { get; }
+            public override NetworkStatistics Statistics { get; }
             protected override void OnClosedSession(){}
             protected override void SendClose(ArraySegment<byte> payload){}
             public override SessionState State { get; } = SessionState.Closed;

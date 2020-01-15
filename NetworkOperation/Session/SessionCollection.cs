@@ -12,6 +12,7 @@ namespace NetworkOperation
 {
     public abstract class SessionCollection : ISessionEvents, IReadOnlyCollection<Session>
     {
+        public abstract NetworkStatistics Statistics { get; }
         public abstract Session GetSession(long id);
         protected internal abstract Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode);
         

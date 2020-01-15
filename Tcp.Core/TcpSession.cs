@@ -26,7 +26,7 @@ namespace Tcp.Core
 
         public override long Id => _client.GetHashCode();
 
-        public override SessionStatistics Statistics => throw new System.NotImplementedException();
+        public override NetworkStatistics Statistics => throw new System.NotImplementedException();
 
         protected override void OnClosedSession()
         {

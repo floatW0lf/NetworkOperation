@@ -13,7 +13,10 @@ namespace NetLibOperation
         public NetLibSessionCollection(NetManager manager)
         {
             _manager = manager;
+            Statistics = new LiteNetStatistics(manager.Statistics);
         }
+
+        public override NetworkStatistics Statistics { get; }
 
         protected override Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode)
         {

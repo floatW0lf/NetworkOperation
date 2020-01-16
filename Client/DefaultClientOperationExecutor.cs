@@ -20,7 +20,7 @@ namespace NetworkOperation.Client
             _session = session;
         }
 
-        protected override async Task SendRequest(IReadOnlyList<Session> receivers, byte[] request, DeliveryMode mode)
+        protected override async Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode)
         {
             await _session.SendMessageAsync(request.AppendInBegin(TypeMessage.Request), mode);
         }

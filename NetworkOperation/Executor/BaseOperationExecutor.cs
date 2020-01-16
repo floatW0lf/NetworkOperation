@@ -76,7 +76,7 @@ namespace NetworkOperation
             return false;
         }
 
-        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IReadOnlyList<Session> receivers, CancellationToken token) where TOp : IOperation<TOp, TResult>
+        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken token) where TOp : IOperation<TOp, TResult>
         {
             
             var description = Model.GetDescriptionBy(typeof(TOp));
@@ -151,7 +151,7 @@ namespace NetworkOperation
                 message.Status);
         }
 
-        private async Task SendCancel(IReadOnlyList<Session> receivers, TRequest request)
+        private async Task SendCancel(IEnumerable<Session> receivers, TRequest request)
         {
             if (_responseQueue.TryRemove(new OperationId(request.Id, request.OperationCode), out var canceledTask))
             {
@@ -167,7 +167,7 @@ namespace NetworkOperation
             }
         }
 
-        protected abstract Task SendRequest(IReadOnlyList<Session> receivers, byte[] request, DeliveryMode mode);
+        protected abstract Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode);
 
         private class State
         {

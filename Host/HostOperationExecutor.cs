@@ -17,7 +17,7 @@ namespace NetworkOperation.Server
             return SendOperation<TOp, TOpResult>(operation, null, cancellation);
         }
 
-        public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, IReadOnlyList<Session> receivers, CancellationToken cancellation = default) where TOp : IOperation<TOp, TOpResult>
+        public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken cancellation = default) where TOp : IOperation<TOp, TOpResult>
         {
             return SendOperation<TOp, TOpResult>(operation, receivers,  cancellation);
         }
@@ -27,7 +27,7 @@ namespace NetworkOperation.Server
             _sessions = sessions;
         }
 
-        protected override async Task SendRequest(IReadOnlyList<Session> receivers, byte[] request, DeliveryMode mode)
+        protected override async Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode)
         {
             var requestWithMessageType = request.AppendInBegin(TypeMessage.Request);
             if (receivers == null)
@@ -41,11 +41,21 @@ namespace NetworkOperation.Server
             }
             else
             {
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (int i = 0; i < receivers.Count; i++)
+                if (receivers is IReadOnlyList<Session> list)
                 {
-                    await receivers[i].SendMessageAsync(requestWithMessageType, mode);
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        await list[i].SendMessageAsync(requestWithMessageType, mode);
+                    }
+                    return;
                 }
+
+                foreach (var receiver in receivers)
+                {
+                    await receiver.SendMessageAsync(requestWithMessageType, mode);
+                }
+                
             }
         }
 

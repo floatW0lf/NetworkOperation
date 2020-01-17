@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using NetworkOperation;
 using Xunit;
 
@@ -51,6 +52,7 @@ namespace NetOperationTest
             Assert.True(b >= FooCodes.A,"b >= FooCodes.A");
             Assert.True(b <= BarCodes.A,"b <= BarCodes.A");
             Assert.True(b < BarCodes.A,"b < BarCodes.A");
+            Assert.True(a.Equals(BarCodes.A));
         }
         
         [Fact]
@@ -62,5 +64,7 @@ namespace NetOperationTest
                 StatusCode.Register(typeof(FooCodes), typeof(BarCodes));
             });
         }
+        
+        
     }
 }

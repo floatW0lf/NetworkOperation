@@ -28,6 +28,11 @@ namespace NetworkOperation.Extensions
         {
             return new OperationResult<TResult>(value, code); 
         }
+        
+        public static OperationResult<Empty> ReturnEmpty<TOperation, TResult, TRequest>(this IHandler<TOperation, TResult, TRequest> handler) where TOperation : IOperation<TOperation, TResult> where TRequest : IOperationMessage
+        {
+            return new OperationResult<Empty>(default,BuiltInOperationState.Success); 
+        }
 
         public static ArraySegment<T> To<T>(this T[] array)
         {

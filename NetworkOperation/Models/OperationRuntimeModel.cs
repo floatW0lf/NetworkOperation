@@ -48,14 +48,11 @@ namespace NetworkOperation
             var duplicates = descriptions.GroupBy(d => d.Code).Where(group => group.Count() > 1).ToArray();
             if (duplicates.Length > 0)
             {
-                throw new ArgumentException($"Find duplicates for:\n{duplicates.Aggregate("", (s, g) => s + $"Operation code = {g.Key}, {DuplicateFormat(g)}\n").TrimEnd(',')}");
+                var message = string.Join(",",duplicates.Select(g => $"Operation code = {g.Key}, operations:{string.Join(",", g.Select(d => d.OperationType))}\n"));
+                throw new ArgumentException($"Find duplicates for:\n{message}");
             }
         }
-        
-        private static string DuplicateFormat(IEnumerable<OperationDescription> duplicates) 
-        {
-            return $"operations: [{duplicates.Aggregate("", (s, d) => s + d.OperationType + ",").TrimEnd(',')}]";
-        }
+       
 
         public static OperationRuntimeModel CreateFromAttribute(IEnumerable<Assembly> assemblies)
         {

@@ -81,7 +81,7 @@ namespace NetLibOperation.Client
         void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
             ((NetLibSession) Session).OnReceiveData(new ArraySegment<byte>(reader.RawData,reader.UserDataOffset,reader.UserDataSize));
-            Dispatch().GetAwaiter();
+            Dispatch().ConfigureAwait(false).GetAwaiter();
         }
 
         
@@ -105,7 +105,7 @@ namespace NetLibOperation.Client
                         Logger.Write(LogLevel.Warning, "Client event loop error",e);
                     }
                     
-                    await Task.Delay(PollTimeInMs);
+                    await Task.Delay(PollTimeInMs).ConfigureAwait(false);
                 } while (_eventLoopRun);
             }, TaskCreationOptions.LongRunning);
         }

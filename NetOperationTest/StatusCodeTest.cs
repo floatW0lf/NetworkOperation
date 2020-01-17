@@ -41,7 +41,7 @@ namespace NetOperationTest
         [Fact]
         public void check_operators()
         {
-            StatusCode a = BarCodes.A;
+            StatusCode a = StatusCode.FromEnum(BarCodes.A);
             StatusCode b = FooCodes.A;
             StatusCode c = BarCodes.A;
 

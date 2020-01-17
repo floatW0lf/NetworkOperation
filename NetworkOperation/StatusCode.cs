@@ -133,6 +133,11 @@ namespace NetworkOperation
         {
             return new StatusCode(GetEnumTypeCode(@enum.GetType()), ConvertToValue(@enum));
         }
+
+        public static StatusCode FromEnum<TEnum>(TEnum value) where TEnum : Enum
+        {
+            return new StatusCode(GetEnumTypeCode(typeof(TEnum)), Unsafe.As<TEnum,ushort>(ref value));
+        }
         
         public bool Equals<TEnum>(TEnum @enum) where TEnum : Enum
         {

@@ -44,7 +44,8 @@ namespace NetOperationTest
             StatusCode a = BarCodes.A;
             StatusCode b = FooCodes.A;
             StatusCode c = BarCodes.A;
-            
+
+            Assert.Equal(BarCodes.A,a.AsEnum<BarCodes>());
             Assert.NotEqual(a,b);
             Assert.Equal(a,c);
             

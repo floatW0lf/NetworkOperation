@@ -5,14 +5,11 @@ using Moq;
 using NetworkOperation;
 using NetworkOperation.Dispatching;
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using MessagePack.Formatters;
-using MessagePack.Resolvers;
-using NetworkOperation.Logger;
-using Newtonsoft.Json.Serialization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Serializer.MessagePack;
 using Xunit;
 
@@ -49,7 +46,7 @@ namespace NetOperationTest
                 throw new Exception("wrong operation");
             }
 
-            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
+            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger) : base(serializer, factory, model, logger)
             {
             }
         }
@@ -68,7 +65,7 @@ namespace NetOperationTest
                 new OperationDescription(0, typeof(A), typeof(int), Side.Server,DeliveryMode.Ordered, DeliveryMode.Ordered),
                 new OperationDescription(1, typeof(B), typeof(float), Side.Server, DeliveryMode.Ordered, DeliveryMode.Ordered)
             });
-            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model,new Mock<IStructuralLogger>().Object);
+            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model, new NullLoggerFactory());
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var hasData = true;
             var sessionMock = new Mock<Session>(Array.Empty<SessionProperty>());
@@ -96,7 +93,7 @@ namespace NetOperationTest
             factory.Setup(f => f.Create<A, int,DefaultMessage>()).ReturnsUsingFixture(fixture);
             factory.Setup(f => f.Create<B, float,DefaultMessage>()).ReturnsUsingFixture(fixture);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }), new Mock<IStructuralLogger>().Object);
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }), new NullLoggerFactory());
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);

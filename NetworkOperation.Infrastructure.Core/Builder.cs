@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation.Infrastructure
 {
@@ -55,13 +54,6 @@ namespace NetworkOperation.Infrastructure
             } 
             
             Service.Add(ServiceDescriptor.Describe(interfaceHandler,handler, lifetime));
-            return This;
-        }
-
-        public TImplement ConsoleLogger()
-        {
-            Service.AddSingleton<ILoggerFactory, ConsoleLoggerFactory>();
-            Service.AddTransient<IStructuralLogger,ConsoleStructuralLogger>();
             return This;
         }
         public TImplement RegisterStatusCodes(params Type[] codes)

@@ -1,6 +1,4 @@
-using NetworkOperation.Host;
-
-namespace NetworkOperation.Server
+namespace NetworkOperation.Host
 {
     public interface IHostContext
     {

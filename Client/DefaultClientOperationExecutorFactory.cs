@@ -1,5 +1,5 @@
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Factories;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation.Client
 {
@@ -7,17 +7,17 @@ namespace NetworkOperation.Client
     {
         private readonly OperationRuntimeModel _model;
         private readonly BaseSerializer _serializer;
-        private readonly IStructuralLogger _structuralLogger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public DefaultClientOperationExecutorFactory(OperationRuntimeModel model, BaseSerializer serializer,IStructuralLogger structuralLogger)
+        public DefaultClientOperationExecutorFactory(OperationRuntimeModel model, BaseSerializer serializer,ILoggerFactory loggerFactory)
         {
             _model = model;
             _serializer = serializer;
-            _structuralLogger = structuralLogger;
+            _loggerFactory = loggerFactory;
         }
         public IClientOperationExecutor Create(Session arg)
         {
-            return new DefaultClientOperationExecutor<TRequest,TResponse>(_model,_serializer,arg,_structuralLogger);
+            return new DefaultClientOperationExecutor<TRequest,TResponse>(_model,_serializer,arg,_loggerFactory);
         }
     }
 }

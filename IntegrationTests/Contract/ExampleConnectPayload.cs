@@ -12,5 +12,7 @@ namespace IntegrationTests.Contract
         public string AppId { get; set; }
         [DataMember]
         public string Version { get; set; }
+        [DataMember]
+        public bool UseValidate { get; set; }
     }
 }

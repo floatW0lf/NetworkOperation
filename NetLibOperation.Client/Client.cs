@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Microsoft.Extensions.Logging;
 using NetworkOperation;
 using NetworkOperation.Client;
 using NetworkOperation.Factories;
-using NetworkOperation.Logger;
 
 namespace NetLibOperation.Client
 {
@@ -25,7 +25,7 @@ namespace NetLibOperation.Client
         public Client(IFactory<NetPeer, Session> sessionFactory,
                       IFactory<Session, IClientOperationExecutor> executorFactory, 
                       BaseDispatcher<TRequest, TResponse> dispatcher,
-                      IStructuralLogger logger) : base(sessionFactory, executorFactory, dispatcher, logger)
+                      ILoggerFactory logger) : base(sessionFactory, executorFactory, dispatcher, logger)
         {
            
             Manager = new NetManager(this);
@@ -102,7 +102,7 @@ namespace NetLibOperation.Client
                     }
                     catch (Exception e)
                     {
-                        Logger.Write(LogLevel.Warning, "Client event loop error",e);
+                        Logger.LogWarning("Client event loop error",e);
                     }
                     
                     await Task.Delay(PollTimeInMs).ConfigureAwait(false);
@@ -167,7 +167,7 @@ namespace NetLibOperation.Client
                 throw;
             }
 
-            Logger.Write(LogLevel.Warning, "Client already connected");
+            Logger.LogWarning("Client already connected");
         }
 
         public override async Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
@@ -184,7 +184,7 @@ namespace NetLibOperation.Client
                 CloseSession();
                 return;
             }
-            Logger.Write(LogLevel.Warning,"Client already disconnect");
+            Logger.LogWarning("Client already disconnect");
             
         }
     }

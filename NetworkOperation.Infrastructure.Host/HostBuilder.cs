@@ -1,9 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
-using NetworkOperation.Logger;
-using NetworkOperation.Server;
 
 namespace NetworkOperation.Infrastructure.Host
 {
@@ -34,18 +33,18 @@ namespace NetworkOperation.Infrastructure.Host
         {
             private readonly OperationRuntimeModel _model;
             private readonly BaseSerializer _serializer;
-            private readonly IStructuralLogger _logger;
+            private readonly ILoggerFactory _loggerFactory;
 
             public Action<HostOperationExecutor<TRequest,TResponse>> Setup { get; set; }
-            public Factory(OperationRuntimeModel model, BaseSerializer serializer, IStructuralLogger logger)
+            public Factory(OperationRuntimeModel model, BaseSerializer serializer, ILoggerFactory loggerFactory)
             {
                 _model = model;
                 _serializer = serializer;
-                _logger = logger;
+                _loggerFactory = loggerFactory;
             }
             public IHostOperationExecutor Create(SessionCollection arg)
             {
-                var e = new HostOperationExecutor<TRequest,TResponse>(_model,_serializer,arg,_logger);
+                var e = new HostOperationExecutor<TRequest,TResponse>(_model,_serializer,arg,_loggerFactory);
                 Setup?.Invoke(e);
                 return e;
             }

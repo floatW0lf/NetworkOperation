@@ -1,8 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Client;
 using NetworkOperation.Factories;
-using NetworkOperation.Logger;
+
 
 namespace NetworkOperation.Infrastructure.Client
 {
@@ -26,10 +27,10 @@ namespace NetworkOperation.Infrastructure.Client
         {
             private readonly OperationRuntimeModel _model;
             private readonly BaseSerializer _serializer;
-            private readonly IStructuralLogger _logger;
+            private readonly ILoggerFactory _logger;
             public Action<DefaultClientOperationExecutor<TRequest, TResponse>> Configure { get; set; }
             
-            public Factory(OperationRuntimeModel model, BaseSerializer serializer, IStructuralLogger logger)
+            public Factory(OperationRuntimeModel model, BaseSerializer serializer, ILoggerFactory logger)
             {
                 _model = model;
                 _serializer = serializer;

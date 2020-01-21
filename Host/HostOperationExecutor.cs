@@ -2,11 +2,10 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Dispatching;
-using NetworkOperation.Host;
-using NetworkOperation.Logger;
 
-namespace NetworkOperation.Server
+namespace NetworkOperation.Host
 {
     public sealed class HostOperationExecutor<TMessage, TResponse> : BaseOperationExecutor<TMessage,TResponse>, IHostOperationExecutor where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
@@ -22,7 +21,7 @@ namespace NetworkOperation.Server
             return SendOperation<TOp, TOpResult>(operation, receivers,  cancellation);
         }
 
-        public HostOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, IStructuralLogger logger) : base(model, serializer, logger)
+        public HostOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, SessionCollection sessions, ILoggerFactory loggerFactory) : base(model, serializer, loggerFactory)
         {
             _sessions = sessions;
         }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using NetworkOperation;
-using NetworkOperation.Extensions;
 
 namespace NetLibOperation
 {

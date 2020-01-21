@@ -2,9 +2,9 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation
 {
@@ -25,7 +25,7 @@ namespace NetworkOperation
         private readonly BaseSerializer _serializer;
         private readonly IHandlerFactory _factory;
         protected readonly OperationRuntimeModel Model;
-        protected IStructuralLogger StructuralLogger { get; }
+        protected ILogger Logger { get; }
         
         private IResponseReceiver<TResponse> _responseReceiver;
         
@@ -39,12 +39,12 @@ namespace NetworkOperation
             _responseReceiver = receiveEvent;
         }
 
-        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger structuralLogger)
+        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger)
         {
             _serializer = serializer;
             _factory = factory;
             Model = model;
-            StructuralLogger = structuralLogger;
+            Logger = logger.CreateLogger(GetType().FullName);
         }
 
         public async Task DispatchAsync(Session session)
@@ -92,12 +92,12 @@ namespace NetworkOperation
                     }
                     
                 }
-                catch (OperationCanceledException e) { StructuralLogger.Write(LogLevel.Info,"Operation canceled: {request}, {exception}", request, e); }
+                catch (OperationCanceledException e) { Logger.LogInformation("Operation canceled: {request}, {exception}", request, e); }
                 catch (Exception e)
                 {
                     try
                     {
-                        StructuralLogger.Write(LogLevel.Error,"Handle error : {exception}", e);
+                        Logger.LogError("Handle error : {exception}", e);
                     }
                     finally
                     {

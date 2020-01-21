@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Dispatching;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation.Client
 {
@@ -15,7 +15,7 @@ namespace NetworkOperation.Client
             return SendOperation<TOp, TResult>(operation,null, cancellation);
         }
 
-        public DefaultClientOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, IStructuralLogger logger) : base(model, serializer, logger)
+        public DefaultClientOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, Session session, ILoggerFactory loggerFactory) : base(model, serializer, loggerFactory)
         {
             _session = session;
         }

@@ -4,7 +4,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NetworkOperation.Logger;
+using Microsoft.Extensions.Logging;
+
 
 namespace NetworkOperation.Dispatching
 {
@@ -18,7 +19,7 @@ namespace NetworkOperation.Dispatching
 
         private DispatchDelegate _cacheDispatcher;
 
-        public ExpressionDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
+        public ExpressionDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger) : base(serializer, factory, model, logger)
         {
         }
 

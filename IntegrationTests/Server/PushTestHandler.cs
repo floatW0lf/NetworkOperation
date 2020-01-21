@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using IntegrationTests.Contract;
 using NetworkOperation;
 using NetworkOperation.Extensions;
-using NetworkOperation.Server;
+using NetworkOperation.Host;
 
 namespace IntegrationTests.Server
 {

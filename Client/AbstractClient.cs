@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Factories;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation.Client
 {
@@ -12,15 +12,15 @@ namespace NetworkOperation.Client
     {
         public int PollTimeInMs { get; set; } = 10;
 
-        public IStructuralLogger Logger { get; }
+        public ILogger Logger { get; }
         
-        protected AbstractClient(IFactory<TConnection,Session> sessionFactory, IFactory<Session,IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher, IStructuralLogger logger)
+        protected AbstractClient(IFactory<TConnection,Session> sessionFactory, IFactory<Session,IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher, ILoggerFactory loggerFactory)
         {
             _sessionFactory = sessionFactory;
             _executorFactory = executorFactory;
             _dispatcher = dispatcher;
             _dispatcher.ExecutionSide = Side.Client;
-            Logger = logger;
+            Logger = loggerFactory.CreateLogger(GetType().FullName);
             Session = NotConnectedSession.Default;
         }
 

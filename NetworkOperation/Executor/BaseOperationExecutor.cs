@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation
 {
@@ -47,18 +45,16 @@ namespace NetworkOperation
         private readonly ConcurrentDictionary<OperationId, Task> _responseQueue = new ConcurrentDictionary<OperationId, Task>();
         private readonly BaseSerializer _serializer;
         private static readonly ObjectPool<State> StatesPool = new DefaultObjectPool<State>(new DefaultPooledObjectPolicy<State>());
-        protected IStructuralLogger Logger { get; }
+        protected ILogger Logger { get; }
 
         public CancellationToken GlobalToken { get; set; }
         
-        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer,IStructuralLogger logger)
+        protected BaseOperationExecutor(OperationRuntimeModel model, BaseSerializer serializer, ILoggerFactory loggerFactory)
         {
             Model = model;
             _serializer = serializer;
-            Logger = logger;
+            Logger = loggerFactory.CreateLogger(GetType().FullName);
         }
-        
-
 
         public IGeneratorId MessageIdGenerator { get; set; } = new TimeGeneratorId();
         protected OperationRuntimeModel Model { get; }
@@ -81,7 +77,7 @@ namespace NetworkOperation
             
             var description = Model.GetDescriptionBy(typeof(TOp));
             
-            Logger.Write(LogLevel.Debug,"Start send operation {operation}, code: {code}",operation,description.Code);
+            Logger.LogDebug("Start send operation {operation}, code: {code}",operation,description.Code);
             
             var op = new TRequest
             {
@@ -94,12 +90,12 @@ namespace NetworkOperation
             
             MessagePlaceHolder?.Fill(ref op, operation);
             
-            Logger.Write(LogLevel.Debug,"Operation serialized {operation}", operation);
+            Logger.LogDebug("Operation serialized {operation}", operation);
             
             var rawResult = _serializer.Serialize(op);
             await SendRequest(receivers, rawResult, description.ForRequest);
            
-            Logger.Write(LogLevel.Debug,"Operation sent {operation}", operation);
+            Logger.LogDebug("Operation sent {operation}", operation);
             
             if (description.WaitResponse)
             {
@@ -139,10 +135,10 @@ namespace NetworkOperation
             var message = s.Result;
             StatesPool.Return(s);
 
-            Logger.Write(LogLevel.Debug, "Receive response {response}", message);
+            Logger.LogDebug("Receive response {response}", message);
             if (message.OperationData != null && message.Status == BuiltInOperationState.InternalError)
             {
-                Logger.Write(LogLevel.Error, "Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
+                Logger.LogError("Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
                 return new OperationResult<TResult>(default, message.Status);
             }
 

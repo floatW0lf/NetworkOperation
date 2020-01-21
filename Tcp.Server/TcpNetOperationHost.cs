@@ -1,15 +1,12 @@
 ﻿using System;
 using NetworkOperation;
-using NetworkOperation.Server;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
-using NetworkOperation.Logger;
-using Tcp.Core;
 
 namespace Tcp.Server
 {

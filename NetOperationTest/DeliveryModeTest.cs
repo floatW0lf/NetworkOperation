@@ -1,5 +1,4 @@
-﻿using System;
-using LiteNetLib;
+﻿using LiteNetLib;
 using NetLibOperation;
 using NetworkOperation;
 using Xunit;

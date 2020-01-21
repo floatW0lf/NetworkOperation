@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
 using NetworkOperation;
 using NetworkOperation.Client;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Factories;
-using NetworkOperation.Logger;
 using Tcp.Core;
 
 namespace Tcp.Client
@@ -73,7 +71,7 @@ namespace Tcp.Client
         }
 
 
-        public TcpNetOperationClient(IFactory<Socket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, IStructuralLogger logger) : base(sessionFactory, executorFactory, dispatcher, logger)
+        public TcpNetOperationClient(IFactory<Socket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, ILoggerFactory logger) : base(sessionFactory, executorFactory, dispatcher, logger)
         {
             Client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             Client.LingerState.Enabled = false;

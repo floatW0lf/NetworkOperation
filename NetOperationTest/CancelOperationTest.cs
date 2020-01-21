@@ -5,15 +5,14 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using MessagePack;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NetworkOperation;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
-using NetworkOperation.Logger;
-using NetworkOperation.Server;
+using NetworkOperation.Host;
 using Serializer.MessagePack;
 using Xunit;
-using Xunit.Sdk;
 
 namespace NetOperationTest
 {
@@ -51,7 +50,7 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             var mockSession = new Mock<SessionCollection>();
-            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(Foo) }),serializeMock.Object, mockSession.Object,new ConsoleStructuralLogger());
+            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(Foo) }),serializeMock.Object, mockSession.Object,new NullLoggerFactory());
             var cts = new CancellationTokenSource();
             var task = mockSetting.Execute<Foo,int>(new Foo(), cts.Token);
             cts.Cancel();
@@ -74,7 +73,7 @@ namespace NetOperationTest
                 new MsgSerializer(), 
                 factory.Object, 
                 OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }), 
-                new Mock<IStructuralLogger>().Object);
+                new NullLoggerFactory());
             
             generatedDispatcher.ExecutionSide = Side.Server;
             

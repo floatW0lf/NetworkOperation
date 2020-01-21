@@ -5,14 +5,19 @@ using System.Threading.Tasks;
 using IntegrationTests.Client;
 using IntegrationTests.Contract;
 using IntegrationTests.Server;
+using LiteNet.Infrastructure.Client;
+using LiteNet.Infrastructure.Host;
 using LiteNetLib;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetLibOperation;
 using NetworkOperation;
 using NetworkOperation.Client;
+using NetworkOperation.Dispatching;
 using NetworkOperation.Host;
-using NetworkOperation.Server;
-using Ninject;
+using NetworkOperation.Infrastructure.Client;
+using NetworkOperation.Infrastructure.Host;
+using Serializer.MessagePack;
 using Xunit;
 
 namespace IntegrationTests
@@ -22,11 +27,38 @@ namespace IntegrationTests
         private const string Address = "localhost:8888";
         private IHostedService _host;
         private IClient _client;
-        private IKernel _kernel;
+        private IServiceProvider _clientProvider;
+        private IServiceProvider _hostProvider;
         
         public ServerClientInteractionTest()
         {
-            _kernel = new StandardKernel(new TestModule(false));
+            var clientCollection = new ServiceCollection();
+            clientCollection.AddLogging();
+            clientCollection
+                .NetworkOperationClient<DefaultMessage, DefaultMessage>()
+                .Serializer<MsgSerializer>()
+                .Executor()
+                .RuntimeModel(OperationRuntimeModel.CreateFromAttribute())
+                .Dispatcher<ExpressionDispatcher<DefaultMessage,DefaultMessage>>()
+                .RegisterHandler<ClientOpHandler>(ServiceLifetime.Singleton)
+                .UseLiteNet();
+
+            _clientProvider = clientCollection.BuildServiceProvider(false);
+            
+            var hostCollection = new ServiceCollection();
+            hostCollection.AddLogging();
+            hostCollection.NetworkOperationHost<DefaultMessage, DefaultMessage>()
+                .Executor()
+                .Serializer<MsgSerializer>()
+                .ConnectHandler<TestSessionRequestHandler>()
+                .Dispatcher<ExpressionDispatcher<DefaultMessage, DefaultMessage>>()
+                .RuntimeModel(OperationRuntimeModel.CreateFromAttribute())
+                .RegisterHandler<LongTimeOperationHandler>(ServiceLifetime.Singleton)
+                .RegisterHandler<MultiplayHandler>(ServiceLifetime.Singleton)
+                .RegisterHandler<PushTestHandler>(ServiceLifetime.Singleton)
+                .UseLiteNet();
+
+            _hostProvider = hostCollection.BuildServiceProvider(false);
         }
         
         [Fact]
@@ -63,14 +95,8 @@ namespace IntegrationTests
         [Fact]
         public async Task request_connect()
         {
-            _kernel.Unbind<SessionRequestHandler>();
-            _kernel.Bind<SessionRequestHandler>().To<TestSessionRequestHandler>().InSingletonScope();
+            await StartServerAndClient();
             
-            _host = _kernel.Get<IHostedService>();
-            _client = _kernel.Get<IClient>();
-            
-            await _host.StartAsync(default);
-
             var rejectedCount = 0;
             var connectedCount = 0;
             var sessionEvents = ((ISessionEvents) _client);
@@ -78,16 +104,15 @@ namespace IntegrationTests
             {
                 if (session.GetReason() == DisconnectReason.ConnectionRejected) rejectedCount++;
             }; 
-            sessionEvents.SessionClosed += session => { connectedCount++; }; 
-            
+            sessionEvents.SessionClosed += session => { connectedCount++; };
+            var serializer = _clientProvider.GetRequiredService<BaseSerializer>();
             _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
-                new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app"},
-                _kernel.Get<BaseSerializer>());
+                new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app", UseValidate = true}, serializer);
             await Assert.ThrowsAsync<TaskCanceledException>(()=>_client.ConnectAsync(Address));
             
             _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
-                new ExampleConnectPayload() {Authorize = "token", Version = "1.1", AppId = "some_app"},
-                _kernel.Get<BaseSerializer>());
+                new ExampleConnectPayload() {Authorize = "token", Version = "1.1", AppId = "some_app", UseValidate = true},
+                serializer);
             await _client.ConnectAsync(Address);
             
             Assert.Equal(1,connectedCount);
@@ -116,8 +141,9 @@ namespace IntegrationTests
         
         private async Task StartServerAndClient()
         {
-            _host = _kernel.Get<IHostedService>();
-            _client = _kernel.Get<IClient>();
+            _host = _hostProvider.GetRequiredService<IHostedService>();
+            _client = _clientProvider.GetRequiredService<IClient>();
+            
             await _host.StartAsync(default);
             await _client.ConnectAsync(Address);
         }

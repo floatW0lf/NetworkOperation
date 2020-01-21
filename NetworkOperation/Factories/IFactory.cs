@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace NetworkOperation.Factories
 {
     public interface IFactory<in TArg, out TInstance>

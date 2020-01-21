@@ -5,8 +5,8 @@ using Microsoft.Extensions.Hosting;
 using NetLibOperation;
 using NetworkOperation;
 using NetworkOperation.Factories;
+using NetworkOperation.Host;
 using NetworkOperation.Infrastructure.Host;
-using NetworkOperation.Server;
 
 namespace LiteNet.Infrastructure.Host
 {

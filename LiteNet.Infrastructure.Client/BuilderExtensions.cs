@@ -12,7 +12,7 @@ namespace LiteNet.Infrastructure.Client
 {
     public static class BuilderExtensions
     {
-        public static ClientBuilder<TRequest, TResponse> ConfigureLiteNet<TRequest, TResponse>(this ClientBuilder<TRequest, TResponse> builder, Action<Client<TRequest, TResponse>> action = null) where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+        public static ClientBuilder<TRequest, TResponse> UseLiteNet<TRequest, TResponse>(this ClientBuilder<TRequest, TResponse> builder, Action<Client<TRequest, TResponse>> action = null) where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
         {
             builder.Service.AddSingleton<IFactory<NetPeer, Session>, SessionFactory>();
             builder.Service.AddSingleton<IClient>(p =>

@@ -35,6 +35,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNet.Infrastructure.Clie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Core", "NetworkOperation.Infrastructure.Core\NetworkOperation.Infrastructure.Core.csproj", "{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Host", "NetworkOperation.Infrastructure.Host\NetworkOperation.Infrastructure.Host.csproj", "{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNet.Infrastructure.Host", "LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj", "{A85896F4-1F08-459A-BE26-8B1F554FDE4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +142,18 @@ Global
 		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
 		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.AOT|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

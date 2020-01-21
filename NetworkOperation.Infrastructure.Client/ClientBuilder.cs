@@ -11,7 +11,7 @@ namespace NetworkOperation.Infrastructure.Client
         public ClientBuilder(IServiceCollection service) : base(service)
         {
         }
-        public ClientBuilder<TRequest,TResponse> ConfigureExecutor(Action<DefaultClientOperationExecutor<TRequest, TResponse>> action = null)
+        public ClientBuilder<TRequest,TResponse> Executor(Action<DefaultClientOperationExecutor<TRequest, TResponse>> action = null)
         {
             Service.AddTransient<IFactory<Session, IClientOperationExecutor>,Factory>(p =>
             {

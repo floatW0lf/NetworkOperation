@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NetworkOperation.Logger;
 
@@ -9,10 +10,11 @@ namespace NetworkOperation.Infrastructure
         public Builder(IServiceCollection service)
         {
             Service = service;
+            Service.AddSingleton<IHandlerFactory, ServiceProviderFactoryHandler>();
         }
         public IServiceCollection Service { get; }
         
-        public TImplement ConfigureDispatcher<TDispatcher>(Action<TDispatcher> dispatcher = null) where TDispatcher : BaseDispatcher<TRequest,TResponse>
+        public TImplement Dispatcher<TDispatcher>(Action<TDispatcher> dispatcher = null) where TDispatcher : BaseDispatcher<TRequest,TResponse>
         {
             Service.AddSingleton<BaseDispatcher<TRequest,TResponse>>(p =>
             {
@@ -23,22 +25,44 @@ namespace NetworkOperation.Infrastructure
             return This;
         }
         
-        public TImplement ConfigureSerializer<TSerializer>() where  TSerializer : BaseSerializer
+        public TImplement Serializer<TSerializer>() where  TSerializer : BaseSerializer
         {
             Service.AddSingleton<BaseSerializer, TSerializer>();
             return This;
         }
 
-        public TImplement ConfigureRuntimeModel(OperationRuntimeModel model)
+        public TImplement RuntimeModel(OperationRuntimeModel model)
         {
             Service.Add(ServiceDescriptor.Singleton(typeof(OperationRuntimeModel), model));
             return This;
         }
 
+        public TImplement RegisterHandler<THandler>(ServiceLifetime lifetime) where THandler : IHandler
+        {
+            var handler = typeof(THandler);
+            Type interfaceHandler;
+            try
+            {
+                interfaceHandler = handler.GetInterfaces().First(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IHandler<,,>));
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException($"{handler} not implement interface {typeof(IHandler<,,>)}");
+            }
+            if (interfaceHandler.GetGenericArguments()[2] != typeof(TRequest))
+            {
+                throw new InvalidOperationException($"Invalid request type for handler {typeof(THandler)}. Must be {typeof(TRequest)}");
+            } 
+            
+            Service.Add(ServiceDescriptor.Describe(interfaceHandler,handler, lifetime));
+            return This;
+        }
+
         public TImplement ConsoleLogger()
         {
-            Service.AddSingleton<IStructuralLogger,ConsoleStructuralLogger>();
-            return (TImplement)this;
+            Service.AddSingleton<ILoggerFactory, ConsoleLoggerFactory>();
+            Service.AddTransient<IStructuralLogger,ConsoleStructuralLogger>();
+            return This;
         }
         public TImplement RegisterStatusCodes(params Type[] codes)
         {

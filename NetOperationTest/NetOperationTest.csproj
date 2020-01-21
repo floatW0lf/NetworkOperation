@@ -32,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Host\Host.csproj" />
     <ProjectReference Include="..\LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj" />
+    <ProjectReference Include="..\LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj" />
     <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
     <ProjectReference Include="..\NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />

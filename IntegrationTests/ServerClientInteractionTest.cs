@@ -95,24 +95,24 @@ namespace IntegrationTests
         [Fact]
         public async Task request_connect()
         {
-            await StartServerAndClient();
+            await StartServerAndClient(true);
             
             var rejectedCount = 0;
             var connectedCount = 0;
             var sessionEvents = ((ISessionEvents) _client);
-            sessionEvents.SessionClosed  += session =>
+            sessionEvents.SessionClosed += session =>
             {
                 if (session.GetReason() == DisconnectReason.ConnectionRejected) rejectedCount++;
             }; 
             sessionEvents.SessionClosed += session => { connectedCount++; };
             var serializer = _clientProvider.GetRequiredService<BaseSerializer>();
+            
             _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
-                new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app", UseValidate = true}, serializer);
+                new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app" }, serializer);
             await Assert.ThrowsAsync<TaskCanceledException>(()=>_client.ConnectAsync(Address));
             
             _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
-                new ExampleConnectPayload() {Authorize = "token", Version = "1.1", AppId = "some_app", UseValidate = true},
-                serializer);
+                new ExampleConnectPayload() {Authorize = "token", Version = "1.1", AppId = "some_app" }, serializer);
             await _client.ConnectAsync(Address);
             
             Assert.Equal(1,connectedCount);
@@ -139,13 +139,16 @@ namespace IntegrationTests
             Assert.Equal(new byte[]{1,1,1},payload);
         }
         
-        private async Task StartServerAndClient()
+        private async Task StartServerAndClient(bool onlyHost = false)
         {
             _host = _hostProvider.GetRequiredService<IHostedService>();
             _client = _clientProvider.GetRequiredService<IClient>();
             
             await _host.StartAsync(default);
-            await _client.ConnectAsync(Address);
+            if (!onlyHost)
+            {
+                await _client.ConnectAsync(Address);
+            }
         }
 
 

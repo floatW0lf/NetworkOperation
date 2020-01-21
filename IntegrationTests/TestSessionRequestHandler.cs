@@ -16,19 +16,18 @@ namespace IntegrationTests
 
         protected override void OnHandle(SessionRequest request)
         {
-            var payload = ReadPayload<ExampleConnectPayload>(request);
-            if (!payload.UseValidate)
+            if (request.RequestPayload.Count > 1)
             {
-                request.Accept(new SessionProperty[0]);
+                var payload = ReadPayload<ExampleConnectPayload>(request);
+                if (payload.Authorize == Auth && payload.Version == version)
+                {
+                    request.Accept(new []{ new SessionProperty("appid", payload.AppId)});
+                    return;
+                }
+                request.Reject();
                 return;
             }
-            if (payload.Authorize == Auth && payload.Version == version)
-            {
-                request.Accept(new []{ new SessionProperty("appid", payload.AppId)});
-                return;
-            }
-            
-            request.Reject();
+            request.Accept(new SessionProperty[0]);
         }
 
         

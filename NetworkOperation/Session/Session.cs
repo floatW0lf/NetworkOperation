@@ -43,6 +43,10 @@ namespace NetworkOperation
         }
         internal void OnClosingSession()
         {
+            foreach (var value in _propertyContainer.Values.OfType<IDisposable>())
+            {
+                value.Dispose();
+            }
             _propertyContainer.Clear();
             OnClosedSession();
         }

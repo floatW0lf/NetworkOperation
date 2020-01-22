@@ -4,11 +4,15 @@ namespace NetworkOperation
     {
         public readonly TRequest Message;
         public readonly Session Session;
+        public readonly OperationDescription OperationDescription;
+        public readonly HandlerDescription HandlerDescription;
 
-        internal RequestContext(TRequest message, Session session)
+        internal RequestContext(TRequest message, Session session, OperationDescription operationDescription, HandlerDescription handlerDescription)
         {
             Message = message;
             Session = session;
+            OperationDescription = operationDescription;
+            HandlerDescription = handlerDescription;
         }
     }
 }

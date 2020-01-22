@@ -67,13 +67,13 @@ namespace NetOperationTest
             var fooHandler = new FooTestHandler();
                 
             var factory = new Mock<IHandlerFactory>();
-            factory.Setup(f => f.Create<Foo, int,DefaultMessage>()).Returns(fooHandler);
+            factory.Setup(f => f.Create<Foo, int,DefaultMessage>(It.IsAny<RequestContext<DefaultMessage>>())).Returns(fooHandler);
             
             var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(
                 new MsgSerializer(), 
                 factory.Object, 
                 OperationRuntimeModel.CreateFromAttribute(new[] { typeof(Foo) }), 
-                new NullLoggerFactory());
+                new NullLoggerFactory(), new DescriptionRuntimeModel());
             
             generatedDispatcher.ExecutionSide = Side.Server;
             

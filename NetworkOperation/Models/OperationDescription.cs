@@ -4,7 +4,7 @@ namespace NetworkOperation
 {
     public class OperationDescription
     {
-        public OperationDescription(uint code, Type operationType, Type resultType, Side handle, DeliveryMode forRequest, DeliveryMode forResponse)
+        public OperationDescription(uint code, Type operationType, Type resultType, Side handle, DeliveryMode forRequest, DeliveryMode forResponse, bool waitResponse)
         {
             Code = code;
             OperationType = operationType;
@@ -12,6 +12,7 @@ namespace NetworkOperation
             Handle = handle;
             ForRequest = forRequest;
             ForResponse = forResponse;
+            WaitResponse = waitResponse;
         }
 
         public Side Handle { get; }
@@ -23,6 +24,6 @@ namespace NetworkOperation
         public DeliveryMode ForRequest { get; }
         public DeliveryMode ForResponse { get; }
 
-        public bool WaitResponse { get; set; } = true;
+        public bool WaitResponse { get; }
     }
 }

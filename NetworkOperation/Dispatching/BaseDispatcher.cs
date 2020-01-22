@@ -25,6 +25,7 @@ namespace NetworkOperation
         private readonly BaseSerializer _serializer;
         private readonly IHandlerFactory _factory;
         protected readonly OperationRuntimeModel Model;
+        private readonly DescriptionRuntimeModel _descriptionRuntimeModel;
         protected ILogger Logger { get; }
         
         private IResponseReceiver<TResponse> _responseReceiver;
@@ -39,11 +40,12 @@ namespace NetworkOperation
             _responseReceiver = receiveEvent;
         }
 
-        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger)
+        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel)
         {
             _serializer = serializer;
             _factory = factory;
             Model = model;
+            _descriptionRuntimeModel = descriptionRuntimeModel;
             Logger = logger.CreateLogger(GetType().FullName);
         }
 
@@ -69,11 +71,12 @@ namespace NetworkOperation
                 }
                 var request = _serializer.Deserialize<TRequest>(rawMessage);
                 var description = Model.GetDescriptionBy(request.OperationCode);
+                var context = new RequestContext<TRequest>(request, session, description,_descriptionRuntimeModel.GetByOperation(description.OperationType));
                 try
                 {
                     if (GlobalRequestFilter != null)
                     {
-                        var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
+                        var response = await GlobalRequestFilter.Handle(context);
                         response.Id = request.Id;
                         if (response.Status != BuiltInOperationState.Success)
                         {
@@ -85,7 +88,7 @@ namespace NetworkOperation
                     if (IsContinue(request)) continue;
     
                     
-                    var rawResponse = await ProcessHandler(session, request, description, CreateCancellationToken(request, description));
+                    var rawResponse = await ProcessHandler(request, context, CreateCancellationToken(request, description));
                     if (description.WaitResponse)
                     {
                         await SendAsync(session, rawResponse, request, description.ForResponse);
@@ -170,23 +173,27 @@ namespace NetworkOperation
             await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response), mode);
         }
 
-        protected abstract Task<DataWithStateCode> ProcessHandler(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token);
+        protected abstract Task<DataWithStateCode> ProcessHandler(TRequest header, RequestContext<TRequest> context, CancellationToken token);
 
-        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token) where T : IOperation<T,TResult>
+        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<T,TResult>
         {
-            var segArray = message.OperationData.To();
-            var arg = operationDescription.UseAsyncSerialize
+            var segArray = header.OperationData.To();
+            var arg = context.OperationDescription.UseAsyncSerialize
                 ? await _serializer.DeserializeAsync<T>(segArray)
                 : _serializer.Deserialize<T>(segArray);
             
-            // TODO: время жизни обработчика
-            var typedHandler = _factory.Create<T,TResult,TRequest>(); 
-            var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
+            var typedHandler = _factory.Create<T,TResult,TRequest>(context);
+            var result = await typedHandler.Handle(arg, context, token);
             
-            if (!operationDescription.WaitResponse) return default;
+            if (context.HandlerDescription.LifeTime == Scope.Request)
+            {
+                _factory.Destroy(typedHandler);
+            }
+            
+            if (!context.OperationDescription.WaitResponse) return default;
             if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.Status);
             
-            return new DataWithStateCode(operationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.Status);
+            return new DataWithStateCode(context.OperationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.Status);
         }
 
         protected internal Side ExecutionSide { get; internal set; }

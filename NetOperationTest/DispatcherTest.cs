@@ -36,18 +36,18 @@ namespace NetOperationTest
         
         class TestDispatcher : BaseDispatcher<DefaultMessage,DefaultMessage>
         {
-            protected override Task<DataWithStateCode> ProcessHandler(Session session, DefaultMessage message, OperationDescription operationDescription, CancellationToken token)
+            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel) : base(serializer, factory, model, logger, descriptionRuntimeModel)
             {
-                switch (message.OperationCode)
-                {
-                    case 0: return GenericHandle<A, int>(session, message, operationDescription, token);
-                    case 1: return GenericHandle<B, float>(session, message, operationDescription, token);
-                }
-                throw new Exception("wrong operation");
             }
 
-            public TestDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger) : base(serializer, factory, model, logger)
+            protected override Task<DataWithStateCode> ProcessHandler(DefaultMessage header, RequestContext<DefaultMessage> context, CancellationToken token)
             {
+                switch (header.OperationCode)
+                {
+                    case 0: return GenericHandle<A,int>(header, context, token);
+                    case 1: return GenericHandle<B,float>(header, context, token);
+                }
+                throw new InvalidOperationException();
             }
         }
         
@@ -59,13 +59,13 @@ namespace NetOperationTest
             var moqHandler = fixture.Freeze<Mock<IHandler<A, int, DefaultMessage>>>();
             var result = fixture.Freeze<int>();
             var factory = new Mock<IHandlerFactory>();
-            factory.Setup(f => f.Create<A, int,DefaultMessage>()).ReturnsUsingFixture(fixture);
+            factory.Setup(f => f.Create<A, int,DefaultMessage>(It.IsAny<RequestContext<DefaultMessage>>())).ReturnsUsingFixture(fixture);
             var model = new OperationRuntimeModel(new[]
             {
-                new OperationDescription(0, typeof(A), typeof(int), Side.Server,DeliveryMode.Ordered, DeliveryMode.Ordered),
-                new OperationDescription(1, typeof(B), typeof(float), Side.Server, DeliveryMode.Ordered, DeliveryMode.Ordered)
+                new OperationDescription(0, typeof(A), typeof(int), Side.Server,DeliveryMode.Ordered, DeliveryMode.Ordered, true),
+                new OperationDescription(1, typeof(B), typeof(float), Side.Server, DeliveryMode.Ordered, DeliveryMode.Ordered , true)
             });
-            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model, new NullLoggerFactory());
+            var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model, new NullLoggerFactory(),new DescriptionRuntimeModel());
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var hasData = true;
             var sessionMock = new Mock<Session>(Array.Empty<SessionProperty>());
@@ -90,10 +90,10 @@ namespace NetOperationTest
             var handlerA = fixture.Freeze<Mock<IHandler<A, int,DefaultMessage>>>();
             var handlerB = fixture.Freeze<Mock<IHandler<B, float,DefaultMessage>>>();
             var factory = new Mock<IHandlerFactory>();
-            factory.Setup(f => f.Create<A, int,DefaultMessage>()).ReturnsUsingFixture(fixture);
-            factory.Setup(f => f.Create<B, float,DefaultMessage>()).ReturnsUsingFixture(fixture);
+            factory.Setup(f => f.Create<A, int,DefaultMessage>(It.IsAny<RequestContext<DefaultMessage>>())).ReturnsUsingFixture(fixture);
+            factory.Setup(f => f.Create<B, float,DefaultMessage>(It.IsAny<RequestContext<DefaultMessage>>())).ReturnsUsingFixture(fixture);
             
-            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }), new NullLoggerFactory());
+            var generatedDispatcher = new ExpressionDispatcher<DefaultMessage,DefaultMessage>(new MsgSerializer(), factory.Object, OperationRuntimeModel.CreateFromAttribute(new[] { typeof(A), typeof(B) }), new NullLoggerFactory(), new DescriptionRuntimeModel());
             generatedDispatcher.ExecutionSide = Side.Server;
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);

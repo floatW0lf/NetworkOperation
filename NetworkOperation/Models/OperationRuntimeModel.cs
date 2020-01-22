@@ -22,10 +22,9 @@ namespace NetworkOperation
                     var metaInfo = type.GetCustomAttribute<OperationAttribute>();
                     var arguments = type.GetGenericArgsFromOperation();
 
-                    return new OperationDescription(metaInfo.Code, arguments[0], arguments[1], metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse)
+                    return new OperationDescription(metaInfo.Code, arguments[0], arguments[1], metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse, metaInfo.WaitResponse)
                     {
                         UseAsyncSerialize = metaInfo.UseAsyncSerialize,
-                        WaitResponse = metaInfo.WaitResponse
                     };
 
                 }).OrderBy(d => d.Code).ToArray();

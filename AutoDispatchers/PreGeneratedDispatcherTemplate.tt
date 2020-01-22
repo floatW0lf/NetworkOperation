@@ -25,12 +25,12 @@ namespace NetworkOperations.Dispatching
         {
         }
 
-        protected override Task<DataWithStateCode> ProcessHandler(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token)
+        protected override Task<DataWithStateCode> ProcessHandler(TRequest message, RequestContext<TRequest> context, CancellationToken token)
         {
             switch (operationDescription.Code)
             {
 <# foreach (OperationDescription op in Model) { if (op == null || !op.Handle.HasFlag(Side)) continue; #>
-               case <#=op.Code#>: return GenericHandle<<#=op.OperationType.FullName#>, <#=op.ResultType.ToCSharpFormat()#>>(session, message, operationDescription, token);
+               case <#=op.Code#>: return GenericHandle<<#=op.OperationType.FullName#>, <#=op.ResultType.ToCSharpFormat()#>>(message, context, token);
 <# } #>
             }
             throw new InvalidOperationException($"Wrong code operation {operationDescription.Code}");

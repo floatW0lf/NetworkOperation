@@ -15,6 +15,7 @@ using NetworkOperation;
 using NetworkOperation.Client;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Host;
+using NetworkOperation.Infrastructure;
 using NetworkOperation.Infrastructure.Client;
 using NetworkOperation.Infrastructure.Host;
 using Serializer.MessagePack;
@@ -40,7 +41,7 @@ namespace IntegrationTests
                 .Executor()
                 .RuntimeModel(OperationRuntimeModel.CreateFromAttribute())
                 .Dispatcher<ExpressionDispatcher<DefaultMessage,DefaultMessage>>()
-                .RegisterHandler<ClientOpHandler>(ServiceLifetime.Singleton)
+                .RegisterHandler<ClientOpHandler>(Scope.Session)
                 .UseLiteNet();
 
             _clientProvider = clientCollection.BuildServiceProvider(false);
@@ -53,9 +54,9 @@ namespace IntegrationTests
                 .ConnectHandler<TestSessionRequestHandler>()
                 .Dispatcher<ExpressionDispatcher<DefaultMessage, DefaultMessage>>()
                 .RuntimeModel(OperationRuntimeModel.CreateFromAttribute())
-                .RegisterHandler<LongTimeOperationHandler>(ServiceLifetime.Singleton)
-                .RegisterHandler<MultiplayHandler>(ServiceLifetime.Singleton)
-                .RegisterHandler<PushTestHandler>(ServiceLifetime.Singleton)
+                .RegisterHandler<LongTimeOperationHandler>(Scope.Single)
+                .RegisterHandler<MultiplayHandler>(Scope.Session)
+                .RegisterHandler<PushTestHandler>(Scope.Session)
                 .UseLiteNet();
 
             _hostProvider = hostCollection.BuildServiceProvider(false);

@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace NetworkOperation.Infrastructure
 {
     public abstract class Builder<TRequest,TResponse,TImplement> : IBuilder where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new() where TImplement : Builder<TRequest,TResponse,TImplement>
     {
+        private DescriptionRuntimeModel _runtimeModel;
         public Builder(IServiceCollection service)
         {
             Service = service;
             Service.AddSingleton<IHandlerFactory, ServiceProviderFactoryHandler>();
+            _runtimeModel = new DescriptionRuntimeModel();
+            Service.Add(new ServiceDescriptor(typeof(DescriptionRuntimeModel),_runtimeModel));
         }
         public IServiceCollection Service { get; }
         
@@ -36,9 +41,28 @@ namespace NetworkOperation.Infrastructure
             return This;
         }
 
-        public TImplement RegisterHandler<THandler>(ServiceLifetime lifetime) where THandler : IHandler
+        public TImplement RegisterHandlers(IEnumerable<Assembly> assemblies)
         {
-            var handler = typeof(THandler);
+            return RegisterHandlers(assemblies.SelectMany(a => a.GetTypes()));
+        }
+        public TImplement RegisterHandlers(IEnumerable<Type> anyTypes)
+        {
+            var handlers = anyTypes.Where(t =>
+                !t.IsAbstract && !t.IsInterface && typeof(IHandler).IsAssignableFrom(t) &&
+                t.IsDefined(typeof(HandlerAttribute), true));
+
+            foreach (var handler in handlers)
+            {
+                RegisterHandler(handler, handler.GetCustomAttribute<HandlerAttribute>(true).LifeTime);
+            }
+            return This;
+        }
+        public TImplement RegisterHandler<THandler>(Scope lifetime) where THandler : IHandler
+        {
+            return RegisterHandler(typeof(THandler), lifetime);
+        }
+        public TImplement RegisterHandler(Type handler, Scope lifetime)
+        {
             Type interfaceHandler;
             try
             {
@@ -50,11 +74,26 @@ namespace NetworkOperation.Infrastructure
             }
             if (interfaceHandler.GetGenericArguments()[2] != typeof(TRequest))
             {
-                throw new InvalidOperationException($"Invalid request type for handler {typeof(THandler)}. Must be {typeof(TRequest)}");
+                throw new InvalidOperationException($"Invalid request type for handler {handler}. Must be {typeof(TRequest)}");
             } 
-            
-            Service.Add(ServiceDescriptor.Describe(interfaceHandler,handler, lifetime));
+            _runtimeModel.Register(interfaceHandler.GetGenericArguments()[0], new HandlerDescription(lifetime));
+            Service.Add(ServiceDescriptor.Describe(interfaceHandler,handler, Convert(lifetime)));
             return This;
+        }
+
+        private ServiceLifetime Convert(Scope scope)
+        {
+            switch (scope)
+            {
+                case Scope.Single:
+                    return ServiceLifetime.Singleton;
+                case Scope.Session:
+                    return ServiceLifetime.Scoped;
+                case Scope.Request:
+                    return ServiceLifetime.Transient;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(scope), scope, null);
+            }
         }
         public TImplement RegisterStatusCodes(params Type[] codes)
         {

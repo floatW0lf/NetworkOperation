@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace NetworkOperation.Infrastructure
 {
-    public abstract class Builder<TRequest,TResponse,TImplement> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new() where TImplement : Builder<TRequest,TResponse,TImplement>
+    public abstract class Builder<TRequest,TResponse,TImplement> : IBuilder where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new() where TImplement : Builder<TRequest,TResponse,TImplement>
     {
         public Builder(IServiceCollection service)
         {

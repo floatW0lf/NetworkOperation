@@ -17,7 +17,7 @@ namespace LiteNet.Infrastructure.Client
             builder.Service.AddSingleton<IFactory<NetPeer, Session>, SessionFactory>();
             builder.Service.AddSingleton<IClient>(p =>
             {
-                var c = ActivatorUtilities.GetServiceOrCreateInstance<Client<TRequest, TResponse>>(p);
+                var c = ActivatorUtilities.CreateInstance<Client<TRequest, TResponse>>(p);
                 action?.Invoke(c);
                 return c;
             });

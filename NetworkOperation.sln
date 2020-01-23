@@ -21,9 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tcp.Core", "Tcp.Core\Tcp.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatcherGenerator", "AutoDispatchers\DispatcherGenerator.csproj", "{9224C04A-3B48-44E6-902F-739E2259C3A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "Host\Host.csproj", "{1FD14304-21A4-4218-AE6D-BC8C4AC52ED7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Host", "NetworkOperation.Host\NetworkOperation.Host.csproj", "{1FD14304-21A4-4218-AE6D-BC8C4AC52ED7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{4F2F56BF-6777-48AB-BECB-ACAECA05C8D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Client", "NetworkOperation.Client\NetworkOperation.Client.csproj", "{4F2F56BF-6777-48AB-BECB-ACAECA05C8D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{EC26E6B3-B9CD-4D27-A39D-7D2C6FB64DE1}"
 EndProject

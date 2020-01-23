@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Host\Host.csproj" />
     <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
   </ItemGroup>
 

@@ -6,11 +6,11 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Client\Client.csproj" />
-      <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
+      <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
       <ProjectReference Include="..\NetworkOperation.Infrastructure.Core\NetworkOperation.Infrastructure.Core.csproj" />
     </ItemGroup>
 

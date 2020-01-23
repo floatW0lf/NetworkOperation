@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Host\Host.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
     <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
   </ItemGroup>

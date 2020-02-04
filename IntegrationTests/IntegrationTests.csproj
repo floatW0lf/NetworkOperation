@@ -6,19 +6,21 @@
 
         <LangVersion>7.3</LangVersion>
 
-        <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
         <PackageReference Include="Moq" Version="4.12.0" />
-        <PackageReference Include="Ninject" Version="3.3.4" />
-        <PackageReference Include="Ninject.Extensions.Conventions" Version="3.3.0" />
         <PackageReference Include="xunit" Version="2.4.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj" />
+      <ProjectReference Include="..\LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj" />
       <ProjectReference Include="..\NetLibOperation.Client\NetLibOperation.Client.csproj" />
       <ProjectReference Include="..\NetLibOperation.Server\NetLibOperation.Server.csproj" />
       <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />

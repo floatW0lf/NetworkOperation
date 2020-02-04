@@ -26,7 +26,12 @@ namespace NetworkOperation.Extensions
         
         public static OperationResult<TResult> ReturnCode<TOperation, TResult, TEnum, TRequest>(this IHandler<TOperation, TResult,TRequest> handler, TEnum code, TResult value = default) where TOperation : IOperation<TOperation, TResult> where TEnum : Enum where TRequest : IOperationMessage
         {
-            return new OperationResult<TResult>(value, code); 
+            return new OperationResult<TResult>(value, StatusCode.FromEnum(code)); 
+        }
+        
+        public static OperationResult<Empty> ReturnEmpty<TOperation, TResult, TRequest>(this IHandler<TOperation, TResult, TRequest> handler) where TOperation : IOperation<TOperation, TResult> where TRequest : IOperationMessage
+        {
+            return new OperationResult<Empty>(default,BuiltInOperationState.Success);
         }
 
         public static ArraySegment<T> To<T>(this T[] array)

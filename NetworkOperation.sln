@@ -21,13 +21,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tcp.Core", "Tcp.Core\Tcp.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatcherGenerator", "AutoDispatchers\DispatcherGenerator.csproj", "{9224C04A-3B48-44E6-902F-739E2259C3A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "Host\Host.csproj", "{1FD14304-21A4-4218-AE6D-BC8C4AC52ED7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Host", "NetworkOperation.Host\NetworkOperation.Host.csproj", "{1FD14304-21A4-4218-AE6D-BC8C4AC52ED7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{4F2F56BF-6777-48AB-BECB-ACAECA05C8D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Client", "NetworkOperation.Client\NetworkOperation.Client.csproj", "{4F2F56BF-6777-48AB-BECB-ACAECA05C8D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{EC26E6B3-B9CD-4D27-A39D-7D2C6FB64DE1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.MessagePack", "Serializer.MessagePack\Serializer.MessagePack.csproj", "{9E532F2F-95AA-4207-ADEB-491B2C805E6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Client", "NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj", "{8B504A65-AC14-4F04-B915-CD43D86FF891}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNet.Infrastructure.Client", "LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj", "{F2F42265-FF16-47B1-BF51-A637F6446EE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Core", "NetworkOperation.Infrastructure.Core\NetworkOperation.Infrastructure.Core.csproj", "{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Host", "NetworkOperation.Infrastructure.Host\NetworkOperation.Infrastructure.Host.csproj", "{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNet.Infrastructure.Host", "LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj", "{A85896F4-1F08-459A-BE26-8B1F554FDE4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +124,36 @@ Global
 		{9E532F2F-95AA-4207-ADEB-491B2C805E6A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E532F2F-95AA-4207-ADEB-491B2C805E6A}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E532F2F-95AA-4207-ADEB-491B2C805E6A}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{8B504A65-AC14-4F04-B915-CD43D86FF891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B504A65-AC14-4F04-B915-CD43D86FF891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B504A65-AC14-4F04-B915-CD43D86FF891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B504A65-AC14-4F04-B915-CD43D86FF891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B504A65-AC14-4F04-B915-CD43D86FF891}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B504A65-AC14-4F04-B915-CD43D86FF891}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{F2F42265-FF16-47B1-BF51-A637F6446EE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F42265-FF16-47B1-BF51-A637F6446EE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2F42265-FF16-47B1-BF51-A637F6446EE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F42265-FF16-47B1-BF51-A637F6446EE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2F42265-FF16-47B1-BF51-A637F6446EE4}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F42265-FF16-47B1-BF51-A637F6446EE4}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{A85896F4-1F08-459A-BE26-8B1F554FDE4A}.AOT|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

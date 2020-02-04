@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace NetworkOperation
+﻿namespace NetworkOperation
 {
     public struct Empty
     {

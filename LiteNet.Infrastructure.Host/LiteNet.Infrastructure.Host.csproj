@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NetLibOperation.Server\NetLibOperation.Server.csproj" />
+      <ProjectReference Include="..\NetworkOperation.Infrastructure.Host\NetworkOperation.Infrastructure.Host.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,8 +1,6 @@
 using IntegrationTests.Contract;
-using LiteNetLib;
 using NetLibOperation;
 using NetworkOperation;
-using NetworkOperation.Factories;
 using NetworkOperation.Host;
 
 namespace IntegrationTests
@@ -18,14 +16,18 @@ namespace IntegrationTests
 
         protected override void OnHandle(SessionRequest request)
         {
-            var payload = ReadPayload<ExampleConnectPayload>(request);
-            if (payload.Authorize == Auth && payload.Version == version)
+            if (request.RequestPayload.Count > 1)
             {
-                request.Accept(new []{ new SessionProperty("appid", payload.AppId)});
+                var payload = ReadPayload<ExampleConnectPayload>(request);
+                if (payload.Authorize == Auth && payload.Version == version)
+                {
+                    request.Accept(new []{ new SessionProperty("appid", payload.AppId)});
+                    return;
+                }
+                request.Reject();
                 return;
             }
-            
-            request.Reject();
+            request.Accept(new SessionProperty[0]);
         }
 
         

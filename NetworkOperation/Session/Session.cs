@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkOperation
@@ -36,7 +34,7 @@ namespace NetworkOperation
         public abstract EndPoint NetworkAddress { get; }
         public abstract object UntypedConnection { get; }
         public abstract long Id { get; }
-        public abstract SessionStatistics Statistics { get; }
+        public abstract NetworkStatistics Statistics { get; }
         
         public void Close(ArraySegment<byte> payload = default)
         {
@@ -45,6 +43,10 @@ namespace NetworkOperation
         }
         internal void OnClosingSession()
         {
+            foreach (var value in _propertyContainer.Values.OfType<IDisposable>())
+            {
+                value.Dispose();
+            }
             _propertyContainer.Clear();
             OnClosedSession();
         }
@@ -56,7 +58,7 @@ namespace NetworkOperation
 
         protected internal abstract bool HasAvailableData { get; }
 
-        protected internal abstract Task SendMessageAsync(ArraySegment<byte> data);
+        protected internal abstract Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode);
         protected internal abstract Task<ArraySegment<byte>> ReceiveMessageAsync();
 
     }

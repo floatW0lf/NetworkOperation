@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Client\Client.csproj" />
+      <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
       <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="MessagePack" Version="1.7.3.7" />
+      <PackageReference Include="MessagePack" Version="1.9.3" />
     </ItemGroup>
 
 </Project>

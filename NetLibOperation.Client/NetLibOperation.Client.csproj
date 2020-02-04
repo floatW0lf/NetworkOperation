@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
     <LangVersion>7.1</LangVersion>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client\Client.csproj" />
     <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
   </ItemGroup>
 

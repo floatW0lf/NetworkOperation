@@ -6,11 +6,11 @@ namespace IntegrationTests.Contract
     [DataContract]
     public struct ExampleConnectPayload : IConnectPayload
     {
-        [DataMember]
+        [DataMember(Order = 0)]
         public string Authorize { get; set; }
-        [DataMember]
+        [DataMember(Order = 1)]
         public string AppId { get; set; }
-        [DataMember]
+        [DataMember(Order = 2)]
         public string Version { get; set; }
     }
 }

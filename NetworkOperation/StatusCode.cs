@@ -1,9 +1,7 @@
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 
 namespace NetworkOperation
 {
@@ -108,7 +106,8 @@ namespace NetworkOperation
 
         public TEnum AsEnum<TEnum>() where TEnum : Enum
         {
-            return (TEnum) Enum.ToObject(GetEnumType(), _value);
+            ThrowIfNotRegistered(typeof(TEnum)); 
+            return Unsafe.As<ushort, TEnum>(ref Unsafe.AsRef(in _value));
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,10 +131,15 @@ namespace NetworkOperation
         {
             return new StatusCode(GetEnumTypeCode(@enum.GetType()), ConvertToValue(@enum));
         }
-        
-        public bool Equals<TEnum>(TEnum @enum) where TEnum : Enum, IConvertible
+
+        public static StatusCode FromEnum<TEnum>(TEnum value) where TEnum : Enum
         {
-            return GetEnumTypeCode(typeof(TEnum)) == _typeCode && _value == @enum.ToUInt16(CultureInfo.InvariantCulture);
+            return new StatusCode(GetEnumTypeCode(typeof(TEnum)), Unsafe.As<TEnum,ushort>(ref value));
+        }
+        
+        public bool Equals<TEnum>(TEnum @enum) where TEnum : Enum
+        {
+            return GetEnumTypeCode(typeof(TEnum)) == _typeCode && _value == Unsafe.As<TEnum, ushort>(ref @enum);
         }
 
         #region Operators

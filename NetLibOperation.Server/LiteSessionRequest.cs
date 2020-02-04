@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using LiteNetLib;
 using NetworkOperation;
-using NetworkOperation.Factories;
 using NetworkOperation.Host;
 
 namespace NetLibOperation

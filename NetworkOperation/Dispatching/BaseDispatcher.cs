@@ -2,9 +2,9 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NetworkOperation.Dispatching;
 using NetworkOperation.Extensions;
-using NetworkOperation.Logger;
 
 namespace NetworkOperation
 {
@@ -25,7 +25,8 @@ namespace NetworkOperation
         private readonly BaseSerializer _serializer;
         private readonly IHandlerFactory _factory;
         protected readonly OperationRuntimeModel Model;
-        protected IStructuralLogger StructuralLogger { get; }
+        private readonly DescriptionRuntimeModel _descriptionRuntimeModel;
+        protected ILogger Logger { get; }
         
         private IResponseReceiver<TResponse> _responseReceiver;
         
@@ -39,12 +40,13 @@ namespace NetworkOperation
             _responseReceiver = receiveEvent;
         }
 
-        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger structuralLogger)
+        public BaseDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel)
         {
             _serializer = serializer;
             _factory = factory;
             Model = model;
-            StructuralLogger = structuralLogger;
+            _descriptionRuntimeModel = descriptionRuntimeModel;
+            Logger = logger.CreateLogger(GetType().FullName);
         }
 
         public async Task DispatchAsync(Session session)
@@ -67,37 +69,38 @@ namespace NetworkOperation
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                var request = new TRequest();
+                var request = _serializer.Deserialize<TRequest>(rawMessage);
+                var description = Model.GetDescriptionBy(request.OperationCode);
+                var context = new RequestContext<TRequest>(request, session, description,_descriptionRuntimeModel.GetByOperation(description.OperationType));
                 try
                 {
-                    request = _serializer.Deserialize<TRequest>(rawMessage);
                     if (GlobalRequestFilter != null)
                     {
-                        var response = await GlobalRequestFilter.Handle(new RequestContext<TRequest>(request, session));
+                        var response = await GlobalRequestFilter.Handle(context);
                         response.Id = request.Id;
                         if (response.Status != BuiltInOperationState.Success)
                         {
-                            await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response));
+                            await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response), description.ForResponse);
                             continue;
                         }
                     }
                     
                     if (IsContinue(request)) continue;
     
-                    var description = Model.GetDescriptionBy(request.OperationCode);
-                    var rawResponse = await ProcessHandler(session, request, description, CreateCancellationToken(request, description));
+                    
+                    var rawResponse = await ProcessHandler(request, context, CreateCancellationToken(request, description));
                     if (description.WaitResponse)
                     {
-                        await SendAsync(session, rawResponse, request);
+                        await SendAsync(session, rawResponse, request, description.ForResponse);
                     }
                     
                 }
-                catch (OperationCanceledException e) { StructuralLogger.Write(LogLevel.Info,"Operation canceled: {request}, {exception}", request, e); }
+                catch (OperationCanceledException e) { Logger.LogInformation("Operation canceled: {request}, {exception}", request, e); }
                 catch (Exception e)
                 {
                     try
                     {
-                        StructuralLogger.Write(LogLevel.Error,"Handle error : {exception}", e);
+                        Logger.LogError("Handle error : {exception}", e);
                     }
                     finally
                     {
@@ -108,7 +111,7 @@ namespace NetworkOperation
                             Status = BuiltInOperationState.InternalError,
                             OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
                         };
-                        await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response));
+                        await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response), MinRequiredDeliveryMode.ReliableWithOrdered);
                     }
                 }
                 finally
@@ -155,7 +158,7 @@ namespace NetworkOperation
             }
         }
         
-        private async Task SendAsync(Session session, DataWithStateCode rawResponse, TRequest request)
+        private async Task SendAsync(Session session, DataWithStateCode rawResponse, TRequest request, DeliveryMode mode)
         {
             var sendOp = new TResponse
             {
@@ -167,26 +170,30 @@ namespace NetworkOperation
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
             var resultRaw = _serializer.Serialize(sendOp);
-            await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response));
+            await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response), mode);
         }
 
-        protected abstract Task<DataWithStateCode> ProcessHandler(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token);
+        protected abstract Task<DataWithStateCode> ProcessHandler(TRequest header, RequestContext<TRequest> context, CancellationToken token);
 
-        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(Session session, TRequest message, OperationDescription operationDescription, CancellationToken token) where T : IOperation<T,TResult>
+        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<T,TResult>
         {
-            var segArray = message.OperationData.To();
-            var arg = operationDescription.UseAsyncSerialize
+            var segArray = header.OperationData.To();
+            var arg = context.OperationDescription.UseAsyncSerialize
                 ? await _serializer.DeserializeAsync<T>(segArray)
                 : _serializer.Deserialize<T>(segArray);
             
-            // TODO: время жизни обработчика
-            var typedHandler = _factory.Create<T,TResult,TRequest>(); 
-            var result = await typedHandler.Handle(arg, new RequestContext<TRequest>(message, session), token);
+            var typedHandler = _factory.Create<T,TResult,TRequest>(context);
+            var result = await typedHandler.Handle(arg, context, token);
             
-            if (!operationDescription.WaitResponse) return default;
+            if (context.HandlerDescription.LifeTime == Scope.Request)
+            {
+                _factory.Destroy(typedHandler);
+            }
+            
+            if (!context.OperationDescription.WaitResponse) return default;
             if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.Status);
             
-            return new DataWithStateCode(operationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.Status);
+            return new DataWithStateCode(context.OperationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.Status);
         }
 
         protected internal Side ExecutionSide { get; internal set; }

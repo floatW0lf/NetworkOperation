@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Host\Host.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
     <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
     <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
   </ItemGroup>

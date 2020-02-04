@@ -40,10 +40,11 @@ namespace NetOperationTest
         [Fact]
         public void check_operators()
         {
-            StatusCode a = BarCodes.A;
+            StatusCode a = StatusCode.FromEnum(BarCodes.A);
             StatusCode b = FooCodes.A;
             StatusCode c = BarCodes.A;
-            
+
+            Assert.Equal(BarCodes.A,a.AsEnum<BarCodes>());
             Assert.NotEqual(a,b);
             Assert.Equal(a,c);
             
@@ -51,6 +52,7 @@ namespace NetOperationTest
             Assert.True(b >= FooCodes.A,"b >= FooCodes.A");
             Assert.True(b <= BarCodes.A,"b <= BarCodes.A");
             Assert.True(b < BarCodes.A,"b < BarCodes.A");
+            Assert.True(a.Equals(BarCodes.A));
         }
         
         [Fact]
@@ -62,5 +64,7 @@ namespace NetOperationTest
                 StatusCode.Register(typeof(FooCodes), typeof(BarCodes));
             });
         }
+        
+        
     }
 }

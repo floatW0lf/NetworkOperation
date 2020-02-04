@@ -1,6 +1,5 @@
 ﻿using NetworkOperation;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -26,7 +25,7 @@ namespace Tcp.Core
 
         public override long Id => _client.GetHashCode();
 
-        public override SessionStatistics Statistics => throw new System.NotImplementedException();
+        public override NetworkStatistics Statistics => throw new System.NotImplementedException();
 
         protected override void OnClosedSession()
         {
@@ -63,7 +62,7 @@ namespace Tcp.Core
 
         }
 
-        protected override async Task SendMessageAsync(ArraySegment<byte> data)
+        protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
         {
             var prefix = BitConverter.GetBytes(data.Count);
             await _client.SendAsync(new[] {prefix.To(), data}, SocketFlags.None);

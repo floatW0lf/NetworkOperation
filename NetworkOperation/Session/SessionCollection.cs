@@ -12,8 +12,9 @@ namespace NetworkOperation
 {
     public abstract class SessionCollection : ISessionEvents, IReadOnlyCollection<Session>
     {
+        public abstract NetworkStatistics Statistics { get; }
         public abstract Session GetSession(long id);
-        protected internal abstract Task SendToAllAsync(ArraySegment<byte> data);
+        protected internal abstract Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode);
         
         protected void RaiseClosed(Session session)
         {
@@ -51,11 +52,11 @@ namespace NetworkOperation
             return session;
         }
 
-        protected internal override async Task SendToAllAsync(ArraySegment<byte> data)
+        protected internal override async Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
             foreach (var session in _idToSessions)
             {
-                await session.Value.SendMessageAsync(data);
+                await session.Value.SendMessageAsync(data,mode);
             }
         }
 

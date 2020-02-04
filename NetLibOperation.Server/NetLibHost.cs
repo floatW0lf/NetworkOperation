@@ -4,12 +4,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using LiteNetLib;
+using Microsoft.Extensions.Logging;
 using NetworkOperation;
 using NetworkOperation.Factories;
 using NetworkOperation.Host;
-using NetworkOperation.Logger;
+
 
 namespace NetLibOperation
 {
@@ -91,7 +91,7 @@ namespace NetLibOperation
                         }
                         catch (Exception e)
                         {
-                            Logger.Write(LogLevel.Error,"Poll event thread error", e);
+                            Logger.LogError("Poll event thread error", e);
                         }
                         await Task.Delay(PollTimeInMs).ConfigureAwait(false);
                         
@@ -123,14 +123,14 @@ namespace NetLibOperation
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             Start(ListenPort);
-            Logger.Write(LogLevel.Info,"Network operation host started");
+            Logger.LogInformation("Network operation host started");
             return Task.CompletedTask;
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await ShutdownAsync();
-            Logger.Write(LogLevel.Info,"Network operation host stopped");
+            Logger.LogInformation("Network operation host stopped");
         }
     }
 }

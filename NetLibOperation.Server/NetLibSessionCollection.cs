@@ -5,18 +5,21 @@ using NetworkOperation;
 
 namespace NetLibOperation
 {
-    public class NetLibSessionCollection : MutableSessionCollection
+    internal class NetLibSessionCollection : MutableSessionCollection
     {
         private readonly NetManager _manager;
 
         public NetLibSessionCollection(NetManager manager)
         {
             _manager = manager;
+            Statistics = new LiteNetStatistics(manager.Statistics);
         }
 
-        protected override Task SendToAllAsync(ArraySegment<byte> data)
+        public override NetworkStatistics Statistics { get; }
+
+        protected override Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _manager.SendToAll(data.Array,data.Offset,data.Count,DeliveryMethod.ReliableOrdered);
+            _manager.SendToAll(data.Array,data.Offset,data.Count,mode.Convert());
             return Task.CompletedTask;
         }
         

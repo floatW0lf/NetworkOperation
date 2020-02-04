@@ -1,10 +1,9 @@
 using System;
 using Moq;
 using NetworkOperation;
-using NetworkOperation.Server;
 using System.Threading.Tasks;
-using Moq.Protected;
-using NetworkOperation.Logger;
+using Microsoft.Extensions.Logging.Abstractions;
+using NetworkOperation.Host;
 using Xunit;
 
 namespace NetOperationTest
@@ -23,11 +22,11 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             var mockSession = new Mock<SessionCollection>();
-            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(A) }),serializeMock.Object, mockSession.Object, new ConsoleStructuralLogger());
+            var mockSetting = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new [] { typeof(A) }),serializeMock.Object, mockSession.Object, new NullLoggerFactory());
             var task = mockSetting.Execute<A,int>(new A());
             Assert.Equal(TaskStatus.WaitingForActivation, task.Status);
 
-            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>()), Times.Once);
+            mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<DeliveryMode>()), Times.Once);
             serializeMock.Verify(serializer => serializer.Serialize(It.IsAny<A>()), Times.Once);
         }
 
@@ -38,7 +37,7 @@ namespace NetOperationTest
             
             serializeMock.Setup(serializer => serializer.Deserialize<int>(It.IsAny<ArraySegment<byte>>())).Returns(111);
             serializeMock.Setup(serializer => serializer.Serialize(It.IsAny<A>())).Returns(new byte[10]);
-            var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object,new ConsoleStructuralLogger());
+            var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object, new NullLoggerFactory());
             var mockGenerator = new Mock<IGeneratorId>();
             mockGenerator.Setup(id => id.Generate()).Returns(100);
             executor.MessageIdGenerator = mockGenerator.Object;

@@ -5,6 +5,7 @@ using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
 using NetworkOperation;
+using System.Linq;
 
 namespace Serializer.MessagePack
 {

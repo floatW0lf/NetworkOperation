@@ -6,49 +6,50 @@ using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using NetworkOperation;
-using NetworkOperation.Extensions;
 
 namespace NetLibOperation
 {
-    public class NetLibSession : Session
+    internal class NetLibSession : Session
     {
-
         private readonly NetPeer _peer;
-
+        private readonly ConcurrentQueue<ArraySegment<byte>> _queue = new ConcurrentQueue<ArraySegment<byte>>();
         public NetLibSession(NetPeer peer, IEnumerable<SessionProperty> properties) : base(properties)
         {
             _peer = peer;
+            Statistics = new LiteNetStatistics(peer.Statistics);
         }
 
         public override EndPoint NetworkAddress => _peer.EndPoint;
         public override object UntypedConnection => _peer;
         public override long Id => _peer.Id;
-        public override SessionStatistics Statistics { get; }
+        public override NetworkStatistics Statistics { get; }
 
-        protected override bool HasAvailableData => _hasData;
-
-        private bool _hasData;
+        protected override bool HasAvailableData => !_queue.IsEmpty;
         
-        protected override Task SendMessageAsync(ArraySegment<byte> data)
+        protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
+            var delivery = mode.Convert();
+            if ((mode & DeliveryMode.Reliable) != DeliveryMode.Reliable && data.Count > _peer.GetMaxSinglePacketSize(delivery))
+            {
+                _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
+            }
+            else
+            {
+                _peer.Send(data.Array, data.Offset, data.Count, delivery);
+            }
+            
             return Task.CompletedTask;
         }
 
-        private ArraySegment<byte> _data;
-
         public void OnReceiveData(ArraySegment<byte> data)
         {
-            _hasData = true;
-            _data = data;
+            _queue.Enqueue(data);
         }
 
         protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
-            _hasData = false;
-            var copy = _data;
-            _data = default;
-            return Task.FromResult(copy);
+            _queue.TryDequeue(out var data);
+            return Task.FromResult(data);
         }
         protected override void SendClose(ArraySegment<byte> payload)
         {

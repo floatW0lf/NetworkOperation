@@ -18,7 +18,7 @@ namespace IntegrationTests.Server
             
         public async Task<OperationResult<string>> Handle(PushTest objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            var result = await _host.Executor.Execute<ClientOp, string>(new ClientOp() {Message = objectData.Message + "_server"});
+            var result = await _host.Executor.Execute(new ClientOp() {Message = objectData.Message + "_server"}, o => o.R());
             return this.Return(result.Result);
         }
     }

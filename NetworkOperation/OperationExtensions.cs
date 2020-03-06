@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetworkOperation.Extensions
 {
     public static class OperationExtensions
     {
-        public static Type GetGenericArgsFromOperation(this Type type)
+        public static Type GetResultFromOperation(this Type type)
         {
             var arguments = GetGenericArgsFromInterface(type, typeof(IOperation<>));
             return arguments[0];
@@ -37,7 +40,27 @@ namespace NetworkOperation.Extensions
         {
             return new ArraySegment<T>(array);
         }
-            
+        
+        public static TResult R<TResult>(this IOperation<TResult> operation)
+        {
+            throw new NotSupportedException("Dont call in runtime. This method usage only for resolver operation result type.");
+        }
+        
+        /// <summary>
+        /// Method for help compiler resolve TResult
+        /// </summary>
+        /// <param name="executor"></param>
+        /// <param name="operation"></param>
+        /// <param name="resolver">Use like as o => o.R()</param>
+        /// <param name="cancellation"></param>
+        /// <typeparam name="TOperation"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<OperationResult<TResult>> Execute<TOperation, TResult>(this IOperationExecutor executor, TOperation operation, Func<TOperation,TResult> resolver, CancellationToken cancellation = default) where TOperation : IOperation<TResult>
+        {
+            return executor.Execute<TOperation, TResult>(operation, cancellation);
+        }
 
         
     }

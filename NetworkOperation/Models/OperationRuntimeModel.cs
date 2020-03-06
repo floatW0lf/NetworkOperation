@@ -20,7 +20,7 @@ namespace NetworkOperation
                 .Select(type =>
                 {
                     var metaInfo = type.GetCustomAttribute<OperationAttribute>();
-                    var operationResult = type.GetGenericArgsFromOperation();
+                    var operationResult = type.GetResultFromOperation();
 
                     return new OperationDescription(metaInfo.Code, type, operationResult, metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse, metaInfo.WaitResponse)
                     {
@@ -95,7 +95,7 @@ namespace NetworkOperation
                 if (desc == null) continue;
                 
                 if (desc.Code != i) throw new ArgumentException("Description array must be ordered by code.");
-                desc.OperationType.GetGenericArgsFromOperation();
+                desc.OperationType.GetResultFromOperation();
             }
         }
 

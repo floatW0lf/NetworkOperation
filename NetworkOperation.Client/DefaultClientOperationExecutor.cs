@@ -10,7 +10,7 @@ namespace NetworkOperation.Client
     {
         private readonly Session _session;
         
-        public Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOp, TResult>
+        public Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TResult>
         {
             return SendOperation<TOp, TResult>(operation,null, cancellation);
         }

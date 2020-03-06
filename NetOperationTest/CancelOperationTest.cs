@@ -37,7 +37,7 @@ namespace NetOperationTest
         
         [Operation(0)]
         [DataContract]
-        public struct Foo : IOperation<Foo,int>
+        public struct Foo : IOperation<int>
         {
             [DataMember]
             public int _1;

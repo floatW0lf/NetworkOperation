@@ -5,6 +5,6 @@ namespace NetworkOperation
 {
     public interface IOperationExecutor
     {
-        Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOp, TResult>;
+        Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TResult>;
     }
 }

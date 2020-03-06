@@ -72,7 +72,7 @@ namespace NetworkOperation
             return false;
         }
 
-        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken token) where TOp : IOperation<TOp, TResult>
+        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken token) where TOp : IOperation<TResult>
         {
             
             var description = Model.GetDescriptionBy(typeof(TOp));

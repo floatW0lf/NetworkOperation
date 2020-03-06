@@ -175,7 +175,7 @@ namespace NetworkOperation
 
         protected abstract Task<DataWithStateCode> ProcessHandler(TRequest header, RequestContext<TRequest> context, CancellationToken token);
 
-        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<T,TResult>
+        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<TResult>
         {
             var segArray = header.OperationData.To();
             var arg = context.OperationDescription.UseAsyncSerialize

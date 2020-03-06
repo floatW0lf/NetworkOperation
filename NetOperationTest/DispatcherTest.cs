@@ -20,7 +20,7 @@ namespace NetOperationTest
         
         [DataContract]
         [Operation(0,Handle = Side.All)]
-        public struct A : IOperation<A,int>
+        public struct A : IOperation<int>
         {
             [DataMember]
             public int Arg;
@@ -28,7 +28,7 @@ namespace NetOperationTest
         }
         [DataContract]
         [Operation(1, Handle = Side.Client)]
-        public struct B : IOperation<B,float>
+        public struct B : IOperation<float>
         {
             [DataMember]
             public int Arg;

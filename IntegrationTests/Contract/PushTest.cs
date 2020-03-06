@@ -5,7 +5,7 @@ namespace IntegrationTests.Contract
 {
     [DataContract]
     [Operation(1, Handle = Side.Server)]
-    public struct PushTest : IOperation<PushTest, string>
+    public struct PushTest : IOperation<string>
     {
         [DataMember]
         public string Message;

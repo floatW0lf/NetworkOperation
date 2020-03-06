@@ -11,7 +11,7 @@ namespace NetOperationTest
     public class BaseOperationExecutorTest
     {
         [Operation(0)]
-        public struct A : IOperation<A,int>
+        public struct A : IOperation<int>
         {
             public int _1;
             public float _2;

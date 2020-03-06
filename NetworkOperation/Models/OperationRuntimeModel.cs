@@ -20,9 +20,9 @@ namespace NetworkOperation
                 .Select(type =>
                 {
                     var metaInfo = type.GetCustomAttribute<OperationAttribute>();
-                    var arguments = type.GetGenericArgsFromOperation();
+                    var operationResult = type.GetGenericArgsFromOperation();
 
-                    return new OperationDescription(metaInfo.Code, arguments[0], arguments[1], metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse, metaInfo.WaitResponse)
+                    return new OperationDescription(metaInfo.Code, type, operationResult, metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse, metaInfo.WaitResponse)
                     {
                         UseAsyncSerialize = metaInfo.UseAsyncSerialize,
                     };

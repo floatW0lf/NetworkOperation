@@ -41,23 +41,19 @@ namespace NetworkOperation.Extensions
             return new ArraySegment<T>(array);
         }
         
-        public static TResult R<TResult>(this IOperation<TResult> operation)
-        {
-            throw new NotSupportedException("Dont call in runtime. This method usage only for resolver operation result type.");
-        }
-        
         /// <summary>
         /// Method for help compiler resolve TResult
+        /// o => o
         /// </summary>
         /// <param name="executor"></param>
         /// <param name="operation"></param>
-        /// <param name="resolver">Use like as o => o.R()</param>
+        /// <param name="resolver">use like as o => o</param>
         /// <param name="cancellation"></param>
         /// <typeparam name="TOperation"></typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<OperationResult<TResult>> Execute<TOperation, TResult>(this IOperationExecutor executor, TOperation operation, Func<TOperation,TResult> resolver, CancellationToken cancellation = default) where TOperation : IOperation<TResult>
+        public static Task<OperationResult<TResult>> Execute<TOperation, TResult>(this IOperationExecutor executor, TOperation operation, Func<TOperation,IOperation<TResult>> resolver, CancellationToken cancellation = default) where TOperation : IOperation<TResult>
         {
             return executor.Execute<TOperation, TResult>(operation, cancellation);
         }

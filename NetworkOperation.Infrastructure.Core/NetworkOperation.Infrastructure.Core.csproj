@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <RootNamespace>NetworkOperation.Infrastructure</RootNamespace>
-        <TargetFrameworks>netstandard2.0;netcoreapp3.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>

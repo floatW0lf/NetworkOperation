@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>7.1</LangVersion>
-    <TargetFrameworks>net472;netstandard2.0;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>

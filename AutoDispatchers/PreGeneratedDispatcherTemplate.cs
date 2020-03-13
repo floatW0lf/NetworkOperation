@@ -48,7 +48,7 @@ namespace NetworkOperations.Dispatching
 
         protected override Task<DataWithStateCode> ProcessHandler(TRequest message, RequestContext<TRequest> context, CancellationToken token)
         {
-            switch (operationDescription.Code)
+            switch (context.OperationDescription.Code)
             {
 ");
             
@@ -86,7 +86,7 @@ namespace NetworkOperations.Dispatching
             #line default
             #line hidden
             this.Write("            }\r\n            throw new InvalidOperationException($\"Wrong code opera" +
-                    "tion {operationDescription.Code}\");\r\n        }\r\n    }\r\n    \r\n");
+                    "tion {context.OperationDescription.Code}\");\r\n        }\r\n    }\r\n    \r\n");
             
             #line 40 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  if (AOTSupport) {

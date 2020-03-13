@@ -27,13 +27,13 @@ namespace NetworkOperations.Dispatching
 
         protected override Task<DataWithStateCode> ProcessHandler(TRequest message, RequestContext<TRequest> context, CancellationToken token)
         {
-            switch (operationDescription.Code)
+            switch (context.OperationDescription.Code)
             {
 <# foreach (OperationDescription op in Model) { if (op == null || !op.Handle.HasFlag(Side)) continue; #>
                case <#=op.Code#>: return GenericHandle<<#=op.OperationType.FullName#>, <#=op.ResultType.ToCSharpFormat()#>>(message, context, token);
 <# } #>
             }
-            throw new InvalidOperationException($"Wrong code operation {operationDescription.Code}");
+            throw new InvalidOperationException($"Wrong code operation {context.OperationDescription.Code}");
         }
     }
     

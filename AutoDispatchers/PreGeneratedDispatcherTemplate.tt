@@ -14,14 +14,14 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using NetworkOperation;
-using NetworkOperation.Logger;
+using Microsoft.Extensions.Logging;
 
 namespace NetworkOperations.Dispatching
 {
     public sealed class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
            where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
-        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
+        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel) : base(serializer, factory, model, logger,descriptionRuntimeModel)
         {
         }
 

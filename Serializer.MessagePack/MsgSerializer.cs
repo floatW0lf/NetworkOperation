@@ -11,26 +11,28 @@ namespace Serializer.MessagePack
 {
     public class MsgSerializer : BaseSerializer
     {
+        private static MessagePackSerializerOptions _options;
         static MsgSerializer()
         {
-            CompositeResolver.Register(new IMessagePackFormatter[] {new StatusCodeFormatter()},new [] {BuiltinResolver.Instance,PrimitiveObjectResolver.Instance, StandardResolver.Instance });
-            MessagePackSerializer.SetDefaultResolver(CompositeResolver.Instance);
+            
+            _options = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(new IMessagePackFormatter[]{new StatusCodeFormatter()},new IFormatterResolver[]{ContractlessStandardResolver.Instance}));
+            
         }
         public override T Deserialize<T>(ArraySegment<byte> rawBytes)
         {
-            return MessagePackSerializer.Deserialize<T>(rawBytes);
+            return MessagePackSerializer.Deserialize<T>(rawBytes,_options);
         }
 
         public override byte[] Serialize<T>(T obj)
         {
-            return MessagePackSerializer.Serialize(obj);
+            return MessagePackSerializer.Serialize(obj,_options);
         }
 
         public override async Task<T> DeserializeAsync<T>(ArraySegment<byte> rawBytes)
         {
             using (var memory = new MemoryStream(rawBytes.ToArray()))
             {
-                return await MessagePackSerializer.DeserializeAsync<T>(memory);
+                return await MessagePackSerializer.DeserializeAsync<T>(memory,_options);
             }
         }
 
@@ -38,7 +40,7 @@ namespace Serializer.MessagePack
         {
             using (var memory = new MemoryStream())
             {
-                await MessagePackSerializer.SerializeAsync(memory, obj);
+                await MessagePackSerializer.SerializeAsync(memory, obj,_options);
                 return memory.ToArray();
             }
         }

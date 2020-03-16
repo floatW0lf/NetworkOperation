@@ -47,7 +47,7 @@ namespace NetworkOperation.Infrastructure
         }
         public TImplement RegisterHandlers(IEnumerable<Type> anyTypes,Scope lifetime = Scope.Single)
         {
-            var handlers = anyTypes.Where(t => !t.IsAbstract && !t.IsInterface && typeof(IHandler).IsAssignableFrom(t));
+            var handlers = anyTypes.Where(t => !t.IsGenericType && !t.IsAbstract && !t.IsInterface && typeof(IHandler).IsAssignableFrom(t));
 
             foreach (var handler in handlers)
             {

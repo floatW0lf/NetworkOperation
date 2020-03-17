@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace NetworkOperations.Dispatching
 {
-    public sealed class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
+    public class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
            where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel) : base(serializer, factory, model, logger,descriptionRuntimeModel)

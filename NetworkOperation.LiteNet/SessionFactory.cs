@@ -1,7 +1,7 @@
 using System;
 using LiteNetLib;
-using NetworkOperation;
-using NetworkOperation.Factories;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Factories;
 
 namespace NetLibOperation
 {

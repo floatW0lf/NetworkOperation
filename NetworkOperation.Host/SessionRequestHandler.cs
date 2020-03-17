@@ -1,4 +1,4 @@
-using NetworkOperation.Extensions;
+using NetworkOperation.Core;
 
 namespace NetworkOperation.Host
 {

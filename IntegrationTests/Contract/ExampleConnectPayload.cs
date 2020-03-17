@@ -1,5 +1,5 @@
 using System.Runtime.Serialization;
-using NetworkOperation;
+using NetworkOperation.Core;
 
 namespace IntegrationTests.Contract
 {

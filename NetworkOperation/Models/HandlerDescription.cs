@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Models
 {
     public enum Scope : byte
     {

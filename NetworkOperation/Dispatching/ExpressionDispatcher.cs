@@ -5,9 +5,10 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-
-namespace NetworkOperation.Dispatching
+namespace NetworkOperation.Core.Dispatching
 {
     public sealed class ExpressionDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
         where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()

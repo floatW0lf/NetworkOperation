@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Infrastructure
 {

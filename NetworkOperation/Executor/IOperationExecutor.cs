@@ -1,7 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public interface IOperationExecutor
     {

@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
-using NetworkOperation;
-using System.Linq;
+using NetworkOperation.Core;
 
 namespace Serializer.MessagePack
 {

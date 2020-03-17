@@ -5,9 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public abstract class BaseOperationExecutor<TRequest, TResponse> : IResponseReceiver<TResponse>, IGlobalCancellation where TResponse : IOperationMessage, new() where TRequest : IOperationMessage, new()
          {

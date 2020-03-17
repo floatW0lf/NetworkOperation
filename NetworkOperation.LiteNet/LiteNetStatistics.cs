@@ -1,6 +1,6 @@
 ﻿using System;
 using LiteNetLib;
-using NetworkOperation;
+using NetworkOperation.Core;
 
 namespace NetLibOperation
 {

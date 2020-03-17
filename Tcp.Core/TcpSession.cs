@@ -1,10 +1,10 @@
-﻿using NetworkOperation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 
 namespace Tcp.Core
 {
@@ -25,7 +25,7 @@ namespace Tcp.Core
 
         public override long Id => _client.GetHashCode();
 
-        public override NetworkStatistics Statistics => throw new System.NotImplementedException();
+        public override NetworkStatistics Statistics => throw new NotImplementedException();
 
         protected override void OnClosedSession()
         {

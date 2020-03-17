@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkOperation", "NetworkOperation\NetworkOperation.csproj", "{B920FB06-CAC5-4AFF-B68B-B6487EA47735}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkOperation.Core", "NetworkOperation\NetworkOperation.Core.csproj", "{B920FB06-CAC5-4AFF-B68B-B6487EA47735}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetOperationTest", "NetOperationTest\NetOperationTest.csproj", "{562DF6EF-288F-49A6-9C8F-4404FFB55187}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetLibOperation.Client", "NetLibOperation.Client\NetLibOperation.Client.csproj", "{D178E70E-622B-4DC0-885B-D7B73D095586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkOperation.LiteNet.Client", "NetworkOperation.LiteNet.Client\NetworkOperation.LiteNet.Client.csproj", "{D178E70E-622B-4DC0-885B-D7B73D095586}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetLibOperation.Server", "NetLibOperation.Server\NetLibOperation.Server.csproj", "{988751CC-1A9F-4537-A03E-297144AFDFE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkOperation.LiteNet.Host", "NetworkOperation.LiteNet.Host\NetworkOperation.LiteNet.Host.csproj", "{988751CC-1A9F-4537-A03E-297144AFDFE6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetLibOperation", "NetLibOperation\NetLibOperation.csproj", "{F2F7F7BD-EC69-4467-952C-04E32DB50BBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkOperation.LiteNet", "NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj", "{F2F7F7BD-EC69-4467-952C-04E32DB50BBD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tcp.Client", "Tcp.Client\Tcp.Client.csproj", "{69D62E7F-3CE5-49E9-8DFD-E4F8880BD089}"
 EndProject
@@ -31,13 +31,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.MessagePack", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Client", "NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj", "{8B504A65-AC14-4F04-B915-CD43D86FF891}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNet.Infrastructure.Client", "LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj", "{F2F42265-FF16-47B1-BF51-A637F6446EE4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Client.LiteNet", "NetworkOperation.Infrastructure.Client.LiteNet\NetworkOperation.Infrastructure.Client.LiteNet.csproj", "{F2F42265-FF16-47B1-BF51-A637F6446EE4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Core", "NetworkOperation.Infrastructure.Core\NetworkOperation.Infrastructure.Core.csproj", "{042D11DA-BA4E-4E9F-99DB-285F47BA85D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Host", "NetworkOperation.Infrastructure.Host\NetworkOperation.Infrastructure.Host.csproj", "{A36B7C64-F1B4-4951-ACE3-4AE7BF21DAEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNet.Infrastructure.Host", "LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj", "{A85896F4-1F08-459A-BE26-8B1F554FDE4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Host.LiteNet", "NetworkOperation.Infrastructure.Host.LiteNet\NetworkOperation.Infrastructure.Host.LiteNet.csproj", "{A85896F4-1F08-459A-BE26-8B1F554FDE4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

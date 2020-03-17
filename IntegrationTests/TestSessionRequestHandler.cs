@@ -1,6 +1,6 @@
 using IntegrationTests.Contract;
 using NetLibOperation;
-using NetworkOperation;
+using NetworkOperation.Core;
 using NetworkOperation.Host;
 
 namespace IntegrationTests

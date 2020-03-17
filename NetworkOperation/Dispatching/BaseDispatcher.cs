@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Dispatching;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Dispatching
 {
     public struct DataWithStateCode
     {

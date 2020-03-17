@@ -1,5 +1,5 @@
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Models
 {
     public struct OperationResult<T>
     {

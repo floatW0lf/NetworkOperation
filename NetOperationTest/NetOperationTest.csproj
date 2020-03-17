@@ -28,12 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj" />
-    <ProjectReference Include="..\LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj" />
-    <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
     <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Infrastructure.Client.LiteNet\NetworkOperation.Infrastructure.Client.LiteNet.csproj" />
     <ProjectReference Include="..\NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Infrastructure.Host.LiteNet\NetworkOperation.Infrastructure.Host.LiteNet.csproj" />
+    <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
     <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
   </ItemGroup>
 

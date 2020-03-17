@@ -3,8 +3,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation.Extensions
+namespace NetworkOperation.Core
 {
     public static class OperationExtensions
     {

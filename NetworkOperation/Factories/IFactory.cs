@@ -1,4 +1,4 @@
-namespace NetworkOperation.Factories
+namespace NetworkOperation.Core.Factories
 {
     public interface IFactory<in TArg, out TInstance>
     {

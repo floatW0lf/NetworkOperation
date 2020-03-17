@@ -5,6 +5,7 @@
     <Platforms>AnyCPU</Platforms>
     <LangVersion>7.1</LangVersion>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>NetLibOperation.Server</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
     <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
   </ItemGroup>
 
 </Project>

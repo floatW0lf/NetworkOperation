@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public abstract class BaseSerializer
     {

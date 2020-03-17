@@ -1,15 +1,17 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
-using MessagePack;
-using Moq;
-using NetworkOperation;
-using NetworkOperation.Dispatching;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using MessagePack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 using Serializer.MessagePack;
 using Xunit;
 

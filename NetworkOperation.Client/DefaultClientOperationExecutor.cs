@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Dispatching;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Client
 {

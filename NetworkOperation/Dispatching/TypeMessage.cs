@@ -1,6 +1,6 @@
 using System;
 
-namespace NetworkOperation.Dispatching
+namespace NetworkOperation.Core.Dispatching
 {
     public enum TypeMessage
     {

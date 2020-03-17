@@ -1,6 +1,6 @@
 using LiteNetLib;
 using NetLibOperation;
-using NetworkOperation;
+using NetworkOperation.Core;
 using Xunit;
 
 namespace NetOperationTest

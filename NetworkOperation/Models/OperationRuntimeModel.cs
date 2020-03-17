@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NetworkOperation.Extensions;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Models
 {
     public class OperationRuntimeModel : IEnumerable<OperationDescription>
     {

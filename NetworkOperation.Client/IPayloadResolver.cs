@@ -1,5 +1,5 @@
 using System;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core;
 
 namespace NetworkOperation.Client
 {

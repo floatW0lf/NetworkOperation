@@ -2,11 +2,12 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <RootNamespace>LiteNet.Infrastructure.Client</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetLibOperation.Client\NetLibOperation.Client.csproj" />
       <ProjectReference Include="..\NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj" />
+      <ProjectReference Include="..\NetworkOperation.LiteNet.Client\NetworkOperation.LiteNet.Client.csproj" />
     </ItemGroup>
 
 </Project>

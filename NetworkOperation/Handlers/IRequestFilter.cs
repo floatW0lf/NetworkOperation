@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public interface IRequestFilter<TRequest,TResponse> where TRequest : IOperationMessage
     {

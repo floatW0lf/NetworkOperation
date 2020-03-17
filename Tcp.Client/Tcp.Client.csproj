@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
     <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
   </ItemGroup>
 

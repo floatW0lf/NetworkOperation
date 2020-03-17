@@ -6,10 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using Microsoft.Extensions.Logging;
-using NetworkOperation;
-using NetworkOperation.Factories;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Factories;
+using NetworkOperation.Core.Messages;
 using NetworkOperation.Host;
-
 
 namespace NetLibOperation
 {

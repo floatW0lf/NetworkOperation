@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public interface ISessionEvents
     {

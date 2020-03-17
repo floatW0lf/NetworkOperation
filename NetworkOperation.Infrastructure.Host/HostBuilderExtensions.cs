@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using NetworkOperation.Core.Messages;
 
 namespace NetworkOperation.Infrastructure.Host
 {

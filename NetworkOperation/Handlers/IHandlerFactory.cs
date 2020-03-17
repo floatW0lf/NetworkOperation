@@ -1,4 +1,7 @@
-﻿namespace NetworkOperation
+﻿using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
+
+namespace NetworkOperation.Core
 {
     public interface IHandlerFactory
     {

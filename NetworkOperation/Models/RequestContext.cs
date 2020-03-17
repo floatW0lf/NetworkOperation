@@ -1,4 +1,6 @@
-namespace NetworkOperation
+using NetworkOperation.Core.Messages;
+
+namespace NetworkOperation.Core.Models
 {
     public struct RequestContext<TRequest> where TRequest : IOperationMessage
     {

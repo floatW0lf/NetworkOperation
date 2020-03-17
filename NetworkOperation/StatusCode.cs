@@ -2,8 +2,9 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct StatusCode : IEquatable<StatusCode>, IComparable<StatusCode>

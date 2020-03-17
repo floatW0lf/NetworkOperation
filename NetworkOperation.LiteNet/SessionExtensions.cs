@@ -1,5 +1,6 @@
 using LiteNetLib;
-using NetworkOperation;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 
 namespace NetLibOperation
 {

@@ -1,5 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Infrastructure
 {

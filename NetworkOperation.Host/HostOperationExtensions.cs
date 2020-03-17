@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Host
 {

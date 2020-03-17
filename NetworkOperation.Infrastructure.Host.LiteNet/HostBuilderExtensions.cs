@@ -3,8 +3,9 @@ using LiteNetLib;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetLibOperation;
-using NetworkOperation;
-using NetworkOperation.Factories;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Factories;
+using NetworkOperation.Core.Messages;
 using NetworkOperation.Host;
 using NetworkOperation.Infrastructure.Host;
 

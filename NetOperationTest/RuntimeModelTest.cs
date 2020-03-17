@@ -1,5 +1,6 @@
 ﻿using System;
-using NetworkOperation;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 using Xunit;
 
 namespace NetOperationTest

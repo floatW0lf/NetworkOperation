@@ -1,6 +1,6 @@
 using MessagePack;
 using MessagePack.Formatters;
-using NetworkOperation;
+using NetworkOperation.Core;
 
 namespace Serializer.MessagePack
 {

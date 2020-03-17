@@ -1,8 +1,10 @@
 using System;
-using Moq;
-using NetworkOperation;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 using NetworkOperation.Host;
 using Xunit;
 

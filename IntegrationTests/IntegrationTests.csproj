@@ -19,10 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj" />
-      <ProjectReference Include="..\LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj" />
-      <ProjectReference Include="..\NetLibOperation.Client\NetLibOperation.Client.csproj" />
-      <ProjectReference Include="..\NetLibOperation.Server\NetLibOperation.Server.csproj" />
+      <ProjectReference Include="..\NetworkOperation.Infrastructure.Client.LiteNet\NetworkOperation.Infrastructure.Client.LiteNet.csproj" />
+      <ProjectReference Include="..\NetworkOperation.Infrastructure.Host.LiteNet\NetworkOperation.Infrastructure.Host.LiteNet.csproj" />
+      <ProjectReference Include="..\NetworkOperation.LiteNet.Client\NetworkOperation.LiteNet.Client.csproj" />
+      <ProjectReference Include="..\NetworkOperation.LiteNet.Host\NetworkOperation.LiteNet.Host.csproj" />
       <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
       <ProjectReference Include="..\Tcp.Client\Tcp.Client.csproj" />
       <ProjectReference Include="..\Tcp.Server\Tcp.Server.csproj" />

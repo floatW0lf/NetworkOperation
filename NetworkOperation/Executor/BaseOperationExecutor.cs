@@ -136,15 +136,14 @@ namespace NetworkOperation
             StatesPool.Return(s);
 
             Logger.LogDebug("Receive response {response}", message);
-            if (message.OperationData != null && message.Status == BuiltInOperationState.InternalError)
+            if (message.Status == BuiltInOperationState.InternalError)
             {
-                Logger.LogError("Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
+                Logger.LogError("Server error: " + (message.OperationData != null ? _serializer.Deserialize<string>(message.OperationData.To()) : "empty message because on server off debug mode "));
                 return new OperationResult<TResult>(default, message.Status);
             }
 
             if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.Status);
-            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()),
-                message.Status);
+            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.Status);
         }
 
         private async Task SendCancel(IEnumerable<Session> receivers, TRequest request)

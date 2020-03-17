@@ -2,13 +2,8 @@ version: 0.1.{build}
 branches:
   only:
   - master
+image: Visual Studio 2019
 configuration: Release
-assembly_info:
-  patch: true
-  file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
@@ -31,4 +26,5 @@ deploy:
   api_key:
     secure: oAm98i6tHeFejTwW4uzx1+LeqshooAI+WEHJ/ux8Nx0voxB/fuw5cbcOZZBy0wvb
   skip_symbols: true
+  symbol_server:
   artifact: /.*\.nupkg/

@@ -5,6 +5,7 @@
     <LangVersion>7.1</LangVersion>
     <Configurations>Debug;Release;AOT</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

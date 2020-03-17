@@ -7,6 +7,9 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <PackageVersion>0.0.0</PackageVersion>
+    <Authors>floatW0lf</Authors>
+    <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

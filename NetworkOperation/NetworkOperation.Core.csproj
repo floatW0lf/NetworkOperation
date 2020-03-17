@@ -6,10 +6,13 @@
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <RootNamespace>NetworkOperation.Core</RootNamespace>
+    <PackageVersion>0.0.0</PackageVersion>
+    <Authors>floatW0lf</Authors>
+    <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'AOT' ">
-    <DefineConstants>TRACE;AOT</DefineConstants>
+  <PropertyGroup>
+    <DefineConstants>TRACE;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

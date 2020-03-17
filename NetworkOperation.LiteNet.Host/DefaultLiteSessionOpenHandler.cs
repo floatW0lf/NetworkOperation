@@ -2,7 +2,7 @@ using System;
 using NetworkOperation.Core;
 using NetworkOperation.Host;
 
-namespace NetLibOperation
+namespace NetworkOperation.LiteNet.Host
 {
     public class DefaultLiteSessionOpenHandler : SessionRequestHandler
     {

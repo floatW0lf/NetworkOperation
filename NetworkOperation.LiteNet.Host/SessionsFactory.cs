@@ -2,7 +2,7 @@ using LiteNetLib;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Factories;
 
-namespace NetLibOperation
+namespace NetworkOperation.LiteNet.Host
 {
     public class SessionsFactory : IFactory<NetManager,MutableSessionCollection>
     {

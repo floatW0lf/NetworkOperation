@@ -2,7 +2,7 @@
 using LiteNetLib;
 using NetworkOperation.Core;
 
-namespace NetLibOperation
+namespace NetworkOperation.LiteNet
 {
     internal class LiteNetStatistics : NetworkStatistics
     {

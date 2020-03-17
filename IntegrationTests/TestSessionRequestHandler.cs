@@ -2,6 +2,7 @@ using IntegrationTests.Contract;
 using NetLibOperation;
 using NetworkOperation.Core;
 using NetworkOperation.Host;
+using NetworkOperation.LiteNet.Host;
 
 namespace IntegrationTests
 {

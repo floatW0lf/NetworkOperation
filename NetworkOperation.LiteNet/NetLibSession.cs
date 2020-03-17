@@ -7,6 +7,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
+using NetworkOperation.LiteNet;
 
 namespace NetLibOperation
 {

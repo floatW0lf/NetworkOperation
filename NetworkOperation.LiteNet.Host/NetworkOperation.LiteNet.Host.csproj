@@ -5,7 +5,6 @@
     <Platforms>AnyCPU</Platforms>
     <LangVersion>7.1</LangVersion>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <RootNamespace>NetLibOperation.Server</RootNamespace>
     <PackageVersion>0.0.0</PackageVersion>
     <Authors>floatW0lf</Authors>
     <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
@@ -18,7 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
     <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,14 +2,13 @@
 using LiteNetLib;
 using Microsoft.Extensions.DependencyInjection;
 using NetLibOperation;
-using NetLibOperation.Client;
 using NetworkOperation.Client;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
-using NetworkOperation.Infrastructure.Client;
+using NetworkOperation.LiteNet.Client;
 
-namespace LiteNet.Infrastructure.Client
+namespace NetworkOperation.Infrastructure.Client.LiteNet
 {
     public static class BuilderExtensions
     {

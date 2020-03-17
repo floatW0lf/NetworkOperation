@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.Logging;
+using NetLibOperation;
 using NetworkOperation.Client;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
 
-namespace NetLibOperation.Client
+namespace NetworkOperation.LiteNet.Client
 {
     public class Client<TRequest, TResponse> : AbstractClient<TRequest, TResponse, NetPeer>, INetEventListener
         where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()

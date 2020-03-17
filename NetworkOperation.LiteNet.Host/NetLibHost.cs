@@ -6,13 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using Microsoft.Extensions.Logging;
+using NetLibOperation;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Host;
 
-namespace NetLibOperation
+namespace NetworkOperation.LiteNet.Host
 {
     public class NetLibHost<TMessage, TResponse> : AbstractHost<TMessage, TResponse, NetManager>,
         INetEventListener where TMessage : IOperationMessage, new() where TResponse : IOperationMessage, new()

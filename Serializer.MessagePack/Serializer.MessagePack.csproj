@@ -7,7 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
-      <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
+      <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

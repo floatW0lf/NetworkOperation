@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
   </ItemGroup>
 
 </Project>

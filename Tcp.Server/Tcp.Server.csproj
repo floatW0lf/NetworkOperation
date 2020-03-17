@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
     <ProjectReference Include="..\Tcp.Core\Tcp.Core.csproj" />
   </ItemGroup>
 

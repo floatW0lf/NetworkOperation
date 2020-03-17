@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using LiteNetLib;
+using NetLibOperation;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
 
-namespace NetLibOperation
+namespace NetworkOperation.LiteNet.Host
 {
     internal class NetLibSessionCollection : MutableSessionCollection
     {

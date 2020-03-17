@@ -8,6 +8,7 @@ using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Host;
 using NetworkOperation.Infrastructure.Host;
+using NetworkOperation.LiteNet.Host;
 
 namespace LiteNet.Infrastructure.Host
 {

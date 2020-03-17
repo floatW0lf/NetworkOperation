@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using LiteNetLib;
+using NetLibOperation;
 using NetworkOperation.Core;
 using NetworkOperation.Host;
 
-namespace NetLibOperation
+namespace NetworkOperation.LiteNet.Host
 {
     public class LiteSessionRequest : SessionRequest
     {

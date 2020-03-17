@@ -5,20 +5,19 @@
     <LangVersion>8</LangVersion>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <RootNamespace>NetLibOperation.Client</RootNamespace>
     <PackageVersion>0.0.0</PackageVersion>
     <Authors>floatW0lf</Authors>
     <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'AOT' ">
-    <DefineConstants>TRACE;AOT</DefineConstants>
+  <PropertyGroup>
+    <DefineConstants>TRACE;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
     <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

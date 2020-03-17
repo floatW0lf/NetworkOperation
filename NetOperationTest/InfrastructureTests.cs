@@ -1,15 +1,16 @@
-﻿using LiteNet.Infrastructure.Client;
-using LiteNet.Infrastructure.Host;
+﻿using LiteNet.Infrastructure.Host;
 using Microsoft.Extensions.DependencyInjection;
 using NetLibOperation;
-using NetLibOperation.Client;
 using NetworkOperation.Client;
 using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Core.Models;
 using NetworkOperation.Host;
 using NetworkOperation.Infrastructure.Client;
+using NetworkOperation.Infrastructure.Client.LiteNet;
 using NetworkOperation.Infrastructure.Host;
+using NetworkOperation.LiteNet.Client;
+using NetworkOperation.LiteNet.Host;
 using Serializer.MessagePack;
 using Xunit;
 

@@ -1,19 +1,19 @@
 using MessagePack;
 using MessagePack.Formatters;
-using NetworkOperation;
+using NetworkOperation.Core;
 
 namespace Serializer.MessagePack
 {
     public class StatusCodeFormatter : IMessagePackFormatter<StatusCode>
     {
-        public int Serialize(ref byte[] bytes, int offset, StatusCode value, IFormatterResolver formatterResolver)
+        public void Serialize(ref MessagePackWriter writer, StatusCode value, MessagePackSerializerOptions options)
         {
-            return MessagePackBinary.WriteUInt32(ref bytes, offset, value.Code);
+            writer.WriteUInt32(value.Code);
         }
 
-        public StatusCode Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+        public StatusCode Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
-            return (StatusCode) MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
+            return (StatusCode) reader.ReadUInt32();
         }
     }
 }

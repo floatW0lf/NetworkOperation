@@ -1,4 +1,4 @@
-namespace NetworkOperation
+namespace NetworkOperation.Core.Messages
 {
     public interface IResponsePlaceHolder<in TRequest,TResponse> 
     {

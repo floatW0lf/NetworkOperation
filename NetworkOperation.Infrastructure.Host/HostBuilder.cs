@@ -1,7 +1,10 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Factories;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Factories;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 using NetworkOperation.Host;
 
 namespace NetworkOperation.Infrastructure.Host

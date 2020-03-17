@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using IntegrationTests.Contract;
-using NetworkOperation;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace IntegrationTests.Client
 {

@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CommandLine;
-using NetworkOperation;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 
 namespace TemplateDispatcher
 {

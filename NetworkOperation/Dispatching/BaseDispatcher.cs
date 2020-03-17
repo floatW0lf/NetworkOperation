@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Dispatching;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Dispatching
 {
     public struct DataWithStateCode
     {
@@ -175,7 +175,7 @@ namespace NetworkOperation
 
         protected abstract Task<DataWithStateCode> ProcessHandler(TRequest header, RequestContext<TRequest> context, CancellationToken token);
 
-        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<T,TResult>
+        protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<TResult>
         {
             var segArray = header.OperationData.To();
             var arg = context.OperationDescription.UseAsyncSerialize

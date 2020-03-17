@@ -1,15 +1,18 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
-using MessagePack;
-using Moq;
-using NetworkOperation;
-using NetworkOperation.Dispatching;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using MessagePack;
+using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 using Serializer.MessagePack;
 using Xunit;
 
@@ -20,7 +23,7 @@ namespace NetOperationTest
         
         [DataContract]
         [Operation(0,Handle = Side.All)]
-        public struct A : IOperation<A,int>
+        public struct A : IOperation<int>
         {
             [DataMember]
             public int Arg;
@@ -28,7 +31,7 @@ namespace NetOperationTest
         }
         [DataContract]
         [Operation(1, Handle = Side.Client)]
-        public struct B : IOperation<B,float>
+        public struct B : IOperation<float>
         {
             [DataMember]
             public int Arg;
@@ -114,8 +117,9 @@ namespace NetOperationTest
 
         private static byte[] CreateRawMessage<T>(uint code, T op, TypeMessage type)
         {
-            var subOp = MessagePackSerializer.Serialize(op);
-            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp }).AppendInBegin(type).Array;
+            var opt = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(new [] {new StatusCodeFormatter()}, new []{StandardResolver.Instance}));
+            var subOp = MessagePackSerializer.Serialize(op,opt);
+            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp },opt).AppendInBegin(type).Array;
         }
     }
 }

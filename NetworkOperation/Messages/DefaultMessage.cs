@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Messages
 {
     [DataContract]
     public struct DefaultMessage : IOperationMessage

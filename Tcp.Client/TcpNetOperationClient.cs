@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net;
-using NetworkOperation;
-using NetworkOperation.Client;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Factories;
+using NetworkOperation.Client;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Factories;
+using NetworkOperation.Core.Messages;
 using Tcp.Core;
 
 namespace Tcp.Client

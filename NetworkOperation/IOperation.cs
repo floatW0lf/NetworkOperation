@@ -1,7 +1,7 @@
-﻿namespace NetworkOperation
+﻿namespace NetworkOperation.Core
 {
     public interface IOperation { }
-    public interface IOperation<TSelf,TOperationResult> : IOperation
+    public interface IOperation<TOperationResult> : IOperation
     {
     }
 }

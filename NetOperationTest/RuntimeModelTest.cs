@@ -1,22 +1,23 @@
 ﻿using System;
-using NetworkOperation;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 using Xunit;
 
 namespace NetOperationTest
 {
     [Operation(0)]
-    public class Op : IOperation<Op, float> { }
+    public class Op : IOperation<float> { }
     [Operation(2)]
-    public class Op2 : IOperation<Op2, float> { }
+    public class Op2 : IOperation<float> { }
 
     [Operation(4)]
-    public class Op4 : IOperation<Op4, float> { }
+    public class Op4 : IOperation<float> { }
 
     [Operation(4)]
-    public class Op5 : IOperation<Op5,float>{}
+    public class Op5 : IOperation<float>{}
     
     [Operation(2)]
-    public class Op6 : IOperation<Op6,float>{}
+    public class Op6 : IOperation<float>{}
     public class RuntimeModelTest
     {
         [Fact]

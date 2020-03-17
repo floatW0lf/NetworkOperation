@@ -1,4 +1,4 @@
-﻿using NetworkOperation;
+﻿using NetworkOperation.Core;
 
 namespace Tcp.Server
 {

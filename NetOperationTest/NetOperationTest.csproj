@@ -12,28 +12,28 @@
 
     <Platforms>AnyCPU</Platforms>
 
-    <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture.AutoMoq" Version="4.6.0" />
-    <PackageReference Include="AutoFixture.Xunit" Version="4.6.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="Moq" Version="4.10.1" />
+    <PackageReference Include="AutoFixture.AutoMoq" Version="4.11.0" />
+    <PackageReference Include="AutoFixture.Xunit" Version="4.11.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.0" />   
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LiteNet.Infrastructure.Client\LiteNet.Infrastructure.Client.csproj" />
-    <ProjectReference Include="..\LiteNet.Infrastructure.Host\LiteNet.Infrastructure.Host.csproj" />
-    <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
     <ProjectReference Include="..\NetworkOperation.Host\NetworkOperation.Host.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Infrastructure.Client.LiteNet\NetworkOperation.Infrastructure.Client.LiteNet.csproj" />
     <ProjectReference Include="..\NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation.Infrastructure.Host.LiteNet\NetworkOperation.Infrastructure.Host.LiteNet.csproj" />
+    <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
     <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
   </ItemGroup>
 

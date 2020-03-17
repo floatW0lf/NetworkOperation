@@ -1,6 +1,7 @@
 ﻿using System;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public class OperationAttribute : Attribute
     {

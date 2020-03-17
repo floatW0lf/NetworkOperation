@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Dispatching;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Client
 {
@@ -10,7 +13,7 @@ namespace NetworkOperation.Client
     {
         private readonly Session _session;
         
-        public Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOp, TResult>
+        public Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TResult>
         {
             return SendOperation<TOp, TResult>(operation,null, cancellation);
         }

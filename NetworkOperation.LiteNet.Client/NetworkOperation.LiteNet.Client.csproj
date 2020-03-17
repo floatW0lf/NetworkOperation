@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netstandard2.0;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
-    <LangVersion>7.1</LangVersion>
-    <Configurations>Debug;Release;AOT</Configurations>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <LangVersion>8</LangVersion>
+    <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <RootNamespace>NetLibOperation.Client</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'AOT' ">
@@ -12,9 +13,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetLibOperation\NetLibOperation.csproj" />
     <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
-    <ProjectReference Include="..\NetworkOperation\NetworkOperation.csproj" />
+    <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
+    <ProjectReference Include="..\NetworkOperation\NetworkOperation.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

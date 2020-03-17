@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NetworkOperation.Extensions;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Models
 {
     public class OperationRuntimeModel : IEnumerable<OperationDescription>
     {
@@ -20,9 +19,9 @@ namespace NetworkOperation
                 .Select(type =>
                 {
                     var metaInfo = type.GetCustomAttribute<OperationAttribute>();
-                    var arguments = type.GetGenericArgsFromOperation();
+                    var operationResult = type.GetResultFromOperation();
 
-                    return new OperationDescription(metaInfo.Code, arguments[0], arguments[1], metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse, metaInfo.WaitResponse)
+                    return new OperationDescription(metaInfo.Code, type, operationResult, metaInfo.Handle, metaInfo.ForRequest, metaInfo.ForResponse, metaInfo.WaitResponse)
                     {
                         UseAsyncSerialize = metaInfo.UseAsyncSerialize,
                     };
@@ -95,7 +94,7 @@ namespace NetworkOperation
                 if (desc == null) continue;
                 
                 if (desc.Code != i) throw new ArgumentException("Description array must be ordered by code.");
-                desc.OperationType.GetGenericArgsFromOperation();
+                desc.OperationType.GetResultFromOperation();
             }
         }
 

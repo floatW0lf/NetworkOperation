@@ -7,8 +7,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public abstract class SessionCollection : ISessionEvents, IReadOnlyCollection<Session>
     {

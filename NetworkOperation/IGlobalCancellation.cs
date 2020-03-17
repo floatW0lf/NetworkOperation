@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public interface IGlobalCancellation
     {

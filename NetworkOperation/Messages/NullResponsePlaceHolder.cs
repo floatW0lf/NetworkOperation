@@ -1,4 +1,4 @@
-namespace NetworkOperation
+namespace NetworkOperation.Core.Messages
 {
     public class NullResponsePlaceHolder<TRequest,TResponse> : IResponsePlaceHolder<TRequest,TResponse>
     {

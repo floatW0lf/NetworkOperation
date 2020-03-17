@@ -1,4 +1,4 @@
-namespace NetworkOperation
+namespace NetworkOperation.Core.Messages
 {
     public class NullRequestPlaceHolder<TMessage> : IRequestPlaceHolder<TMessage>
     {

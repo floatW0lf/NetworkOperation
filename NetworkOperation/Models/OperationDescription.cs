@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core.Models
 {
     public class OperationDescription
     {

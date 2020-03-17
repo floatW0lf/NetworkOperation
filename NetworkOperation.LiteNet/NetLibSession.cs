@@ -5,7 +5,8 @@ using System.Net;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using NetworkOperation;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Models;
 
 namespace NetLibOperation
 {

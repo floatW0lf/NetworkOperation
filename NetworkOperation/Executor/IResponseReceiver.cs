@@ -1,4 +1,6 @@
-﻿namespace NetworkOperation
+﻿using NetworkOperation.Core.Messages;
+
+namespace NetworkOperation.Core
 {
     public interface IResponseReceiver<in TMessage> where TMessage : IOperationMessage
     {

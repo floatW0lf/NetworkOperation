@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using IntegrationTests.Contract;
-using NetworkOperation;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 using NetworkOperation.Host;
 
 namespace IntegrationTests.Server
@@ -18,7 +19,7 @@ namespace IntegrationTests.Server
             
         public async Task<OperationResult<string>> Handle(PushTest objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            var result = await _host.Executor.Execute<ClientOp, string>(new ClientOp() {Message = objectData.Message + "_server"});
+            var result = await _host.Executor.Execute(new ClientOp() {Message = objectData.Message + "_server"},o => o);
             return this.Return(result.Result);
         }
     }

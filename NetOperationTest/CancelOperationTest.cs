@@ -7,9 +7,10 @@ using AutoFixture.AutoMoq;
 using MessagePack;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using NetworkOperation;
-using NetworkOperation.Dispatching;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 using NetworkOperation.Host;
 using Serializer.MessagePack;
 using Xunit;
@@ -37,7 +38,7 @@ namespace NetOperationTest
         
         [Operation(0)]
         [DataContract]
-        public struct Foo : IOperation<Foo,int>
+        public struct Foo : IOperation<int>
         {
             [DataMember]
             public int _1;

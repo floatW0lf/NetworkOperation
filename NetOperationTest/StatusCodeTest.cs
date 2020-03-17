@@ -1,5 +1,5 @@
 using System;
-using NetworkOperation;
+using NetworkOperation.Core;
 using Xunit;
 
 namespace NetOperationTest

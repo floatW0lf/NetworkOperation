@@ -1,10 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public interface IOperationExecutor
     {
-        Task<OperationResult<TResult>> Execute<TOp, TResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOp, TResult>;
+        Task<OperationResult<TResult>> Execute<TOperation, TResult>(TOperation operation, CancellationToken cancellation = default) where TOperation : IOperation<TResult>;
     }
 }

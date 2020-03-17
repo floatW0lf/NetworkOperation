@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Infrastructure
 {
@@ -41,19 +45,17 @@ namespace NetworkOperation.Infrastructure
             return This;
         }
 
-        public TImplement RegisterHandlers(IEnumerable<Assembly> assemblies)
+        public TImplement RegisterHandlers(IEnumerable<Assembly> assemblies, Scope lifetime = Scope.Single)
         {
-            return RegisterHandlers(assemblies.SelectMany(a => a.GetTypes()));
+            return RegisterHandlers(assemblies.SelectMany(a => a.GetTypes()), lifetime);
         }
-        public TImplement RegisterHandlers(IEnumerable<Type> anyTypes)
+        public TImplement RegisterHandlers(IEnumerable<Type> anyTypes,Scope lifetime = Scope.Single)
         {
-            var handlers = anyTypes.Where(t =>
-                !t.IsAbstract && !t.IsInterface && typeof(IHandler).IsAssignableFrom(t) &&
-                t.IsDefined(typeof(HandlerAttribute), true));
+            var handlers = anyTypes.Where(t => !t.IsGenericType && !t.IsAbstract && !t.IsInterface && typeof(IHandler).IsAssignableFrom(t));
 
             foreach (var handler in handlers)
             {
-                RegisterHandler(handler, handler.GetCustomAttribute<HandlerAttribute>(true).LifeTime);
+                RegisterHandler(handler, handler.GetCustomAttribute<HandlerAttribute>(true)?.LifeTime ?? lifetime);
             }
             return This;
         }

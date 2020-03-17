@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <RootNamespace>LiteNet.Infrastructure.Host</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NetworkOperation.Infrastructure.Host\NetworkOperation.Infrastructure.Host.csproj" />
+      <ProjectReference Include="..\NetworkOperation.LiteNet.Host\NetworkOperation.LiteNet.Host.csproj" />
+    </ItemGroup>
+
+</Project>

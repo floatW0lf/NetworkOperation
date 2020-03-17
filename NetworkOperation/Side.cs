@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     [Flags]
     public enum Side

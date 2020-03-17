@@ -3,9 +3,10 @@ using LiteNetLib;
 using Microsoft.Extensions.DependencyInjection;
 using NetLibOperation;
 using NetLibOperation.Client;
-using NetworkOperation;
 using NetworkOperation.Client;
-using NetworkOperation.Factories;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Factories;
+using NetworkOperation.Core.Messages;
 using NetworkOperation.Infrastructure.Client;
 
 namespace LiteNet.Infrastructure.Client

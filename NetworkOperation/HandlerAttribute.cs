@@ -1,6 +1,7 @@
 ﻿using System;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class HandlerAttribute : Attribute

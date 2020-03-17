@@ -5,9 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using NetworkOperation.Extensions;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
-namespace NetworkOperation
+namespace NetworkOperation.Core
 {
     public abstract class BaseOperationExecutor<TRequest, TResponse> : IResponseReceiver<TResponse>, IGlobalCancellation where TResponse : IOperationMessage, new() where TRequest : IOperationMessage, new()
          {
@@ -72,7 +73,7 @@ namespace NetworkOperation
             return false;
         }
 
-        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken token) where TOp : IOperation<TOp, TResult>
+        protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken token) where TOp : IOperation<TResult>
         {
             
             var description = Model.GetDescriptionBy(typeof(TOp));
@@ -136,15 +137,14 @@ namespace NetworkOperation
             StatesPool.Return(s);
 
             Logger.LogDebug("Receive response {response}", message);
-            if (message.OperationData != null && message.Status == BuiltInOperationState.InternalError)
+            if (message.Status == BuiltInOperationState.InternalError)
             {
-                Logger.LogError("Server error " + _serializer.Deserialize<string>(message.OperationData.To()));
+                Logger.LogError("Server error: " + (message.OperationData != null ? _serializer.Deserialize<string>(message.OperationData.To()) : "empty message because on server off debug mode "));
                 return new OperationResult<TResult>(default, message.Status);
             }
 
             if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.Status);
-            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()),
-                message.Status);
+            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.Status);
         }
 
         private async Task SendCancel(IEnumerable<Session> receivers, TRequest request)

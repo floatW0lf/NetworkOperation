@@ -1,5 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Infrastructure
 {
@@ -15,7 +18,7 @@ namespace NetworkOperation.Infrastructure
             _provider = provider;
         }
         
-        public IHandler<TOperation, TResult, TRequest> Create<TOperation, TResult, TRequest>(RequestContext<TRequest> requestContext) where TOperation : IOperation<TOperation, TResult> where TRequest : IOperationMessage
+        public IHandler<TOperation, TResult, TRequest> Create<TOperation, TResult, TRequest>(RequestContext<TRequest> requestContext) where TOperation : IOperation<TResult> where TRequest : IOperationMessage
         {
             var provider = _provider;
             if (requestContext.HandlerDescription.LifeTime == Scope.Session)

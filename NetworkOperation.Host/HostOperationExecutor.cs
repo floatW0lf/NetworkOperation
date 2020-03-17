@@ -3,7 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetworkOperation.Dispatching;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
+using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Host
 {
@@ -11,12 +14,12 @@ namespace NetworkOperation.Host
     {
         private readonly SessionCollection _sessions;
 
-        public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOp, TOpResult>
+        public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOpResult>
         {
             return SendOperation<TOp, TOpResult>(operation, null, cancellation);
         }
 
-        public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken cancellation = default) where TOp : IOperation<TOp, TOpResult>
+        public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken cancellation = default) where TOp : IOperation<TOpResult>
         {
             return SendOperation<TOp, TOpResult>(operation, receivers,  cancellation);
         }

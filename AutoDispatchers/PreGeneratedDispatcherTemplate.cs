@@ -9,7 +9,8 @@
 // ------------------------------------------------------------------------------
 namespace TemplateDispatcher
 {
-    using NetworkOperation;
+    using NetworkOperation.Core;
+    using NetworkOperation.Core.Models;
     using TemplateDispatcher;
     using System.Linq;
     using System.Text;
@@ -34,61 +35,65 @@ namespace TemplateDispatcher
 using System;
 using System.Threading.Tasks;
 using System.Threading;
-using NetworkOperation;
-using NetworkOperation.Logger;
+using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Models;
+using NetworkOperation.Core.Messages;
+using Microsoft.Extensions.Logging;
+
 
 namespace NetworkOperations.Dispatching
 {
-    public sealed class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
+    public class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>
            where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
-        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, IStructuralLogger logger) : base(serializer, factory, model, logger)
+        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel) : base(serializer, factory, model, logger,descriptionRuntimeModel)
         {
         }
 
         protected override Task<DataWithStateCode> ProcessHandler(TRequest message, RequestContext<TRequest> context, CancellationToken token)
         {
-            switch (operationDescription.Code)
+            switch (context.OperationDescription.Code)
             {
 ");
             
-            #line 32 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 37 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (OperationDescription op in Model) { if (op == null || !op.Handle.HasFlag(Side)) continue; 
             
             #line default
             #line hidden
             this.Write("               case ");
             
-            #line 33 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.Code));
             
             #line default
             #line hidden
             this.Write(": return GenericHandle<");
             
-            #line 33 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.OperationType.FullName));
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 33 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.ResultType.ToCSharpFormat()));
             
             #line default
             #line hidden
             this.Write(">(message, context, token);\r\n");
             
-            #line 34 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 39 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            }\r\n            throw new InvalidOperationException($\"Wrong code opera" +
-                    "tion {operationDescription.Code}\");\r\n        }\r\n    }\r\n    \r\n");
+                    "tion {context.OperationDescription.Code}\");\r\n        }\r\n    }\r\n    \r\n");
             
-            #line 40 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 45 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  if (AOTSupport) {
             
             #line default
@@ -96,42 +101,42 @@ namespace NetworkOperations.Dispatching
             this.Write(" \r\n        public static partial class AOTSupport\r\n        {\r\n            public " +
                     "static void GeneratedDefinitions()\r\n            {\r\n");
             
-            #line 45 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 50 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (OperationDescription op in Model){
             
             #line default
             #line hidden
             this.Write("                VirtualGenericMethodsDefinition<");
             
-            #line 46 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 51 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.OperationType.FullName));
             
             #line default
             #line hidden
             this.Write(">();                                        \r\n");
             
-            #line 47 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 52 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("            \r\n");
             
-            #line 49 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 54 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (Type resultType in Model.Select(d => d.ResultType).Distinct()){
             
             #line default
             #line hidden
             this.Write("                VirtualGenericMethodsDefinition<");
             
-            #line 50 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 55 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(resultType.ToCSharpFormat()));
             
             #line default
             #line hidden
             this.Write(">();                                       \r\n");
             
-            #line 51 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 56 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 }
             
             #line default
@@ -139,7 +144,7 @@ namespace NetworkOperations.Dispatching
             this.Write("            }            \r\n            static partial void VirtualGenericMethodsD" +
                     "efinition<T>();            \r\n        }\r\n");
             
-            #line 55 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 60 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  } 
             
             #line default
@@ -163,12 +168,12 @@ private bool AOTSupport
     }
 }
 
-private global::NetworkOperation.Side _SideField;
+private global::NetworkOperation.Core.Side _SideField;
 
 /// <summary>
 /// Access the Side parameter of the template.
 /// </summary>
-private global::NetworkOperation.Side Side
+private global::NetworkOperation.Core.Side Side
 {
     get
     {
@@ -176,12 +181,12 @@ private global::NetworkOperation.Side Side
     }
 }
 
-private global::NetworkOperation.OperationRuntimeModel _ModelField;
+private global::NetworkOperation.Core.Models.OperationRuntimeModel _ModelField;
 
 /// <summary>
 /// Access the Model parameter of the template.
 /// </summary>
-private global::NetworkOperation.OperationRuntimeModel Model
+private global::NetworkOperation.Core.Models.OperationRuntimeModel Model
 {
     get
     {
@@ -214,7 +219,7 @@ if ((AOTSupportValueAcquired == false))
 bool SideValueAcquired = false;
 if (this.Session.ContainsKey("Side"))
 {
-    this._SideField = ((global::NetworkOperation.Side)(this.Session["Side"]));
+    this._SideField = ((global::NetworkOperation.Core.Side)(this.Session["Side"]));
     SideValueAcquired = true;
 }
 if ((SideValueAcquired == false))
@@ -222,13 +227,13 @@ if ((SideValueAcquired == false))
     object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Side");
     if ((data != null))
     {
-        this._SideField = ((global::NetworkOperation.Side)(data));
+        this._SideField = ((global::NetworkOperation.Core.Side)(data));
     }
 }
 bool ModelValueAcquired = false;
 if (this.Session.ContainsKey("Model"))
 {
-    this._ModelField = ((global::NetworkOperation.OperationRuntimeModel)(this.Session["Model"]));
+    this._ModelField = ((global::NetworkOperation.Core.Models.OperationRuntimeModel)(this.Session["Model"]));
     ModelValueAcquired = true;
 }
 if ((ModelValueAcquired == false))
@@ -236,7 +241,7 @@ if ((ModelValueAcquired == false))
     object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Model");
     if ((data != null))
     {
-        this._ModelField = ((global::NetworkOperation.OperationRuntimeModel)(data));
+        this._ModelField = ((global::NetworkOperation.Core.Models.OperationRuntimeModel)(data));
     }
 }
 

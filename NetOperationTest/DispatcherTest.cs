@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using MessagePack;
+using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -116,8 +117,9 @@ namespace NetOperationTest
 
         private static byte[] CreateRawMessage<T>(uint code, T op, TypeMessage type)
         {
-            var subOp = MessagePackSerializer.Serialize(op);
-            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp }).AppendInBegin(type).Array;
+            var opt = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(new [] {new StatusCodeFormatter()}, new []{StandardResolver.Instance}));
+            var subOp = MessagePackSerializer.Serialize(op,opt);
+            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp },opt).AppendInBegin(type).Array;
         }
     }
 }

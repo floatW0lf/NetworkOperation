@@ -72,6 +72,9 @@ namespace NetworkOperation.LiteNet.Host
 
         void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
+            var session = Sessions.GetSession(peer.Id);
+            if (session == null) return;
+            ((LiteNetStatistics)session.Statistics).UpdateLatency((ulong)latency);
         }
 
         void INetEventListener.OnConnectionRequest(ConnectionRequest request)

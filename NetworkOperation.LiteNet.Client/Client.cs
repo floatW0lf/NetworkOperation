@@ -49,6 +49,7 @@ namespace NetworkOperation.LiteNet.Client
 
         void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
+            ((LiteNetStatistics)Session.Statistics).UpdateLatency((ulong) latency);
         }
 
         void INetEventListener.OnConnectionRequest(ConnectionRequest request)

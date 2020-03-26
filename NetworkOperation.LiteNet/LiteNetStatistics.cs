@@ -18,6 +18,11 @@ namespace NetworkOperation.LiteNet
         public override ulong SentPackets => _liteStat.PacketsSent;
         public override ulong ReceivedPackets => _liteStat.PacketsReceived;
 
+        private ulong _latencyInMs;
+        public void UpdateLatency(ulong ms)
+        {
+            _latencyInMs = ms;
+        }
         public override string ToString()
         {
             return _liteStat.ToString();
@@ -33,6 +38,7 @@ namespace NetworkOperation.LiteNet
                     case nameof(NetStatistics.PacketLoss): return _liteStat.PacketLoss;
                     case nameof(NetStatistics.SequencedPacketLoss): return _liteStat.SequencedPacketLoss;
                     case nameof(NetStatistics.PacketLossPercent): return _liteStat.PacketLossPercent;
+                    case "Latency" : return _latencyInMs;
                     default: throw new NotSupportedException(name);
                 }
             }

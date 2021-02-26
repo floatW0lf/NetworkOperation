@@ -43,9 +43,9 @@ namespace NetworkOperation.Core
             
         }
         
-        private readonly ConcurrentDictionary<OperationId, Task> _responseQueue = new ConcurrentDictionary<OperationId, Task>();
+        private readonly ConcurrentDictionary<OperationId, (object source, Action<TResponse,object> converter)> _responseQueue = new ConcurrentDictionary<OperationId, (object, Action<TResponse,object>)>();
         private readonly BaseSerializer _serializer;
-        private static readonly ObjectPool<State> StatesPool = new DefaultObjectPool<State>(new DefaultPooledObjectPolicy<State>());
+        
         protected ILogger Logger { get; }
 
         public CancellationToken GlobalToken { get; set; }
@@ -64,10 +64,9 @@ namespace NetworkOperation.Core
 
         bool IResponseReceiver<TResponse>.Receive(TResponse result)
         {
-            if (_responseQueue.TryRemove(new OperationId(result.Id,result.OperationCode), out var task))
+            if (_responseQueue.TryRemove(new OperationId(result.Id,result.OperationCode), out var completeSource))
             {
-                ((State) task.AsyncState).Result = result;
-                task.Start();
+                completeSource.converter(result, completeSource.source);
                 return true;
             }
             return false;
@@ -75,7 +74,6 @@ namespace NetworkOperation.Core
 
         protected async Task<OperationResult<TResult>> SendOperation<TOp, TResult>(TOp operation, IEnumerable<Session> receivers, CancellationToken token) where TOp : IOperation<TResult>
         {
-            
             var description = Model.GetDescriptionBy(typeof(TOp));
             
             Logger.LogDebug("Start send operation {operation}, code: {code}",operation,description.Code);
@@ -97,17 +95,19 @@ namespace NetworkOperation.Core
             await SendRequest(receivers, rawResult, description.ForRequest);
            
             Logger.LogDebug("Operation sent {operation}", operation);
-            
-            if (description.WaitResponse)
+
+            using (var cancellation = CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken))
             {
-                using (var composite = CancellationTokenSource.CreateLinkedTokenSource(token, GlobalToken))
+                if (description.WaitResponse)
                 {
-                    Task<OperationResult<TResult>> response = null;
                     try
                     {
-                        response = new Task<OperationResult<TResult>>(OperationResultHandle<TResult>, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
-                        _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
-                        return await response;
+                        var source = new TaskCompletionSource<OperationResult<TResult>>();
+                        _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), (source, GenericHandle<TResult>));
+                        using (cancellation.Token.Register(() => { source.SetCanceled(); }))
+                        {
+                            return await source.Task;
+                        }
                     }
                     catch (OperationCanceledException)
                     {
@@ -116,26 +116,23 @@ namespace NetworkOperation.Core
                     }
                     catch (Exception)
                     {
-                        if (response != null)
-                        {
-                            _responseQueue.TryRemove(new OperationId(op.Id, op.OperationCode), out _);
-                            StatesPool.Return((State)response.AsyncState);
-                        }
+                        _responseQueue.TryRemove(new OperationId(op.Id, op.OperationCode), out _);
                         throw;
                     }
                 }
+                return new OperationResult<TResult>(default, BuiltInOperationState.NoWaiting);
             }
-            return new OperationResult<TResult>(default, BuiltInOperationState.NoWaiting);
-            
             
         }
 
-        private OperationResult<TResult> OperationResultHandle<TResult>(object state)
+        private void GenericHandle<TResult>(TResponse response, object source)
         {
-            var s = (State) state;
-            var message = s.Result;
-            StatesPool.Return(s);
+            var taskCompletionSource = (TaskCompletionSource<OperationResult<TResult>>) source;
+            taskCompletionSource.SetResult(OperationResultHandle<TResult>(response));
+        }
 
+        private OperationResult<TResult> OperationResultHandle<TResult>(TResponse message)
+        {
             Logger.LogDebug("Receive response {response}", message);
             if (message.Status == BuiltInOperationState.InternalError)
             {
@@ -151,8 +148,6 @@ namespace NetworkOperation.Core
         {
             if (_responseQueue.TryRemove(new OperationId(request.Id, request.OperationCode), out var canceledTask))
             {
-                StatesPool.Return((State) canceledTask.AsyncState);
-                
                 await SendRequest(receivers,
                     _serializer.Serialize(new TRequest
                     {
@@ -165,10 +160,5 @@ namespace NetworkOperation.Core
 
         protected abstract Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode);
 
-        private class State
-        {
-            public TResponse Result;
-        }
-       
     }
 }

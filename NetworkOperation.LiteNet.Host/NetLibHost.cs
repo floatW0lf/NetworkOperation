@@ -93,7 +93,7 @@ namespace NetworkOperation.LiteNet.Host
                         }
                         catch (Exception e)
                         {
-                            Logger.LogError("Poll event thread error", e);
+                            Logger.LogError("Poll event thread error {E}", e);
                         }
                         await Task.Delay(PollTimeInMs).ConfigureAwait(false);
                         

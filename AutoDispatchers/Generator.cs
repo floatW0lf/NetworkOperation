@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using CommandLine;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
@@ -28,6 +29,7 @@ namespace TemplateDispatcher
     {
         static void Main(string[] args)
         {
+            RegisterDefaultResolveAssemblies();
             Parser.Default.ParseArguments<Options>(args).WithParsed(Generate).WithNotParsed(errors =>
             {
                 Environment.Exit(1);
@@ -58,5 +60,16 @@ namespace TemplateDispatcher
             File.WriteAllText(Path.Combine(arg.Output,"PreGeneratedDispatcher.cs"), dispatcher.TransformText());
             
         }
+        
+        private static void RegisterDefaultResolveAssemblies() =>
+            AssemblyLoadContext.Default.Resolving += (loadContext, assemblyName) =>
+            {
+                var dllPath = Path.Combine(Directory.GetCurrentDirectory(), assemblyName.Name + ".dll");
+                if (File.Exists(dllPath))
+                {
+                    return loadContext.LoadFromAssemblyPath(dllPath);
+                }
+                return null;
+            };
     }
 }

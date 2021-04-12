@@ -42,4 +42,12 @@
     <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="PreGeneratedDispatcherTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PreGeneratedDispatcherTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

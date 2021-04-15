@@ -60,7 +60,7 @@ namespace NetworkOperation.Core.Dispatching
                 {
                     case TypeMessage.Response:
                         if (_responseReceiver == null) throw new Exception("Don't subscribed receive event");
-                        _responseReceiver.Receive(_serializer.Deserialize<TResponse>(rawMessage));
+                        _responseReceiver.Receive(_serializer.Deserialize<TResponse>(rawMessage,session));
                         continue;
                     
                     case TypeMessage.Request:
@@ -69,7 +69,7 @@ namespace NetworkOperation.Core.Dispatching
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                var request = _serializer.Deserialize<TRequest>(rawMessage);
+                var request = _serializer.Deserialize<TRequest>(rawMessage,session);
                 var description = Model.GetDescriptionBy(request.OperationCode);
                 var context = new RequestContext<TRequest>(request, session, description,_descriptionRuntimeModel.GetByOperation(description.OperationType));
                 try
@@ -80,7 +80,7 @@ namespace NetworkOperation.Core.Dispatching
                         response.Id = request.Id;
                         if (response.Status != BuiltInOperationState.Success)
                         {
-                            await session.SendMessageAsync(_serializer.Serialize(response).AppendInBegin(TypeMessage.Response), description.ForResponse);
+                            await session.SendMessageAsync(_serializer.Serialize(response, session).AppendInBegin(TypeMessage.Response), description.ForResponse);
                             continue;
                         }
                     }
@@ -109,9 +109,9 @@ namespace NetworkOperation.Core.Dispatching
                             Id = request.Id,
                             OperationCode = request.OperationCode,
                             Status = BuiltInOperationState.InternalError,
-                            OperationData = DebugMode ? _serializer.Serialize(e.Message) : null
+                            OperationData = DebugMode ? _serializer.Serialize(e.Message,session) : null
                         };
-                        await session.SendMessageAsync(_serializer.Serialize(failOp).AppendInBegin(TypeMessage.Response), MinRequiredDeliveryMode.ReliableWithOrdered);
+                        await session.SendMessageAsync(_serializer.Serialize(failOp,session).AppendInBegin(TypeMessage.Response), MinRequiredDeliveryMode.ReliableWithOrdered);
                     }
                 }
                 finally
@@ -169,7 +169,7 @@ namespace NetworkOperation.Core.Dispatching
             };
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
-            var resultRaw = _serializer.Serialize(sendOp);
+            var resultRaw = _serializer.Serialize(sendOp,session);
             await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response), mode);
         }
 
@@ -179,8 +179,8 @@ namespace NetworkOperation.Core.Dispatching
         {
             var segArray = header.OperationData.To();
             var arg = context.OperationDescription.UseAsyncSerialize
-                ? await _serializer.DeserializeAsync<T>(segArray)
-                : _serializer.Deserialize<T>(segArray);
+                ? await _serializer.DeserializeAsync<T>(segArray,context.Session)
+                : _serializer.Deserialize<T>(segArray,context.Session);
             
             var typedHandler = _factory.Create<T,TResult,TRequest>(context);
             var result = await typedHandler.Handle(arg, context, token);
@@ -193,7 +193,7 @@ namespace NetworkOperation.Core.Dispatching
             if (!context.OperationDescription.WaitResponse) return default;
             if (typeof(TResult) == typeof(Empty)) return new DataWithStateCode(null, result.Status);
             
-            return new DataWithStateCode(context.OperationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result) : _serializer.Serialize(result.Result), result.Status);
+            return new DataWithStateCode(context.OperationDescription.UseAsyncSerialize ? await _serializer.SerializeAsync(result.Result,context.Session) : _serializer.Serialize(result.Result,context.Session), result.Status);
         }
 
         protected internal Side ExecutionSide { get; internal set; }

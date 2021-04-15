@@ -13,12 +13,12 @@ namespace NetworkOperation.Host
 
         protected T ReadPayload<T>(SessionRequest request) where T : IConnectPayload
         {
-           return _serializer.Deserialize<T>(request.RequestPayload);
+           return _serializer.Deserialize<T>(request.RequestPayload, null);
         }
 
         protected void RejectWithPayload<T>(SessionRequest request,T payload) where T : IDisconnectPayload
         {
-            request.Reject(_serializer.Serialize(payload).To());
+            request.Reject(_serializer.Serialize(payload, null).To());
         }
         
         public abstract void Handle(SessionRequest request);

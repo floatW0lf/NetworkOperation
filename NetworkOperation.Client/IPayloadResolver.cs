@@ -22,7 +22,7 @@ namespace NetworkOperation.Client
         
         public ArraySegment<byte> Resolve<T>(T payload) where T : IConnectPayload
         {
-            return Serializer.Serialize(payload).To();
+            return Serializer.Serialize(payload,null).To();
         }
     }
 
@@ -43,7 +43,7 @@ namespace NetworkOperation.Client
 
         public override ArraySegment<byte> Resolve()
         {
-            return Serializer.Serialize(_payloadFactory != null ? _payloadFactory() : _payloadValue).To();
+            return Serializer.Serialize(_payloadFactory != null ? _payloadFactory() : _payloadValue,null).To();
         }
     }
 

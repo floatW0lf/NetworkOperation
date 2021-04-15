@@ -84,8 +84,8 @@ namespace NetworkOperation.Core
             {
                 OperationCode = description.Code,
                 OperationData = description.UseAsyncSerialize
-                    ? await _serializer.SerializeAsync(operation)
-                    : _serializer.Serialize(operation),
+                    ? await _serializer.SerializeAsync(operation, null)
+                    : _serializer.Serialize(operation, null),
                 Id = MessageIdGenerator.Generate()
             };
             
@@ -93,7 +93,7 @@ namespace NetworkOperation.Core
             
             Logger.LogDebug("Operation serialized {operation}", operation);
             
-            var rawResult = _serializer.Serialize(op);
+            var rawResult = _serializer.Serialize(op, null);
             await SendRequest(receivers, rawResult, description.ForRequest);
            
             Logger.LogDebug("Operation sent {operation}", operation);
@@ -139,12 +139,12 @@ namespace NetworkOperation.Core
             Logger.LogDebug("Receive response {response}", message);
             if (message.Status == BuiltInOperationState.InternalError)
             {
-                Logger.LogError("Server error: " + (message.OperationData != null ? _serializer.Deserialize<string>(message.OperationData.To()) : "empty message because on server off debug mode "));
+                Logger.LogError("Server error: " + (message.OperationData != null ? _serializer.Deserialize<string>(message.OperationData.To(), null) : "empty message because on server off debug mode "));
                 return new OperationResult<TResult>(default, message.Status);
             }
 
             if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.Status);
-            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To()), message.Status);
+            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To(), null), message.Status);
         }
 
         private async Task SendCancel(IEnumerable<Session> receivers, TRequest request)
@@ -159,7 +159,7 @@ namespace NetworkOperation.Core
                         Id = MessageIdGenerator.Generate(),
                         OperationCode = request.OperationCode, 
                         Status = BuiltInOperationState.Cancel
-                    }), MinRequiredDeliveryMode.ReliableWithOrdered);
+                    }, null), MinRequiredDeliveryMode.ReliableWithOrdered);
             }
         }
 

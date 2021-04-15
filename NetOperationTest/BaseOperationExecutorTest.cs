@@ -29,7 +29,7 @@ namespace NetOperationTest
             Assert.Equal(TaskStatus.WaitingForActivation, task.Status);
 
             mockSession.Verify(c => c.SendToAllAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<DeliveryMode>()), Times.Once);
-            serializeMock.Verify(serializer => serializer.Serialize(It.IsAny<A>()), Times.Once);
+            serializeMock.Verify(serializer => serializer.Serialize(It.IsAny<A>(), It.IsAny<Session>()), Times.Once);
         }
 
         [Fact]
@@ -37,8 +37,8 @@ namespace NetOperationTest
         {
             var serializeMock = new Mock<BaseSerializer>();
             
-            serializeMock.Setup(serializer => serializer.Deserialize<int>(It.IsAny<ArraySegment<byte>>())).Returns(111);
-            serializeMock.Setup(serializer => serializer.Serialize(It.IsAny<A>())).Returns(new byte[10]);
+            serializeMock.Setup(serializer => serializer.Deserialize<int>(It.IsAny<ArraySegment<byte>>(),It.IsAny<Session>())).Returns(111);
+            serializeMock.Setup(serializer => serializer.Serialize(It.IsAny<A>(),It.IsAny<Session>())).Returns(new byte[10]);
             var executor = new HostOperationExecutor<DefaultMessage,DefaultMessage>(OperationRuntimeModel.CreateFromAttribute(new[] {typeof(A)}), serializeMock.Object, new Mock<SessionCollection>().Object, new NullLoggerFactory());
             var mockGenerator = new Mock<IGeneratorId>();
             mockGenerator.Setup(id => id.Generate()).Returns(100);

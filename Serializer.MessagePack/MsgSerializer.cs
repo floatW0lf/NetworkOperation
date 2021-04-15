@@ -18,17 +18,17 @@ namespace Serializer.MessagePack
             _options = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(new IMessagePackFormatter[]{new StatusCodeFormatter()},new IFormatterResolver[]{ContractlessStandardResolver.Instance}));
             
         }
-        public override T Deserialize<T>(ArraySegment<byte> rawBytes)
+        public override T Deserialize<T>(ArraySegment<byte> rawBytes, Session context)
         {
             return MessagePackSerializer.Deserialize<T>(rawBytes,_options);
         }
 
-        public override byte[] Serialize<T>(T obj)
+        public override byte[] Serialize<T>(T obj,Session context)
         {
             return MessagePackSerializer.Serialize(obj,_options);
         }
 
-        public override async Task<T> DeserializeAsync<T>(ArraySegment<byte> rawBytes)
+        public override async Task<T> DeserializeAsync<T>(ArraySegment<byte> rawBytes, Session context)
         {
             using (var memory = new MemoryStream(rawBytes.ToArray()))
             {
@@ -36,7 +36,7 @@ namespace Serializer.MessagePack
             }
         }
 
-        public override async Task<byte[]> SerializeAsync<T>(T obj)
+        public override async Task<byte[]> SerializeAsync<T>(T obj, Session context)
         {
             using (var memory = new MemoryStream())
             {

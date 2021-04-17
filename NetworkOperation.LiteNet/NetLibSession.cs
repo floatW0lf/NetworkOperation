@@ -71,7 +71,7 @@ namespace NetLibOperation
             {
                 return SessionState.Opening;
             }
-
+            
             if ((connectionState & ConnectionState.Connected) != 0)
             {
                 return SessionState.Opened;

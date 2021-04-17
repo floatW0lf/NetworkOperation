@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,20 @@ using NetworkOperation.Core.Models;
 namespace NetworkOperation.Core
 {
     public abstract class BaseOperationExecutor<TRequest, TResponse> : IResponseReceiver<TResponse>, IGlobalCancellation where TResponse : IOperationMessage, new() where TRequest : IOperationMessage, new()
-         {
+    {
+        private sealed class StatePolicy : PooledObjectPolicy<State>
+        {
+            public override State Create()
+            {
+                return new State();
+            }
+
+            public override bool Return(State obj)
+            {
+                obj.Context = null;
+                return true;
+            }
+        }
         private struct OperationId : IEquatable<OperationId>
         {
             public OperationId(int id, uint code)
@@ -45,7 +59,7 @@ namespace NetworkOperation.Core
         
         private readonly ConcurrentDictionary<OperationId, Task> _responseQueue = new ConcurrentDictionary<OperationId, Task>();
         private readonly BaseSerializer _serializer;
-        private static readonly ObjectPool<State> StatesPool = new DefaultObjectPool<State>(new DefaultPooledObjectPolicy<State>());
+        private static readonly ObjectPool<State> StatesPool = new DefaultObjectPool<State>(new StatePolicy());
         protected ILogger Logger { get; }
 
         public CancellationToken GlobalToken { get; set; }
@@ -79,13 +93,13 @@ namespace NetworkOperation.Core
             var description = Model.GetDescriptionBy(typeof(TOp));
             
             Logger.LogDebug("Start send operation {operation}, code: {code}",operation,description.Code);
-            
+            var context = receivers?.FirstOrDefault();
             var op = new TRequest
             {
                 OperationCode = description.Code,
                 OperationData = description.UseAsyncSerialize
-                    ? await _serializer.SerializeAsync(operation, null)
-                    : _serializer.Serialize(operation, null),
+                    ? await _serializer.SerializeAsync(operation, context)
+                    : _serializer.Serialize(operation, context),
                 Id = MessageIdGenerator.Generate()
             };
             
@@ -93,7 +107,7 @@ namespace NetworkOperation.Core
             
             Logger.LogDebug("Operation serialized {operation}", operation);
             
-            var rawResult = _serializer.Serialize(op, null);
+            var rawResult = _serializer.Serialize(op, context);
             await SendRequest(receivers, rawResult, description.ForRequest);
            
             Logger.LogDebug("Operation sent {operation}", operation);
@@ -105,7 +119,9 @@ namespace NetworkOperation.Core
                     Task<OperationResult<TResult>> response = null;
                     try
                     {
-                        response = new Task<OperationResult<TResult>>(OperationResultHandle<TResult>, StatesPool.Get(), composite.Token, TaskCreationOptions.PreferFairness);
+                        var state = StatesPool.Get();
+                        state.Context = context;
+                        response = new Task<OperationResult<TResult>>(OperationResultHandle<TResult>, state, composite.Token, TaskCreationOptions.PreferFairness);
                         _responseQueue.TryAdd(new OperationId(op.Id, op.OperationCode), response);
                         return await response;
                     }
@@ -133,6 +149,7 @@ namespace NetworkOperation.Core
         private OperationResult<TResult> OperationResultHandle<TResult>(object state)
         {
             var s = (State) state;
+            var contextSession = s.Context;
             var message = s.Result;
             StatesPool.Return(s);
 
@@ -144,7 +161,7 @@ namespace NetworkOperation.Core
             }
 
             if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.Status);
-            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To(), null), message.Status);
+            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To(), contextSession), message.Status);
         }
 
         private async Task SendCancel(IEnumerable<Session> receivers, TRequest request)
@@ -168,6 +185,7 @@ namespace NetworkOperation.Core
         private class State
         {
             public TResponse Result;
+            public Session Context;
         }
        
     }

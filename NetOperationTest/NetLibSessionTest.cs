@@ -10,7 +10,7 @@ namespace NetOperationTest
         [Fact]
         public void decode_state()
         {
-            Assert.Equal(SessionState.Opening, NetLibSession.DecodeState(ConnectionState.Any));
+            Assert.Equal(SessionState.Opening, NetLibSession.DecodeState(ConnectionState.Outgoing));
             Assert.Equal(SessionState.Opened, NetLibSession.DecodeState(ConnectionState.Connected | ConnectionState.Disconnected));
             Assert.Equal(SessionState.Closed, NetLibSession.DecodeState(ConnectionState.Disconnected));
         }

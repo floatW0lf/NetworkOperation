@@ -67,6 +67,11 @@ namespace NetLibOperation
 
         public static SessionState DecodeState(ConnectionState connectionState)
         {
+            if ((connectionState & ConnectionState.Outgoing) != 0)
+            {
+                return SessionState.Opening;
+            }
+            
             if ((connectionState & ConnectionState.Connected) != 0)
             {
                 return SessionState.Opened;

@@ -101,11 +101,12 @@ namespace NetworkOperation.LiteNet.Client
                 {
                     try
                     {
+                        Manager.NatPunchModule.PollEvents();
                         Manager.PollEvents();
                     }
                     catch (Exception e)
                     {
-                        Logger.LogWarning("Client event loop error",e);
+                        Logger.LogWarning("Client event loop error {E}", e);
                     }
                     
                     await Task.Delay(PollTimeInMs).ConfigureAwait(false);

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetworkOperation.Core;
-using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Core.Models;
 
@@ -25,7 +24,7 @@ namespace NetworkOperation.Client
 
         protected override async Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode)
         {
-            await _session.SendMessageAsync(request.AppendInBegin(TypeMessage.Request), mode);
+            await _session.SendMessageAsync(request.To(), mode);
         }
     }
 }

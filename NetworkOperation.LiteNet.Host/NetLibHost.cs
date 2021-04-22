@@ -89,6 +89,7 @@ namespace NetworkOperation.LiteNet.Host
                     {
                         try
                         {
+                            Manager.NatPunchModule.PollEvents();
                             Manager.PollEvents();
                         }
                         catch (Exception e)

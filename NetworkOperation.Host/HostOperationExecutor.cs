@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetworkOperation.Core;
-using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Core.Models;
 
@@ -31,15 +30,14 @@ namespace NetworkOperation.Host
 
         protected override async Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode)
         {
-            var requestWithMessageType = request.AppendInBegin(TypeMessage.Request);
             if (receivers == null)
             {
-                await _sessions.SendToAllAsync(requestWithMessageType, mode);
+                await _sessions.SendToAllAsync(request.To(), mode);
                 return;
             }
             if (ParallelServerRequestSend)
             {
-                await Task.WhenAll(receivers.Select(s => s.SendMessageAsync(requestWithMessageType, mode)));
+                await Task.WhenAll(receivers.Select(s => s.SendMessageAsync(request.To(), mode)));
             }
             else
             {
@@ -48,14 +46,14 @@ namespace NetworkOperation.Host
                     // ReSharper disable once ForCanBeConvertedToForeach
                     for (int i = 0; i < list.Count; i++)
                     {
-                        await list[i].SendMessageAsync(requestWithMessageType, mode);
+                        await list[i].SendMessageAsync(request.To(), mode);
                     }
                     return;
                 }
 
                 foreach (var receiver in receivers)
                 {
-                    await receiver.SendMessageAsync(requestWithMessageType, mode);
+                    await receiver.SendMessageAsync(request.To(), mode);
                 }
                 
             }

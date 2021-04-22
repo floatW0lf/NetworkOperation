@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
 using NetworkOperation.Core;
+using NetworkOperation.Core.Dispatching;
 
 namespace Serializer.MessagePack
 {
@@ -14,10 +17,14 @@ namespace Serializer.MessagePack
         private static MessagePackSerializerOptions _options;
         static MsgSerializer()
         {
-            
             _options = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(new IMessagePackFormatter[]{new StatusCodeFormatter()},new IFormatterResolver[]{ContractlessStandardResolver.Instance}));
-            
         }
+
+        public override TypeMessage ReadMessageType(ArraySegment<byte> rawBytes)
+        {
+            return MessagePackSerializer.Deserialize<TypeMessage>(rawBytes.Slice(1, 1), _options);
+        }
+
         public override T Deserialize<T>(ArraySegment<byte> rawBytes, Session context)
         {
             return MessagePackSerializer.Deserialize<T>(rawBytes,_options);

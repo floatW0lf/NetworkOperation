@@ -42,6 +42,15 @@ namespace NetworkOperation.Core
         {
             return new ArraySegment<T>(array);
         }
+        public static ArraySegment<T> Slice<T>(in this ArraySegment<T> segment, int index, int count)
+        {
+            if ((uint)index > (uint)segment.Count || (uint)count > (uint)(segment.Count - index))
+            {
+                throw new ArgumentException();
+            }
+            return new ArraySegment<T>(segment.Array!, segment.Offset + index, count);
+        }
+        
         
         /// <summary>
         /// Method for help compiler resolve TResult

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
+using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Core.Models;
 
@@ -102,8 +103,8 @@ namespace NetworkOperation.Core
                     : _serializer.Serialize(operation, context),
                 Id = MessageIdGenerator.Generate()
             };
-            
             MessagePlaceHolder?.Fill(ref op, operation);
+            op.Type = TypeMessage.Request;
             
             Logger.LogDebug("Operation serialized {operation}", operation);
             
@@ -156,7 +157,10 @@ namespace NetworkOperation.Core
             Logger.LogDebug("Receive response {response}", message);
             if (message.Status == BuiltInOperationState.InternalError)
             {
-                Logger.LogError("Server error: " + (message.OperationData != null ? _serializer.Deserialize<string>(message.OperationData.To(), null) : "empty message because on server off debug mode "));
+                var errorMessage = (message.OperationData != null
+                    ? _serializer.Deserialize<string>(message.OperationData.To(), null)
+                    : "empty message because on server off debug mode");
+                Logger.LogError("Server error: {Msg}", errorMessage);
                 return new OperationResult<TResult>(default, message.Status);
             }
 
@@ -175,7 +179,8 @@ namespace NetworkOperation.Core
                     {
                         Id = MessageIdGenerator.Generate(),
                         OperationCode = request.OperationCode, 
-                        Status = BuiltInOperationState.Cancel
+                        Status = BuiltInOperationState.Cancel,
+                        Type = TypeMessage.Request
                     }, null), MinRequiredDeliveryMode.ReliableWithOrdered);
             }
         }

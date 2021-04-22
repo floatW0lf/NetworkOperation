@@ -119,7 +119,7 @@ namespace NetOperationTest
         {
             var opt = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(new [] {new StatusCodeFormatter()}, new []{StandardResolver.Instance}));
             var subOp = MessagePackSerializer.Serialize(op,opt);
-            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp },opt).AppendInBegin(type).Array;
+            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp, Type = type},opt);
         }
     }
 }

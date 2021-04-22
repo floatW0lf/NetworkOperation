@@ -1,3 +1,5 @@
+using NetworkOperation.Core.Dispatching;
+
 namespace NetworkOperation.Core.Messages
 {
     public interface IStatus
@@ -7,6 +9,7 @@ namespace NetworkOperation.Core.Messages
 
     public interface IOperationMessage : IStatus
     {
+        TypeMessage Type { get; set; }
         int Id { get; set; }
         uint OperationCode { get; set; }
         byte[] OperationData { get; set; }

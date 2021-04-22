@@ -57,7 +57,7 @@ namespace NetLibOperation
         {
             if (payload.Array != null)
             {
-                _peer.Disconnect(NetDataWriter.FromBytes(payload.Array,payload.Offset,payload.Count));
+                _peer.Disconnect(payload.Array,payload.Offset, payload.Count);
                 return;
             }
             _peer.Disconnect();

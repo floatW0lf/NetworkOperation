@@ -54,8 +54,7 @@ namespace NetworkOperation.Core.Dispatching
             while (session.HasAvailableData)
             {
                 var rawMessage = await session.ReceiveMessageAsync();
-                rawMessage = rawMessage.ReadMessageType(out var type);
-                
+                var type = _serializer.ReadMessageType(rawMessage);
                 switch (type)
                 {
                     case TypeMessage.Response:
@@ -78,9 +77,10 @@ namespace NetworkOperation.Core.Dispatching
                     {
                         var response = await GlobalRequestFilter.Handle(context);
                         response.Id = request.Id;
+                        response.Type = TypeMessage.Response;
                         if (response.Status != BuiltInOperationState.Success)
                         {
-                            await session.SendMessageAsync(_serializer.Serialize(response, session).AppendInBegin(TypeMessage.Response), description.ForResponse);
+                            await session.SendMessageAsync(_serializer.Serialize(response, session).To(), description.ForResponse);
                             continue;
                         }
                     }
@@ -107,11 +107,12 @@ namespace NetworkOperation.Core.Dispatching
                         var failOp = new TResponse()
                         {
                             Id = request.Id,
+                            Type = TypeMessage.Response,
                             OperationCode = request.OperationCode,
                             Status = BuiltInOperationState.InternalError,
                             OperationData = DebugMode ? _serializer.Serialize(e.Message,session) : null
                         };
-                        await session.SendMessageAsync(_serializer.Serialize(failOp,session).AppendInBegin(TypeMessage.Response), MinRequiredDeliveryMode.ReliableWithOrdered);
+                        await session.SendMessageAsync(_serializer.Serialize(failOp,session).To(), MinRequiredDeliveryMode.ReliableWithOrdered);
                     }
                 }
                 finally
@@ -163,6 +164,7 @@ namespace NetworkOperation.Core.Dispatching
             var sendOp = new TResponse
             {
                 Id = request.Id,
+                Type = TypeMessage.Response,
                 OperationCode = request.OperationCode,
                 OperationData = rawResponse.Data,
                 Status = rawResponse.Status
@@ -170,7 +172,7 @@ namespace NetworkOperation.Core.Dispatching
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
             var resultRaw = _serializer.Serialize(sendOp,session);
-            await session.SendMessageAsync(resultRaw.AppendInBegin(TypeMessage.Response), mode);
+            await session.SendMessageAsync(resultRaw.To(), mode);
         }
 
         protected abstract Task<DataWithStateCode> ProcessHandler(TRequest header, RequestContext<TRequest> context, CancellationToken token);

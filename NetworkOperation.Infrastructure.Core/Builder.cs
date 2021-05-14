@@ -97,12 +97,6 @@ namespace NetworkOperation.Infrastructure
                     throw new ArgumentOutOfRangeException(nameof(scope), scope, null);
             }
         }
-        public TImplement RegisterStatusCodes(params Type[] codes)
-        {
-            StatusCode.Register(codes);
-            return This;
-        }
-
         private TImplement This => (TImplement) this;
     }
 }

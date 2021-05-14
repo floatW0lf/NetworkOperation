@@ -3,9 +3,18 @@ using NetworkOperation.Core;
 
 namespace IntegrationTests.Contract
 {
+    public enum MultiplyStatus
+    {
+        OverFlow,
+        Error
+    }
+    public enum MultiplyStatusExt
+    {
+        BigResult
+    }
     [DataContract]
     [Operation(4, Handle = Side.All)]
-    public class Multiply : IOperation<float>
+    public class Multiply : IOperationWithStatus<float,MultiplyStatus,MultiplyStatusExt>
     {
         [DataMember(Order = 0)]
         public float A;

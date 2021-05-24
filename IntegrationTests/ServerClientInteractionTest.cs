@@ -67,7 +67,10 @@ namespace IntegrationTests
         public async Task multiply_handler()
         {
             await StartServerAndClient();
-            var operationResult = await _client.Executor.Execute<Multiply, float>(new Multiply() {A = 100, B = 100});
+            var operationResult = await _client.Executor.Execute(new Multiply() {A = 100, B = 100}, t => t);
+            operationResult.Match(t => t, (state, f) => {}, (status, f) => {}, (ext, f) => {});
+            
+            Assert.True(operationResult.Is(MultiplyStatus.OverFlow, t=> t));
             Assert.Equal(10000,operationResult.Result);
         }
 

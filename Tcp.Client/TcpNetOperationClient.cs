@@ -38,17 +38,11 @@ namespace Tcp.Client
                 
             }, TaskCreationOptions.LongRunning);
         }
-
-        public override async Task ConnectAsync(EndPoint address, CancellationToken cancellationToken = default)
+        public override async Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
         {
-            await Client.ConnectAsync(address);
+            await Client.ConnectAsync(remote);
             OpenSession(Client);
             PollEvents();
-        }
-
-        public override Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
         }
 
         public override async Task DisconnectAsync()
@@ -69,11 +63,8 @@ namespace Tcp.Client
 
         public override void Dispose()
         {
-            
         }
-
-
-        public TcpNetOperationClient(IFactory<Socket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, ILoggerFactory logger) : base(sessionFactory, executorFactory, dispatcher, logger)
+        public TcpNetOperationClient(IFactory<Socket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, ILoggerFactory logger, BaseSerializer serializer) : base(sessionFactory, executorFactory, dispatcher, serializer,logger)
         {
             Client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             Client.LingerState.Enabled = false;

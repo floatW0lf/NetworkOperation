@@ -25,12 +25,8 @@ namespace NetworkOperation.LiteNet.Client
         private Task _pollingTask;
         private TaskCompletionSource<byte> _connectSource;
         
-        public Client(IFactory<NetPeer, Session> sessionFactory,
-                      IFactory<Session, IClientOperationExecutor> executorFactory, 
-                      BaseDispatcher<TRequest, TResponse> dispatcher,
-                      ILoggerFactory logger) : base(sessionFactory, executorFactory, dispatcher, logger)
+        public Client(IFactory<NetPeer, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, BaseSerializer serializer, ILoggerFactory loggerFactory) : base(sessionFactory, executorFactory, dispatcher, serializer, loggerFactory)
         {
-           
             Manager = new NetManager(this);
         }
 
@@ -139,13 +135,6 @@ namespace NetworkOperation.LiteNet.Client
         {
             Disposed();
         }
-
-        public override async Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default)
-        {
-            var rawPayload = ConnectionPayload.Resolve();
-            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(rawPayload.Array, rawPayload.Offset, rawPayload.Count));
-        }
-
         private async Task InternalConnect(EndPoint remote, CancellationToken cancellationToken, NetDataWriter writer)
         {
             try
@@ -176,8 +165,8 @@ namespace NetworkOperation.LiteNet.Client
 
         public override async Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
         {
-            var raw = ConnectionPayload.Resolve(payload);
-            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(raw.Array,raw.Offset,raw.Count));
+            var bytes = Serializer.Serialize(payload, null);
+            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(bytes,0,bytes.Length));
         }
 
         public override async Task DisconnectAsync()
@@ -191,5 +180,6 @@ namespace NetworkOperation.LiteNet.Client
             Logger.LogWarning("Client already disconnect");
             
         }
+
     }
 }

@@ -18,8 +18,9 @@ namespace NetworkOperation.Client
 
         public ILogger Logger { get; }
         
-        protected AbstractClient(IFactory<TConnection,Session> sessionFactory, IFactory<Session,IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher, ILoggerFactory loggerFactory)
+        protected AbstractClient(IFactory<TConnection,Session> sessionFactory, IFactory<Session,IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest,TResponse> dispatcher, BaseSerializer serializer,ILoggerFactory loggerFactory)
         {
+            Serializer = serializer;
             _sessionFactory = sessionFactory;
             _executorFactory = executorFactory;
             _dispatcher = dispatcher;
@@ -32,8 +33,8 @@ namespace NetworkOperation.Client
         private IFactory<Session,IClientOperationExecutor> _executorFactory;
         private readonly BaseDispatcher<TRequest,TResponse> _dispatcher;
         private IClientOperationExecutor _executor;
-        
-        public IPayloadResolver ConnectionPayload { get; set; } = new NullPayloadResolver();
+        protected BaseSerializer Serializer { get; }
+
         public ClientState Current
         {
             get
@@ -58,9 +59,6 @@ namespace NetworkOperation.Client
                 return _executor;
             }
         }
-
-        public abstract Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
-
         public abstract Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default) where T : IConnectPayload;
         
 

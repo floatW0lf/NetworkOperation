@@ -23,6 +23,9 @@ namespace TemplateDispatcher
         
         [Option("side", Required = true, HelpText = "Side: Client or Server")]
         public Side Side { get; set; }
+        
+        [Option("resolver", Required = false, HelpText = "Paths for resolver dependency dll")]
+        public IEnumerable<string> AssemblyResolverPaths { get; set; }
     }
     
     public static class Generator
@@ -36,8 +39,20 @@ namespace TemplateDispatcher
             });
         }
 
-        private static void Generate(Options arg)   
+        private static void Generate(Options arg)
         {
+            if (arg.AssemblyResolverPaths != null)
+            {
+                AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
+                {
+                    var assemblyPath = arg.AssemblyResolverPaths
+                        .Select(path => !Path.IsPathRooted(path) ? Path.Combine(Directory.GetCurrentDirectory(), path) : path)
+                        .Select(p => Path.Combine(p, assemblyName.Name + ".dll"))
+                        .FirstOrDefault(File.Exists);
+
+                    return string.IsNullOrEmpty(assemblyPath) ? null : context.LoadFromAssemblyPath(assemblyPath);
+                };
+            }
             var model = OperationRuntimeModel.CreateFromAttribute(arg.AssemblyPaths.Select(Assembly.LoadFile));
            
             Console.WriteLine($"Found operations:");
@@ -65,11 +80,7 @@ namespace TemplateDispatcher
             AssemblyLoadContext.Default.Resolving += (loadContext, assemblyName) =>
             {
                 var dllPath = Path.Combine(Directory.GetCurrentDirectory(), assemblyName.Name + ".dll");
-                if (File.Exists(dllPath))
-                {
-                    return loadContext.LoadFromAssemblyPath(dllPath);
-                }
-                return null;
+                return File.Exists(dllPath) ? loadContext.LoadFromAssemblyPath(dllPath) : null;
             };
     }
 }

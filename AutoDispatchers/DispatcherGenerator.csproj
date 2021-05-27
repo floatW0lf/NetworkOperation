@@ -7,10 +7,11 @@
     <OutputType>Exe</OutputType>
     <StartupObject />
     <RootNamespace>TemplateDispatcher</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>nodc</ToolCommandName>    
     <LangVersion>7.3</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <IsPackable>false</IsPackable>
-    <PackageVersion>0.1.0</PackageVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>    
+    <PackageVersion>0.0.0</PackageVersion>
     <Authors>floatW0lf</Authors>
   </PropertyGroup>
 
@@ -22,11 +23,7 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ScriptyDispatcher.csx">
-      <Generator>ScriptyGenerator</Generator>
-      <LastGenOutput>ScriptyDispatcher.log</LastGenOutput>
-    </None>
+  <ItemGroup>    
     <None Update="PreGeneratedDispatcherTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>PreGeneratedDispatcherTemplate.cs</LastGenOutput>

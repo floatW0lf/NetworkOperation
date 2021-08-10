@@ -31,7 +31,7 @@ namespace NetworkOperation.LiteNet.Client
         }
 
         public NetManager Manager { get; private set; }
-
+        public TimeSpan ConnectTimeOut { get; set; } = TimeSpan.FromSeconds(5);
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -74,6 +74,7 @@ namespace NetworkOperation.LiteNet.Client
 
         void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
         {
+            GlobalCancel();
             DoErrorSession(endPoint,socketError);
         }
 
@@ -142,16 +143,15 @@ namespace NetworkOperation.LiteNet.Client
                 if (Session == null || Session.State == SessionState.Closed)
                 {
                     _globalCancellationTokenSource = _globalCancellationTokenSource ?? new CancellationTokenSource();
-                    
                     InitEventLoop();
-                    using (var compound = CancellationTokenSource.CreateLinkedTokenSource(_globalCancellationTokenSource.Token, cancellationToken))
-                    {
-                        _connectSource = new TaskCompletionSource<byte>();
-                        compound.Token.Register(() => _connectSource.SetCanceled());
-                        Manager.Connect((IPEndPoint) remote, writer);
-                        await _connectSource.Task;
-                        return;
-                    }
+
+                    using var timeOutSource = new CancellationTokenSource(ConnectTimeOut);
+                    using var compound = CancellationTokenSource.CreateLinkedTokenSource(_globalCancellationTokenSource.Token, cancellationToken, timeOutSource.Token);
+                    _connectSource = new TaskCompletionSource<byte>();
+                    compound.Token.Register(() => _connectSource.SetCanceled());
+                    Manager.Connect((IPEndPoint) remote, writer);
+                    await _connectSource.Task;
+                    return;
                 }
             }
             catch (OperationCanceledException)

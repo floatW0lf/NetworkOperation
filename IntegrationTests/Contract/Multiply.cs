@@ -3,12 +3,12 @@ using NetworkOperation.Core;
 
 namespace IntegrationTests.Contract
 {
-    public enum MultiplyStatus
+    public enum MultiplyStatus : ushort
     {
         OverFlow,
         Error
     }
-    public enum MultiplyStatusExt
+    public enum MultiplyStatusExt : ushort
     {
         BigResult
     }

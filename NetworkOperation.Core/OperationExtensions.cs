@@ -22,6 +22,12 @@ namespace NetworkOperation.Core
                 t.IsGenericType && t.GetGenericTypeDefinition() == definition);
             return opInterfaceInfo.GetGenericArguments();
         }
+        public static Type[] GetGenericArgsFromInterfaceSafe(this Type type, Type definition)
+        {
+            var opInterfaceInfo = type.GetInterfaces().FirstOrDefault(t =>
+                t.IsGenericType && t.GetGenericTypeDefinition() == definition);
+            return opInterfaceInfo?.GetGenericArguments() ?? Array.Empty<Type>();
+        }
 
         public static OperationResult<TResult> Return<TOperation, TResult, TRequest>(this IHandler<TOperation, TResult, TRequest> handler, TResult value) where TOperation : IOperation<TResult> where TRequest : IOperationMessage
         {

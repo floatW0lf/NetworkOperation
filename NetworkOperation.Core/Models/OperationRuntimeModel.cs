@@ -82,6 +82,7 @@ namespace NetworkOperation.Core.Models
 
         private OperationRuntimeModel(OperationDescription[] descriptions, bool skipCheck)
         {
+            ValidateStatusTypes(descriptions);
             _descriptions = descriptions;
             _typeToDescriptions = descriptions.Where(d => d != null).ToDictionary(d => d.OperationType);
         }
@@ -98,10 +99,30 @@ namespace NetworkOperation.Core.Models
             }
         }
 
+        private void ValidateStatusTypes(OperationDescription[] descriptions)
+        {
+            var errors = descriptions.Where(d => d != null).SelectMany(d =>
+                    {
+                        return d.OperationType
+                            .GetGenericArgsFromInterfaceSafe(typeof(IOperationWithStatus<,>))
+                            .Concat(d.OperationType.GetGenericArgsFromInterfaceSafe(typeof(IOperationWithStatus<,,>)));
+                    },
+                    (description, type) => (description, type))
+                .Where(tuple => tuple.type.IsEnum && tuple.type.GetEnumUnderlyingType() != typeof(ushort))
+                .GroupBy(t => t.description.OperationType, tuple => tuple.type)
+                .Select(t => $"In operation {t.Key} status {string.Join(", ", t)} must be ushort.");
+
+            if (errors.Any())
+            {
+                throw new ArgumentException($"Status enum wrong type : {string.Join(Environment.NewLine, errors)}");
+            }
+        }
+
         public OperationRuntimeModel(OperationDescription[] descriptions)
         {
             ValidateOperations(descriptions);
             ThrowIfFindDuplicates(descriptions);
+            ValidateStatusTypes(descriptions);
             _typeToDescriptions = descriptions.Where(d => d != null).ToDictionary(d => d.OperationType);
             _descriptions = descriptions;
         }

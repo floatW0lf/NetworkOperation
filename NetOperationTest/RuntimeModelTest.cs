@@ -5,8 +5,10 @@ using Xunit;
 
 namespace NetOperationTest
 {
+    public enum SomeCode : ushort { }
+    
     [Operation(0)]
-    public class Op : IOperation<float> { }
+    public class Op : IOperationWithStatus<float,SomeCode> { }
     [Operation(2)]
     public class Op2 : IOperation<float> { }
 
@@ -18,6 +20,11 @@ namespace NetOperationTest
     
     [Operation(2)]
     public class Op6 : IOperation<float>{}
+    
+    [Operation(0)]
+    public class Op7 : IOperationWithStatus<float,WrongStatus> { }
+
+    public enum WrongStatus { A,C }
     public class RuntimeModelTest
     {
         [Fact]
@@ -37,6 +44,12 @@ namespace NetOperationTest
         public void DuplicateTest()
         {
             Assert.Throws<ArgumentException>(() => { OperationRuntimeModel.CreateFromAttribute(new[] {typeof(Op), typeof(Op2), typeof(Op4),typeof(Op5),typeof(Op6)});});
+        }
+
+        [Fact]
+        public void WrondEnumStatusType()
+        {
+            Assert.Throws<ArgumentException>(() => { OperationRuntimeModel.CreateFromAttribute(new[] {typeof(Op7)});});
         }
     }
 }

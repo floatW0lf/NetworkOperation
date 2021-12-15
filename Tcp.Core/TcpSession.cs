@@ -34,7 +34,8 @@ namespace Tcp.Core
 
         protected override void SendClose(ArraySegment<byte> payload)
         {
-            
+            _client.Send(payload, SocketFlags.None);
+            _client.Disconnect(false);
         }
 
         public override SessionState State =>  _client.IsConnected() ? SessionState.Opened : SessionState.Closed;

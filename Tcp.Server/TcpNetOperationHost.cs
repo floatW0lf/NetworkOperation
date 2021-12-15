@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,11 +10,13 @@ using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
 using NetworkOperation.Host;
+using Tcp.Core;
 
 namespace Tcp.Server
 {
     public class TcpNetOperationHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse, Socket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
+        public int ListenPort { get; set; }
         public Socket Listener { get; private set; }
 
         private Task pollTask;
@@ -31,7 +34,10 @@ namespace Tcp.Server
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
-                    var newSocket = await Listener.AcceptAsync();
+                    var newConnection = await Listener.AcceptAsync();
+                    ArraySegment<byte> buffer = ArrayPool<byte>.Shared.Rent(2000);
+                    var count = await newConnection.ReceiveAsync(buffer, SocketFlags.None);
+                    BeforeSessionOpen(new TcpSessionRequest(newConnection, buffer.Slice(0, count)));
                     
                     await Task.Delay(PollTimeInMs);
                 }
@@ -73,12 +79,6 @@ namespace Tcp.Server
                 }
             }
         }
-
-        private void Shutdown()
-        {
-            ShutdownAsync().RunSynchronously();
-        }
-
         private async Task ShutdownAsync()
         {
             CloseAllSession();
@@ -89,14 +89,15 @@ namespace Tcp.Server
             Listener = null;
         }
 
-        public override async Task StartAsync(CancellationToken cancellationToken)
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            Start(ListenPort);
+            return Task.CompletedTask;
         }
 
-        public override async Task StopAsync(CancellationToken cancellationToken)
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return ShutdownAsync();
         }
 
         public TcpNetOperationHost(IFactory<Socket, MutableSessionCollection> sessionsFactory, IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(sessionsFactory, executorFactory, dispatcher, handler, loggerFactory)

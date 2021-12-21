@@ -14,7 +14,7 @@ namespace NetLibOperation
     internal class NetLibSession : Session
     {
         private readonly NetPeer _peer;
-        private readonly ConcurrentQueue<ArraySegment<byte>> _queue = new ConcurrentQueue<ArraySegment<byte>>();
+        private readonly ConcurrentQueue<ReadOnlyMemory<byte>> _queue = new ConcurrentQueue<ReadOnlyMemory<byte>>();
         public NetLibSession(NetPeer peer, IEnumerable<SessionProperty> properties) : base(properties)
         {
             _peer = peer;
@@ -28,16 +28,16 @@ namespace NetLibOperation
 
         protected override bool HasAvailableData => !_queue.IsEmpty;
         
-        protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
+        protected override Task SendMessageAsync(ReadOnlyMemory<byte>  data, DeliveryMode mode)
         {
             var delivery = mode.Convert();
-            if ((mode & DeliveryMode.Reliable) != DeliveryMode.Reliable && data.Count > _peer.GetMaxSinglePacketSize(delivery))
-            {
-                _peer.Send(data.Array, data.Offset, data.Count, DeliveryMethod.ReliableOrdered);
+            if ((mode & DeliveryMode.Reliable) != DeliveryMode.Reliable && data.Length > _peer.GetMaxSinglePacketSize(delivery))
+            {                
+                _peer.Send(data.ToArray(), DeliveryMethod.ReliableOrdered);
             }
             else
             {
-                _peer.Send(data.Array, data.Offset, data.Count, delivery);
+                _peer.Send(data.ToArray(), delivery);
             }
             
             return Task.CompletedTask;
@@ -48,16 +48,16 @@ namespace NetLibOperation
             _queue.Enqueue(data);
         }
 
-        protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
+        protected override Task<ReadOnlyMemory<byte>> ReceiveMessageAsync()
         {
             _queue.TryDequeue(out var data);
             return Task.FromResult(data);
         }
-        protected override void SendClose(ArraySegment<byte> payload)
+        protected override void SendClose(Span<byte> payload)
         {
-            if (payload.Array != null)
+            if (!payload.IsEmpty)
             {
-                _peer.Disconnect(payload.Array,payload.Offset, payload.Count);
+                _peer.Disconnect(payload.ToArray());
                 return;
             }
             _peer.Disconnect();
@@ -67,7 +67,7 @@ namespace NetLibOperation
 
         public static SessionState DecodeState(ConnectionState connectionState)
         {
-            if ((connectionState & ConnectionState.Incoming) != 0)
+            if ((connectionState & ConnectionState.Outgoing) != 0)
             {
                 return SessionState.Opening;
             }

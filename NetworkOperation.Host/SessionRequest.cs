@@ -12,7 +12,7 @@ namespace NetworkOperation.Host
             _sessionCollection = value;
         }
 
-        public abstract ArraySegment<byte> RequestPayload { get; }
+        public abstract ReadOnlyMemory<byte> RequestPayload { get; }
 
         public Session Accept(IEnumerable<SessionProperty> properties)
         {
@@ -22,7 +22,7 @@ namespace NetworkOperation.Host
         }
 
         protected abstract Session Accepted(IEnumerable<SessionProperty> properties);
-        public abstract void Reject(ArraySegment<byte> payload = default);
+        public abstract void Reject(ReadOnlyMemory<byte>  payload = default);
 
         public SessionCollection Sessions => _sessionCollection;
 

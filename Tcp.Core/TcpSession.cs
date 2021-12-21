@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
@@ -10,12 +11,15 @@ namespace Tcp.Core
 {
     public class TcpSession : Session
     {
-        private ArraySegment<byte> _segmentedBuffer = new ArraySegment<byte>(new byte[4092]);
+        private readonly byte[] _buffer = new byte[4092];
+        private Memory<byte> _bufferControl;
+        
         private readonly Socket _client;
         int _readBytes;
 
         public TcpSession(Socket client, IEnumerable<SessionProperty> properties) : base(properties)
         {
+            _bufferControl = new Memory<byte>(_buffer);
             _client = client;
         }
 
@@ -32,7 +36,7 @@ namespace Tcp.Core
             if (_client.Connected) _client.Close();
         }
 
-        protected override void SendClose(ArraySegment<byte> payload)
+        protected override void SendClose(Span<byte> payload)
         {
             
         }
@@ -41,31 +45,25 @@ namespace Tcp.Core
 
         protected override bool HasAvailableData => _client.Connected && (_client.Available > 0 || _readBytes > 0);
 
-        protected override async Task<ArraySegment<byte>> ReceiveMessageAsync()
+        protected override async Task<ReadOnlyMemory<byte>> ReceiveMessageAsync()
         {
             if (_readBytes == 0)
             {
-                _segmentedBuffer = _segmentedBuffer.Reset();
-                _readBytes = await _client.ReceiveAsync(_segmentedBuffer, SocketFlags.None);
+                _bufferControl = _buffer;
             }
-            
-            var count = BitConverter.ToInt32(_segmentedBuffer.Array, _segmentedBuffer.Offset);
-            _segmentedBuffer = _segmentedBuffer.NewSegment(_segmentedBuffer.Offset + sizeof(int), count);
 
-            var frame = _segmentedBuffer;
+            var count = MemoryMarshal.Read<int>(_bufferControl.Span);
+            _bufferControl = _bufferControl.Slice(sizeof(int), count);
+            var frame = _bufferControl;
 
-            var newOffset = _segmentedBuffer.Offset + count;
-            _segmentedBuffer = _segmentedBuffer.NewSegment(newOffset, _readBytes - newOffset);
-
-            if (_segmentedBuffer.Count == 0) _readBytes = 0;
+            if (_bufferControl.IsEmpty) _readBytes = 0;
             return frame;
 
         }
 
-        protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
+        protected override async Task SendMessageAsync(ReadOnlyMemory<byte> data, DeliveryMode m)
         {
-            var prefix = BitConverter.GetBytes(data.Count);
-            await _client.SendAsync(new[] {prefix.To(), data}, SocketFlags.None);
+            var prefix = BitConverter.GetBytes(data.Length);
         }
     }
 }

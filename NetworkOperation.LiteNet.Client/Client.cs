@@ -166,7 +166,7 @@ namespace NetworkOperation.LiteNet.Client
         public override async Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default)
         {
             var bytes = Serializer.Serialize(payload, null);
-            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(bytes,0,bytes.Length));
+            await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(bytes.ToArray(),0,bytes.Length));
         }
 
         public override async Task DisconnectAsync()

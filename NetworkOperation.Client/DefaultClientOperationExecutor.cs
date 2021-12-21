@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,9 +23,9 @@ namespace NetworkOperation.Client
             _session = session;
         }
 
-        protected override async Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode)
+        protected override async Task SendRequest(IEnumerable<Session> receivers, ReadOnlyMemory<byte>  request, DeliveryMode mode)
         {
-            await _session.SendMessageAsync(request.To(), mode);
+            await _session.SendMessageAsync(request, mode);
         }
     }
 }

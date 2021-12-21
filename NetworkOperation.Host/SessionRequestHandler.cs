@@ -18,7 +18,7 @@ namespace NetworkOperation.Host
 
         protected void RejectWithPayload<T>(SessionRequest request,T payload) where T : IDisconnectPayload
         {
-            request.Reject(_serializer.Serialize(payload, null).To());
+            request.Reject(_serializer.Serialize(payload, null));
         }
         
         public abstract void Handle(SessionRequest request);

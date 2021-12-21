@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,16 +29,16 @@ namespace NetworkOperation.Host
             _sessions = sessions;
         }
 
-        protected override async Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode)
+        protected override async Task SendRequest(IEnumerable<Session> receivers, ReadOnlyMemory<byte>  request, DeliveryMode mode)
         {
             if (receivers == null)
             {
-                await _sessions.SendToAllAsync(request.To(), mode);
+                await _sessions.SendToAllAsync(request, mode);
                 return;
             }
             if (ParallelServerRequestSend)
             {
-                await Task.WhenAll(receivers.Select(s => s.SendMessageAsync(request.To(), mode)));
+                await Task.WhenAll(receivers.Select(s => s.SendMessageAsync(request, mode)));
             }
             else
             {
@@ -46,14 +47,14 @@ namespace NetworkOperation.Host
                     // ReSharper disable once ForCanBeConvertedToForeach
                     for (int i = 0; i < list.Count; i++)
                     {
-                        await list[i].SendMessageAsync(request.To(), mode);
+                        await list[i].SendMessageAsync(request, mode);
                     }
                     return;
                 }
 
                 foreach (var receiver in receivers)
                 {
-                    await receiver.SendMessageAsync(request.To(), mode);
+                    await receiver.SendMessageAsync(request, mode);
                 }
                 
             }

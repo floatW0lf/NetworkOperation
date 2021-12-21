@@ -17,7 +17,7 @@ namespace IntegrationTests
 
         protected override void OnHandle(SessionRequest request)
         {
-            if (request.RequestPayload.Count > 1)
+            if (request.RequestPayload.Length > 1)
             {
                 var payload = ReadPayload<ExampleConnectPayload>(request);
                 if (payload.Authorize == Auth && payload.Version == version)

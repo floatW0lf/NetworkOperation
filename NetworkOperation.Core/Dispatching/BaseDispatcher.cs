@@ -10,10 +10,10 @@ namespace NetworkOperation.Core.Dispatching
 {
     public struct DataWithStateCode
     {
-        public readonly byte[] Data;
+        public readonly ReadOnlyMemory<byte> Data;
         public readonly StatusCode Status;
 
-        public DataWithStateCode(byte[] data, StatusCode status)
+        public DataWithStateCode(ReadOnlyMemory<byte> data, StatusCode status)
         {
             Data = data;
             Status = status;
@@ -80,7 +80,7 @@ namespace NetworkOperation.Core.Dispatching
                         response.Type = TypeMessage.Response;
                         if (response.Status != BuiltInOperationState.Success)
                         {
-                            await session.SendMessageAsync(_serializer.Serialize(response, session).To(), description.ForResponse);
+                            await session.SendMessageAsync(_serializer.Serialize(response, session), description.ForResponse);
                             continue;
                         }
                     }
@@ -110,9 +110,9 @@ namespace NetworkOperation.Core.Dispatching
                             Type = TypeMessage.Response,
                             OperationCode = request.OperationCode,
                             Status = BuiltInOperationState.InternalError,
-                            OperationData = DebugMode ? _serializer.Serialize(e.Message,session) : null
+                            OperationData = DebugMode ? _serializer.Serialize(e.Message,session) : default
                         };
-                        await session.SendMessageAsync(_serializer.Serialize(failOp,session).To(), MinRequiredDeliveryMode.ReliableWithOrdered);
+                        await session.SendMessageAsync(_serializer.Serialize(failOp,session), MinRequiredDeliveryMode.ReliableWithOrdered);
                     }
                 }
                 finally
@@ -172,14 +172,14 @@ namespace NetworkOperation.Core.Dispatching
             ResponsePlaceHolder?.Fill(ref sendOp, request);
             
             var resultRaw = _serializer.Serialize(sendOp,session);
-            await session.SendMessageAsync(resultRaw.To(), mode);
+            await session.SendMessageAsync(resultRaw, mode);
         }
 
         protected abstract Task<DataWithStateCode> ProcessHandler(TRequest header, RequestContext<TRequest> context, CancellationToken token);
 
         protected async Task<DataWithStateCode> GenericHandle<T, TResult>(TRequest header, RequestContext<TRequest> context, CancellationToken token) where T : IOperation<TResult>
         {
-            var segArray = header.OperationData.To();
+            var segArray = header.OperationData;
             var arg = context.OperationDescription.UseAsyncSerialize
                 ? await _serializer.DeserializeAsync<T>(segArray,context.Session)
                 : _serializer.Deserialize<T>(segArray,context.Session);

@@ -19,9 +19,9 @@ namespace NetworkOperation.LiteNet.Host
 
         public override NetworkStatistics Statistics { get; }
 
-        protected override Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode)
+        protected override Task SendToAllAsync(ReadOnlyMemory<byte> data, DeliveryMode mode)
         {
-            _manager.SendToAll(data.Array,data.Offset,data.Count,mode.Convert());
+            _manager.SendToAll(data.ToArray(),mode.Convert());
             return Task.CompletedTask;
         }
         

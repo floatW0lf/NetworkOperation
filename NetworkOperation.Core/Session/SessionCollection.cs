@@ -15,7 +15,7 @@ namespace NetworkOperation.Core
     {
         public abstract NetworkStatistics Statistics { get; }
         public abstract Session GetSession(long id);
-        protected internal abstract Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode);
+        protected internal abstract Task SendToAllAsync(ReadOnlyMemory<byte>  data, DeliveryMode mode);
         
         protected void RaiseClosed(Session session)
         {
@@ -53,7 +53,7 @@ namespace NetworkOperation.Core
             return session;
         }
 
-        protected internal override async Task SendToAllAsync(ArraySegment<byte> data, DeliveryMode mode)
+        protected internal override async Task SendToAllAsync(ReadOnlyMemory<byte>  data, DeliveryMode mode)
         {
             foreach (var session in _idToSessions)
             {

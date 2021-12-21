@@ -16,21 +16,21 @@ namespace NetworkOperation.LiteNet.Host
             _connectionRequest = connectionRequest;
         }
         
-        public override ArraySegment<byte> RequestPayload => new ArraySegment<byte>(_connectionRequest.Data.RawData,_connectionRequest.Data.UserDataOffset,_connectionRequest.Data.UserDataSize);
+        public override ReadOnlyMemory<byte> RequestPayload => new ArraySegment<byte>(_connectionRequest.Data.RawData,_connectionRequest.Data.UserDataOffset,_connectionRequest.Data.UserDataSize);
         
         protected override Session Accepted(IEnumerable<SessionProperty> properties)
         {
             return new NetLibSession(_connectionRequest.Accept(), properties);
         }
 
-        public override void Reject(ArraySegment<byte> payload = default)
+        public override void Reject(ReadOnlyMemory<byte> payload = default)
         {
-            if (payload.Array == null)
+            if (payload.IsEmpty)
             {
                 _connectionRequest.Reject();
                 return;
             }
-            _connectionRequest.Reject(payload.Array,payload.Offset,payload.Count);
+            _connectionRequest.Reject(payload.ToArray());
         }
     }
 }

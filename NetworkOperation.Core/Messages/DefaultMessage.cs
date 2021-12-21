@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using NetworkOperation.Core.Dispatching;
 
 namespace NetworkOperation.Core.Messages
@@ -13,7 +14,7 @@ namespace NetworkOperation.Core.Messages
         [DataMember(Order = 2)]
         public uint OperationCode { get; set; }
         [DataMember(Order = 3)]
-        public byte[] OperationData { get; set; }
+        public ReadOnlyMemory<byte> OperationData { get; set; }
         [DataMember(Order = 4)]
         public StatusCode Status { get; set; }
         

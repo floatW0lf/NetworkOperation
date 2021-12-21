@@ -110,7 +110,7 @@ namespace NetOperationTest
             });
 
             await generatedDispatcher.DispatchAsync(mockSession.Object);            
-            mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(),DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Once);
+            mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ReadOnlyMemory<byte>>(),DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Once);
             handlerA.Verify(handler => handler.Handle(opA,It.IsAny<RequestContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
             handlerB.Verify(h => h.Handle(It.IsAny<B>(), It.IsAny<RequestContext<DefaultMessage>>(),It.IsAny<CancellationToken>()), Times.Never);
         }

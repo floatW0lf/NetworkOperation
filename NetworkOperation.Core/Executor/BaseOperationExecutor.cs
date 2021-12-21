@@ -157,15 +157,15 @@ namespace NetworkOperation.Core
             Logger.LogDebug("Receive response {response}", message);
             if (message.Status == BuiltInOperationState.InternalError)
             {
-                var errorMessage = (message.OperationData != null
-                    ? _serializer.Deserialize<string>(message.OperationData.To(), null)
+                var errorMessage = (!message.OperationData.IsEmpty
+                    ? _serializer.Deserialize<string>(message.OperationData, default)
                     : "empty message because on server off debug mode");
                 Logger.LogError("Server error: {Msg}", errorMessage);
                 return new OperationResult<TResult>(default, message.Status);
             }
 
             if (typeof(TResult) == typeof(Empty)) return new OperationResult<TResult>(default, message.Status);
-            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData.To(), contextSession), message.Status);
+            return new OperationResult<TResult>(_serializer.Deserialize<TResult>(message.OperationData, contextSession), message.Status);
         }
 
         private async Task SendCancel(IEnumerable<Session> receivers, TRequest request)
@@ -185,7 +185,7 @@ namespace NetworkOperation.Core
             }
         }
 
-        protected abstract Task SendRequest(IEnumerable<Session> receivers, byte[] request, DeliveryMode mode);
+        protected abstract Task SendRequest(IEnumerable<Session> receivers, ReadOnlyMemory<byte> request, DeliveryMode mode);
 
         private class State
         {

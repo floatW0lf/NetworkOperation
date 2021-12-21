@@ -113,16 +113,16 @@ namespace NetworkOperation.Client
             public override long Id { get; }
             public override NetworkStatistics Statistics { get; }
             protected override void OnClosedSession(){}
-            protected override void SendClose(ArraySegment<byte> payload){}
+            protected override void SendClose(Span<byte>  payload){}
             public override SessionState State { get; } = SessionState.Closed;
             protected internal override bool HasAvailableData { get; }
 
-            protected internal override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
+            protected internal override Task SendMessageAsync(ReadOnlyMemory<byte>  data, DeliveryMode m)
             {
                 throw new InvalidOperationException();
             }
 
-            protected internal override Task<ArraySegment<byte>> ReceiveMessageAsync()
+            protected internal override Task<ReadOnlyMemory<byte> > ReceiveMessageAsync()
             {
                 throw new InvalidOperationException();
             }

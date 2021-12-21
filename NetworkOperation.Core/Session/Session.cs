@@ -37,7 +37,7 @@ namespace NetworkOperation.Core
         public abstract long Id { get; }
         public abstract NetworkStatistics Statistics { get; }
         
-        public void Close(ArraySegment<byte> payload = default)
+        public void Close(Span<byte> payload = default)
         {
             if (State != SessionState.Opened) return;
             SendClose(payload);
@@ -53,14 +53,14 @@ namespace NetworkOperation.Core
         }
 
         protected virtual void OnClosedSession(){}
-        protected abstract void SendClose(ArraySegment<byte> payload);
+        protected abstract void SendClose(Span<byte> payload);
 
         public abstract SessionState State { get; }
 
         protected internal abstract bool HasAvailableData { get; }
 
-        protected internal abstract Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode);
-        protected internal abstract Task<ArraySegment<byte>> ReceiveMessageAsync();
+        protected internal abstract Task SendMessageAsync(ReadOnlyMemory<byte> data, DeliveryMode mode);
+        protected internal abstract Task<ReadOnlyMemory<byte>> ReceiveMessageAsync();
 
     }
 }

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>        
+        <Nullable>enable</Nullable>        
+        <TargetFramework>netstandard2.1</TargetFramework>        
+        <RootNamespace>NetworkOperation.WebSocket.Core</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="System.Net.WebSockets" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
+    </ItemGroup>
+
+</Project>

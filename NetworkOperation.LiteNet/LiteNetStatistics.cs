@@ -13,10 +13,10 @@ namespace NetworkOperation.LiteNet
             _liteStat = liteStat;
         }
 
-        public override ulong ReceivedBytes => _liteStat.BytesReceived;
-        public override ulong SentBytes => _liteStat.BytesSent;
-        public override ulong SentPackets => _liteStat.PacketsSent;
-        public override ulong ReceivedPackets => _liteStat.PacketsReceived;
+        public override ulong ReceivedBytes => (ulong)_liteStat.BytesReceived;
+        public override ulong SentBytes => (ulong)_liteStat.BytesSent;
+        public override ulong SentPackets => (ulong)_liteStat.PacketsSent;
+        public override ulong ReceivedPackets => (ulong)_liteStat.PacketsReceived;
 
         public override string ToString()
         {
@@ -30,9 +30,8 @@ namespace NetworkOperation.LiteNet
             {
                 switch (name)
                 {
-                    case nameof(NetStatistics.PacketLoss): return _liteStat.PacketLoss;
-                    case nameof(NetStatistics.SequencedPacketLoss): return _liteStat.SequencedPacketLoss;
-                    case nameof(NetStatistics.PacketLossPercent): return _liteStat.PacketLossPercent;
+                    case nameof(NetStatistics.PacketLoss): return (ulong)_liteStat.PacketLoss;
+                    case nameof(NetStatistics.PacketLossPercent): return (ulong)_liteStat.PacketLossPercent;
                     default: throw new NotSupportedException(name);
                 }
             }

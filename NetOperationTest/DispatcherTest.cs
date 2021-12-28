@@ -73,14 +73,14 @@ namespace NetOperationTest
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var sessionMock = new Mock<Session>(Array.Empty<SessionProperty>());
             
-            sessionMock.Setup(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(() => RequestData(op));
+            sessionMock.SetupGet(s => s.Bytes).Returns(() => RequestData(op));
             CreateRawMessage(0, op, TypeMessage.Request); 
             await dispatcher.DispatchAsync(sessionMock.Object);
-            sessionMock.Verify(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>()), Times.Once);
+            sessionMock.VerifyGet(s => s.Bytes, Times.Once);
             moqHandler.Verify(handler => handler.Handle(op, It.IsAny<RequestContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        private async IAsyncEnumerator<ArraySegment<byte>> RequestData(A op)
+        private async IAsyncEnumerable<ArraySegment<byte>> RequestData(A op)
         {
             yield return CreateRawMessage(0, op, TypeMessage.Request);
         }
@@ -105,7 +105,7 @@ namespace NetOperationTest
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var mockSession = new Mock<Session>(Array.Empty<SessionProperty>());
             
-            mockSession.Setup(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(() => RequestData(opA));
+            mockSession.Setup(s => s.Bytes).Returns(() => RequestData(opA));
 
             await generatedDispatcher.DispatchAsync(mockSession.Object);            
             mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(),DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Once);

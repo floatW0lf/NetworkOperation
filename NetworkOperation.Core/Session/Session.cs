@@ -9,7 +9,7 @@ using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Core
 {
-    public abstract class Session : IAsyncEnumerable<ArraySegment<byte>>
+    public abstract class Session
     {
         protected Session(IEnumerable<SessionProperty> properties)
         {
@@ -52,12 +52,12 @@ namespace NetworkOperation.Core
             _propertyContainer.Clear();
             OnClosedSession();
         }
+        protected internal abstract IAsyncEnumerable<ArraySegment<byte>> Bytes { get; }
 
         protected virtual void OnClosedSession(){}
         protected abstract void SendClose(ArraySegment<byte> payload);
         public abstract SessionState State { get; }
         protected internal abstract Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode);
-        public abstract IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default);
-
     }
+
 }

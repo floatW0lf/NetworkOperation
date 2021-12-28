@@ -11,7 +11,7 @@ using NetworkOperation.LiteNet;
 
 namespace NetLibOperation
 {
-    internal sealed class NetLibSession : Session
+    internal sealed class NetLibSession : Session, IAsyncEnumerable<ArraySegment<byte>>
     {
         private readonly NetPeer _peer;
         private readonly ConcurrentQueue<ArraySegment<byte>> _queue = new ConcurrentQueue<ArraySegment<byte>>();
@@ -46,13 +46,15 @@ namespace NetLibOperation
             _queue.Enqueue(data);
         }
 
-        public async override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
             while (_queue.TryDequeue(out var data))
             {
                 yield return data;
             }
         }
+
+        protected override IAsyncEnumerable<ArraySegment<byte>> Bytes => this;
 
         protected override void SendClose(ArraySegment<byte> payload)
         {

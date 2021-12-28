@@ -51,7 +51,7 @@ namespace NetworkOperation.Core.Dispatching
 
         public async Task DispatchAsync(Session session)
         {
-            await foreach (var rawMessage in session)
+            await foreach (var rawMessage in session.Bytes)
             {
                 var type = _serializer.ReadMessageType(rawMessage);
                 switch (type)

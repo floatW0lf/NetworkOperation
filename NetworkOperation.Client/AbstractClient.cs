@@ -117,16 +117,15 @@ namespace NetworkOperation.Client
             public override object UntypedConnection { get; }
             public override long Id { get; }
             public override NetworkStatistics Statistics { get; }
+
+            protected internal override IAsyncEnumerable<ArraySegment<byte>> Bytes => throw new InvalidOperationException();
+
             protected override void OnClosedSession(){}
             protected override void SendClose(ArraySegment<byte> payload){}
             public override SessionState State { get; } = SessionState.Closed;
             protected internal override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
             {
                 throw new InvalidOperationException();
-            }
-            public async override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-            {
-                yield break;
             }
         }
     }

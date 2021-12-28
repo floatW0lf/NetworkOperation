@@ -15,8 +15,6 @@ namespace NetOperationTest
             Assert.Equal(DeliveryMethod.Sequenced,abstractMode.Convert());
             abstractMode = DeliveryMode.Reliable | DeliveryMode.Sequenced | DeliveryMode.Ordered;
             Assert.Equal(DeliveryMethod.ReliableOrdered,abstractMode.Convert());
-
-            var uri = new Uri("");
         }
         
     }

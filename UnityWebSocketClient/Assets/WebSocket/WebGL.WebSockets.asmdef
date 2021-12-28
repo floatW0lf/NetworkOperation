@@ -1,0 +1,17 @@
+{
+    "name": "WebGL.WebSockets",
+    "rootNamespace": "WebGL.WebSockets",
+    "references": [],
+    "includePlatforms": [
+        "Editor",
+        "WebGL"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,17 @@
+*.csproj
+*.sln
+*.user
+.vs/
+_ReSharper.Caches/ReSharperPlatformVs1511_953431db.TestGame.00/AspFileDataCache.dat
+_ReSharper.Caches/
+Library/
+Temp/
+*.mdb
+obj/
+.idea/
+bin/
+Assets/SceneDependencyCache/
+Assets/SceneDependencyCache.meta
+Assets/ResourceSnapshots/
+Logs/
+UserSettings/

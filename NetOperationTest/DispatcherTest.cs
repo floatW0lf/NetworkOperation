@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,18 +71,20 @@ namespace NetOperationTest
             });
             var dispatcher = new TestDispatcher(new MsgSerializer(), factory.Object, model, new NullLoggerFactory(),new DescriptionRuntimeModel());
             dispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
-            var hasData = true;
             var sessionMock = new Mock<Session>(Array.Empty<SessionProperty>());
-            sessionMock.SetupGet(s => s.HasAvailableData).Returns(() => hasData);
-            sessionMock.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
-            {
-                hasData = false;
-                return CreateRawMessage(0, op, TypeMessage.Request); 
-            });
+            
+            sessionMock.Setup(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(() => RequestData(op));
+            CreateRawMessage(0, op, TypeMessage.Request); 
             await dispatcher.DispatchAsync(sessionMock.Object);
-            sessionMock.Verify(s => s.ReceiveMessageAsync(), Times.Once);
+            sessionMock.Verify(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>()), Times.Once);
             moqHandler.Verify(handler => handler.Handle(op, It.IsAny<RequestContext<DefaultMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        private async IAsyncEnumerator<ArraySegment<byte>> RequestData(A op)
+        {
+            yield return CreateRawMessage(0, op, TypeMessage.Request);
+        }
+
 
         [Fact]
         public async Task GeneratedDispatchTest()
@@ -101,13 +104,8 @@ namespace NetOperationTest
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var mockSession = new Mock<Session>(Array.Empty<SessionProperty>());
-            var hasData = true;
-            mockSession.SetupGet(s => s.HasAvailableData).Returns(() => hasData);
-            mockSession.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
-            {
-                hasData = false;
-                return CreateRawMessage(0, opA, TypeMessage.Request);
-            });
+            
+            mockSession.Setup(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(() => RequestData(opA));
 
             await generatedDispatcher.DispatchAsync(mockSession.Object);            
             mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(),DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Once);

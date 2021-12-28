@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -62,7 +63,9 @@ namespace NetworkOperation.Client
         public abstract Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
 
         public abstract Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default) where T : IConnectPayload;
-        
+
+        public abstract Task ConnectAsync<T>(Uri connectionUrl, T payload,
+            CancellationToken cancellationToken = default) where T : IConnectPayload;
 
         public abstract Task DisconnectAsync();
         
@@ -117,16 +120,13 @@ namespace NetworkOperation.Client
             protected override void OnClosedSession(){}
             protected override void SendClose(ArraySegment<byte> payload){}
             public override SessionState State { get; } = SessionState.Closed;
-            protected internal override bool HasAvailableData { get; }
-
             protected internal override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode m)
             {
                 throw new InvalidOperationException();
             }
-
-            protected internal override Task<ArraySegment<byte>> ReceiveMessageAsync()
+            public async override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             {
-                throw new InvalidOperationException();
+                yield break;
             }
         }
     }

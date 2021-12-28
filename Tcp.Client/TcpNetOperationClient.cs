@@ -61,6 +61,11 @@ namespace Tcp.Client
             }
         }
 
+        public override Task ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public override async Task DisconnectAsync()
         {
             if (_pollTask == null) return;

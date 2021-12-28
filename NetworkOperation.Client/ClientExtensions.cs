@@ -14,7 +14,7 @@ namespace NetworkOperation.Client
             await client.ConnectAsync(new IPEndPoint(ip, port), cancellationToken);
         }
 
-        private static async Task<IPAddress> GetIpAddress(string address)
+        public static async Task<IPAddress> GetIpAddress(this string address)
         {
             if (IPAddress.TryParse(address, out var ip)) return ip;
             

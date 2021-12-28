@@ -180,6 +180,18 @@ namespace NetworkOperation.LiteNet.Client
             await InternalConnect(remote, cancellationToken, NetDataWriter.FromBytes(raw.Array,raw.Offset,raw.Count));
         }
 
+        public override async Task ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken = default)
+        {
+            if (connectionUrl.Scheme != "binary")
+            {
+                throw new NotSupportedException("Wrong uri scheme. Uri must be begin binary://");
+            }
+            var raw = ConnectionPayload.Resolve(payload);
+            var ip = await connectionUrl.Host.GetIpAddress();
+            await InternalConnect(new IPEndPoint(ip, connectionUrl.Port), cancellationToken, NetDataWriter.FromBytes(raw.Array,raw.Offset,raw.Count));
+            
+        }
+
         public override async Task DisconnectAsync()
         {
             if (Session?.State == SessionState.Opened)

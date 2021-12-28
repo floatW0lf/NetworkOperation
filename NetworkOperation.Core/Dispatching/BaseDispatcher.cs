@@ -51,9 +51,8 @@ namespace NetworkOperation.Core.Dispatching
 
         public async Task DispatchAsync(Session session)
         {
-            while (session.HasAvailableData)
+            await foreach (var rawMessage in session)
             {
-                var rawMessage = await session.ReceiveMessageAsync();
                 var type = _serializer.ReadMessageType(rawMessage);
                 switch (type)
                 {
@@ -84,10 +83,8 @@ namespace NetworkOperation.Core.Dispatching
                             continue;
                         }
                     }
-                    
                     if (IsContinue(request)) continue;
-    
-                    
+
                     var rawResponse = await ProcessHandler(request, context, CreateCancellationToken(request, description));
                     if (description.WaitResponse)
                     {

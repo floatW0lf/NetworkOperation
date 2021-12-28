@@ -9,16 +9,19 @@ namespace NetworkOperation.Client
         ArraySegment<byte> Resolve<T>(T payload) where T : IConnectPayload;
     }
     
-    public abstract class PayloadResolver : IPayloadResolver
+    public class PayloadResolver : IPayloadResolver
     {
         protected readonly BaseSerializer Serializer;
 
-        protected PayloadResolver(BaseSerializer serializer)
+        public PayloadResolver(BaseSerializer serializer)
         {
             Serializer = serializer;
         }
 
-        public abstract ArraySegment<byte> Resolve();
+        public virtual ArraySegment<byte> Resolve()
+        {
+            throw new NotImplementedException();
+        }
         
         public ArraySegment<byte> Resolve<T>(T payload) where T : IConnectPayload
         {

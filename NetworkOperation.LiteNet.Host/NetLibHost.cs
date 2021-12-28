@@ -104,16 +104,6 @@ namespace NetworkOperation.LiteNet.Host
                 ServerStarted(Manager);
             }
         }
-
-        private void Shutdown()
-        {
-            if (_pollTask == null) return;
-            Manager.Stop();
-            _source.Cancel();
-            _pollTask.Wait();
-            _pollTask = null;
-        }
-
         private async Task ShutdownAsync()
         {
             if (_pollTask == null) return;

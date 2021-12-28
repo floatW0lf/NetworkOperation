@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,23 +82,12 @@ namespace NetOperationTest
             
             generatedDispatcher.Subscribe(new Mock<IResponseReceiver<DefaultMessage>>().Object);
             var mockSession = new Mock<Session>(Array.Empty<SessionProperty>());
-            var hasData = true;
+           
+            mockSession.Setup(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(() => RequestData(0, opFoo));
             
-            mockSession.SetupGet(s => s.HasAvailableData).Returns(() => hasData);
-            mockSession.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
-            {
-                hasData = false;
-                return CreateRawMessage(0, opFoo);
-            });
-            var hasCancelData = true;
             var mockSessionWithCancel = new Mock<Session>(Array.Empty<SessionProperty>());
-            mockSessionWithCancel.SetupGet(s => s.HasAvailableData).Returns(() => hasCancelData);
-            mockSessionWithCancel.Setup(s => s.ReceiveMessageAsync()).ReturnsAsync(() =>
-            {
-                hasCancelData = false;
-                return MessagePackSerializer.Serialize(new DefaultMessage()
-                    {OperationCode = 0, Status = BuiltInOperationState.Cancel});
-            });
+
+            mockSessionWithCancel.Setup(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>())).Returns(CancelData);
             
             generatedDispatcher.DispatchAsync(mockSession.Object).GetAwaiter();
             Task.Delay(100).ContinueWith(task =>
@@ -108,13 +99,23 @@ namespace NetOperationTest
             await Task.Delay(300);
             mockSession.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(), DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Never);
             mockSessionWithCancel.Verify(s => s.SendMessageAsync(It.IsAny<ArraySegment<byte>>(), DeliveryMode.Reliable | DeliveryMode.Ordered), Times.Never);
-            mockSession.Verify(s => s.ReceiveMessageAsync(),Times.Once);
-            mockSessionWithCancel.Verify(s => s.ReceiveMessageAsync(),Times.Once);
+            mockSession.Verify(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>()),Times.Once);
+            mockSessionWithCancel.Verify(s => s.GetAsyncEnumerator(It.IsAny<CancellationToken>()),Times.Once);
         }
         private static byte[] CreateRawMessage<T>(uint code, T op)
         {
             var subOp = MessagePackSerializer.Serialize(op);
-            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp });
+            return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = code, OperationData = subOp});
+        }
+        
+        private async IAsyncEnumerator<ArraySegment<byte>> RequestData<T>(uint code, T op)
+        {
+            yield return CreateRawMessage(code, op);
+        }
+
+        private async IAsyncEnumerator<ArraySegment<byte>> CancelData()
+        {
+            yield return MessagePackSerializer.Serialize(new DefaultMessage() {OperationCode = 0, Status = BuiltInOperationState.Cancel});
         }
     }
 }

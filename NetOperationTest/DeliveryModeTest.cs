@@ -1,4 +1,5 @@
-﻿using LiteNetLib;
+﻿using System;
+using LiteNetLib;
 using NetLibOperation;
 using NetworkOperation.Core.Models;
 using Xunit;
@@ -14,6 +15,8 @@ namespace NetOperationTest
             Assert.Equal(DeliveryMethod.Sequenced,abstractMode.Convert());
             abstractMode = DeliveryMode.Reliable | DeliveryMode.Sequenced | DeliveryMode.Ordered;
             Assert.Equal(DeliveryMethod.ReliableOrdered,abstractMode.Convert());
+
+            var uri = new Uri("");
         }
         
     }

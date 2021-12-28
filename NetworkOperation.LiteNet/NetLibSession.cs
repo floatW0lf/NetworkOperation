@@ -2,16 +2,16 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
-using LiteNetLib.Utils;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
 using NetworkOperation.LiteNet;
 
 namespace NetLibOperation
 {
-    internal class NetLibSession : Session
+    internal sealed class NetLibSession : Session
     {
         private readonly NetPeer _peer;
         private readonly ConcurrentQueue<ArraySegment<byte>> _queue = new ConcurrentQueue<ArraySegment<byte>>();
@@ -26,8 +26,6 @@ namespace NetLibOperation
         public override long Id => _peer.Id;
         public override NetworkStatistics Statistics { get; }
 
-        protected override bool HasAvailableData => !_queue.IsEmpty;
-        
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
             var delivery = mode.Convert();
@@ -48,11 +46,14 @@ namespace NetLibOperation
             _queue.Enqueue(data);
         }
 
-        protected override Task<ArraySegment<byte>> ReceiveMessageAsync()
+        public async override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
-            _queue.TryDequeue(out var data);
-            return Task.FromResult(data);
+            while (_queue.TryDequeue(out var data))
+            {
+                yield return data;
+            }
         }
+
         protected override void SendClose(ArraySegment<byte> payload)
         {
             if (payload.Array != null)

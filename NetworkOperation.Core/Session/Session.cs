@@ -3,12 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.Core
 {
-    public abstract class Session
+    public abstract class Session : IAsyncEnumerable<ArraySegment<byte>>
     {
         protected Session(IEnumerable<SessionProperty> properties)
         {
@@ -54,13 +55,9 @@ namespace NetworkOperation.Core
 
         protected virtual void OnClosedSession(){}
         protected abstract void SendClose(ArraySegment<byte> payload);
-
         public abstract SessionState State { get; }
-
-        protected internal abstract bool HasAvailableData { get; }
-
         protected internal abstract Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode);
-        protected internal abstract Task<ArraySegment<byte>> ReceiveMessageAsync();
+        public abstract IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default);
 
     }
 }

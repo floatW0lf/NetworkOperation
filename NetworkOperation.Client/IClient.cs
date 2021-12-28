@@ -18,8 +18,11 @@ namespace NetworkOperation.Client
         IClientOperationExecutor Executor { get; }
         IPayloadResolver ConnectionPayload { get; set; }
         
+        [Obsolete("Use ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken)")]
         Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = default);
+        [Obsolete("Use ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken)")]
         Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = default) where T : IConnectPayload;
+        Task ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken = default) where T : IConnectPayload;
         Task DisconnectAsync();
     }
 }

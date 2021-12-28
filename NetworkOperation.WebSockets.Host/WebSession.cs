@@ -11,11 +11,13 @@ using NetworkOperation.Core.Models;
 
 namespace NetworkOperation.WebSockets.Core
 {
-    public class WebSession : Session
+    internal sealed class WebSession : Session, IAsyncEnumerator<ArraySegment<byte>>
     {
         private readonly WebSocket _webSocket;
         private ArraySegment<byte> _buffer;
-        
+        private int _prefixSize = -1;
+        private CancellationToken _cancellationToken;
+
         public WebSession(WebSocket webSocket, IEnumerable<SessionProperty> properties, int bufferSize = 8096) : base(properties)
         {
             _webSocket = webSocket;
@@ -59,31 +61,14 @@ namespace NetworkOperation.WebSockets.Core
         {
             ArrayPool<byte>.Shared.Return(_buffer.Array);
         }
-
-        protected override bool HasAvailableData => _webSocket.State == WebSocketState.Open;
         protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
             await _webSocket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
         }
-
-        protected override async Task<ArraySegment<byte>> ReceiveMessageAsync()
+        public override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
-            var prefixSize = -1;
-            WebSocketReceiveResult result;
-            do
-            {
-                result = await _webSocket.ReceiveAsync(_buffer, CancellationToken.None);
-                if (prefixSize == -1)
-                {
-                    if (result.Count == 0) return default;
-                    prefixSize = BitConverter.ToInt32(_buffer.Array, 0);
-                    TryResize(ref _buffer, prefixSize);
-                }
-                _buffer = _buffer.Slice(result.Count);
-
-            } while (!result.EndOfMessage);
-
-            return _buffer.Slice(sizeof(int), prefixSize);
+            _cancellationToken = cancellationToken;
+            return this;
         }
 
         private static bool TryResize(ref ArraySegment<byte> segment, int newSize)
@@ -95,6 +80,32 @@ namespace NetworkOperation.WebSockets.Core
             segment = new ArraySegment<byte>(newArray, segment.Offset, newSize);
             return true;
         }
+
+        ValueTask IAsyncDisposable.DisposeAsync()
+        {
+            _prefixSize = -1;
+            return new ValueTask(Task.CompletedTask);
+        }
+
+        async ValueTask<bool> IAsyncEnumerator<ArraySegment<byte>>.MoveNextAsync()
+        {
+            WebSocketReceiveResult result;
+            do
+            {
+                result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+                
+                if (_prefixSize == -1)
+                {
+                    if (result.Count == 0) return false;
+                    _prefixSize = BitConverter.ToInt32(_buffer.Array, 0);
+                    TryResize(ref _buffer, _prefixSize);
+                }
+                _buffer = _buffer.Slice(result.Count);
+
+            } while (!result.EndOfMessage);
+            return true;
+        }
+        ArraySegment<byte> IAsyncEnumerator<ArraySegment<byte>>.Current => _buffer.Slice(sizeof(int), _prefixSize);
     }
 }
 

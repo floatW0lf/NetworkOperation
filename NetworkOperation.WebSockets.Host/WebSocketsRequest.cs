@@ -9,8 +9,7 @@ namespace NetworkOperation.WebSockets.Host
 {
     internal class WebSocketsRequest : SessionRequest
     {
-        private readonly HttpListenerWebSocketContext _wsContext;
-        public override ArraySegment<byte> RequestPayload { get; }
+        private readonly HttpListenerWebSocketContext _wsContext; public override ArraySegment<byte> RequestPayload { get; }
 
         public WebSocketsRequest(HttpListenerWebSocketContext wsContext)
         {
@@ -20,8 +19,11 @@ namespace NetworkOperation.WebSockets.Host
 
         protected override Session Accepted(IEnumerable<SessionProperty> properties)
         {
-            return new WebSession(_wsContext.WebSocket, properties);
+            WaitOpenSession = new WebSession(_wsContext.WebSocket, properties);
+            return WaitOpenSession;
         }
+        
+        public Session WaitOpenSession { get; private set; }
 
         public override void Reject(ArraySegment<byte> payload = default)
         {

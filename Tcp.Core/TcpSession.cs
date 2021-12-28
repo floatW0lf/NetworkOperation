@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
@@ -40,9 +41,9 @@ namespace Tcp.Core
 
         public override SessionState State =>  _client.IsConnected() ? SessionState.Opened : SessionState.Closed;
 
-        protected override bool HasAvailableData => _client.Connected && (_client.Available > 0 || _readBytes > 0);
+        protected bool HasAvailableData => _client.Connected && (_client.Available > 0 || _readBytes > 0);
 
-        protected override async Task<ArraySegment<byte>> ReceiveMessageAsync()
+        protected async Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
             if (_readBytes == 0)
             {
@@ -67,6 +68,11 @@ namespace Tcp.Core
         {
             var prefix = BitConverter.GetBytes(data.Count);
             await _client.SendAsync(new[] {prefix.To(), data}, SocketFlags.None);
+        }
+
+        public override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

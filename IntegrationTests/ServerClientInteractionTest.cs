@@ -26,12 +26,11 @@ namespace IntegrationTests
 {
     public class ServerClientInteractionTest : IDisposable
     {
-        private const string Address = "localhost:8888";
         private IHostedService _host;
         private IClient _client;
         private IServiceProvider _clientProvider;
         private IServiceProvider _hostProvider;
-        
+        private Uri _connectionUrl = new Uri("binary://127.0.0.1:8888");
         public ServerClientInteractionTest()
         {
             var clientCollection = new ServiceCollection();
@@ -109,13 +108,10 @@ namespace IntegrationTests
             sessionEvents.SessionClosed += session => { connectedCount++; };
             var serializer = _clientProvider.GetRequiredService<BaseSerializer>();
             
-            _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
-                new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app" }, serializer);
-            await Assert.ThrowsAsync<TaskCanceledException>(()=>_client.ConnectAsync(Address));
+            _client.ConnectionPayload = new PayloadResolver(serializer);
             
-            _client.ConnectionPayload = new PayloadResolver<ExampleConnectPayload>(
-                new ExampleConnectPayload() {Authorize = "token", Version = "1.1", AppId = "some_app" }, serializer);
-            await _client.ConnectAsync(Address);
+            await Assert.ThrowsAsync<TaskCanceledException>(() => _client.ConnectAsync(_connectionUrl,  new ExampleConnectPayload() {Authorize = "token", Version = "1", AppId = "some_app" }));
+            await _client.ConnectAsync(_connectionUrl,new ExampleConnectPayload() {Authorize = "token", Version = "1.1", AppId = "some_app" });
             
             Assert.Equal(1,connectedCount);
             Assert.Equal(1,rejectedCount);
@@ -149,7 +145,7 @@ namespace IntegrationTests
             await _host.StartAsync(default);
             if (!onlyHost)
             {
-                await _client.ConnectAsync(Address);
+                await _client.ConnectAsync(_connectionUrl, new ExampleConnectPayload());
             }
         }
 

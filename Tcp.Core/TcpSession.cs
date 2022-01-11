@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -9,7 +10,7 @@ using NetworkOperation.Core.Models;
 
 namespace Tcp.Core
 {
-    public class TcpSession : Session
+    public class TcpSession : Session, IAsyncEnumerable<ArraySegment<byte>>, IAsyncEnumerator<ArraySegment<byte>>
     {
         private ArraySegment<byte> _segmentedBuffer = new ArraySegment<byte>(new byte[4092]);
         private readonly Socket _client;
@@ -28,6 +29,9 @@ namespace Tcp.Core
 
         public override NetworkStatistics Statistics => throw new NotImplementedException();
 
+
+        protected override IAsyncEnumerable<ArraySegment<byte>> Bytes => this;
+
         protected override void OnClosedSession()
         {
             if (_client.Connected) _client.Close();
@@ -35,7 +39,7 @@ namespace Tcp.Core
 
         protected override void SendClose(ArraySegment<byte> payload)
         {
-            _client.Send(payload, SocketFlags.None);
+            _client.Send(payload.Array, payload.Offset, payload.Count, SocketFlags.None);
             _client.Disconnect(false);
         }
 
@@ -43,7 +47,7 @@ namespace Tcp.Core
 
         protected bool HasAvailableData => _client.Connected && (_client.Available > 0 || _readBytes > 0);
 
-        protected async Task<ArraySegment<byte>> ReceiveMessageAsync()
+        private async Task<ArraySegment<byte>> ReceiveMessageAsync()
         {
             if (_readBytes == 0)
             {
@@ -70,9 +74,27 @@ namespace Tcp.Core
             await _client.SendAsync(new[] {prefix.To(), data}, SocketFlags.None);
         }
 
-        public override IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return this;
         }
+
+        public async ValueTask DisposeAsync()
+        {
+            Current = default;
+        }
+
+        public async ValueTask<bool> MoveNextAsync()
+        {
+            if (_client.Connected && (_client.Available > 0 || _readBytes > 0))
+            {
+                Current = await ReceiveMessageAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        public ArraySegment<byte> Current { get; private set; }
     }
 }

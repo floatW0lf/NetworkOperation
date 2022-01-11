@@ -92,7 +92,7 @@ namespace NetworkOperation.Core.Dispatching
                     }
                     
                 }
-                catch (OperationCanceledException e) { Logger.LogInformation("Operation canceled: {request}, {exception}", request, e); }
+                catch (OperationCanceledException) { Logger.LogInformation("Operation canceled: {Request}", request); }
                 catch (Exception e)
                 {
                     try

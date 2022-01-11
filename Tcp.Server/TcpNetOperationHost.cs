@@ -35,7 +35,7 @@ namespace Tcp.Server
                 while (!cts.Token.IsCancellationRequested)
                 {
                     var newConnection = await Listener.AcceptAsync();
-                    ArraySegment<byte> buffer = ArrayPool<byte>.Shared.Rent(2000);
+                    ArraySegment<byte> buffer = ArrayPool<byte>.Shared.Rent(2000).To();
                     var count = await newConnection.ReceiveAsync(buffer, SocketFlags.None);
                     BeforeSessionOpen(new TcpSessionRequest(newConnection, buffer.Slice(0, count)));
                     

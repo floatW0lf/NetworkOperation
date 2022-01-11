@@ -9,7 +9,7 @@
     <Platforms>AnyCPU</Platforms>
     <PackageVersion>0.0.0</PackageVersion>
     <Authors>floatW0lf</Authors>
-    <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
+    <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>    
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0"/>
   </ItemGroup>
 
 </Project>

@@ -91,22 +91,9 @@ namespace WebGL.WebSockets
         {
             if (instances.TryGetValue(instanceId, out var instanceRef))
             {
-                var bytes = ArrayPool<byte>.Shared.Rent(msgSize);
-                Span<byte> buffer = bytes;
-                unsafe
-                {
-                    var origin = new Span<byte>((void*) msgPtr, msgSize);
-                    origin.CopyTo(buffer);
-                }
-                try
-                {
-                    instanceRef.DelegateOnMessageEvent(buffer);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(bytes);
-                }
-                
+                var bytes = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(msgSize),0,msgSize);
+                Marshal.Copy(msgPtr, bytes.Array, 0, msgSize);
+                instanceRef.DelegateOnMessageEvent(bytes, new BufferLifeTime(bytes.Array));
             }
         }
 

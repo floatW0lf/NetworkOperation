@@ -16,6 +16,7 @@ namespace NetworkOperation.Client
     {
         ClientState Current { get; }
         IClientOperationExecutor Executor { get; }
+        [Obsolete("Use ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken)")]
         IPayloadResolver ConnectionPayload { get; set; }
         
         [Obsolete("Use ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken)")]

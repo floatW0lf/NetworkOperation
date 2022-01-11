@@ -141,8 +141,8 @@ namespace WebGL.WebSockets
       this.OnOpen?.Invoke ();
     }
 
-    internal void DelegateOnMessageEvent (Span<byte> data) {
-      this.OnMessage?.Invoke (data);
+    internal void DelegateOnMessageEvent (ArraySegment<byte> data, BufferLifeTime lifeTime) {
+      this.OnMessage?.Invoke (data, lifeTime);
     }
 
     internal void DelegateOnErrorEvent (string errorMsg) {

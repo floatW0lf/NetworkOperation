@@ -1,7 +1,23 @@
 ﻿using System;
+using System.Buffers;
 
 namespace WebGL.WebSockets
 {
+    public readonly struct BufferLifeTime : IDisposable
+    {
+        private readonly byte[] _buffer;
+        internal BufferLifeTime(byte[] buffer)
+        {
+            _buffer = buffer;
+        }
+        public void Dispose()
+        {
+            if (_buffer != null)
+            {
+                ArrayPool<byte>.Shared.Return(_buffer);
+            }
+        }
+    }
     internal static class WebSocketTools
     {
         public static WebSocketCloseCode ParseCloseCodeEnum(int closeCode)

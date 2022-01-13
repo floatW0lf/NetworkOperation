@@ -1,8 +1,10 @@
 ﻿using System;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Factories;
+using NetworkOperation.WebSockets.Client;
+using WebGL.WebSockets;
 
-namespace WebGL.WebSockets
+namespace WNetworkOperation.WebSockets.Client
 {
     public class SessionFactory : IFactory<WebSocket, Session>
     {

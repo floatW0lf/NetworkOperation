@@ -5,32 +5,39 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using NetworkOperation.Client;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
+using WebGL.WebSockets;
 
-namespace WebGL.WebSockets
+namespace NetworkOperation.WebSockets.Client
 {
     public class WebSocketClient<TRequest, TResponse> : AbstractClient<TRequest, TResponse, WebSocket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private WebSocket _socket;
         private BaseSerializer _serializer;
+        private TaskCompletionSource<int> _connect;
+        private TaskCompletionSource<int> _disconnect;
+        private CancellationTokenRegistration _registration;
+        private readonly ObjectPool<BufferLifeTimeWrapper> _pool;
 
         public WebSocketClient(IFactory<WebSocket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, ILoggerFactory loggerFactory, BaseSerializer serializer) : base(sessionFactory, executorFactory, dispatcher, loggerFactory)
         {
             _serializer = serializer;
+            _pool = new LifeTimePoolProvider().Create(new LifeTimeObjectPolicy());
         }
 
         public override Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override Task ConnectAsync<T>(EndPoint remote, T payload, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override async Task ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken = new CancellationToken())
@@ -42,6 +49,8 @@ namespace WebGL.WebSockets
                 UnsubscribeEvents();
                 _registration.Dispose();
             }
+
+            _connect = new TaskCompletionSource<int>();
             _registration = cancellationToken.Register(x => ((WebSocket)x).CancelConnection(), _socket);
             _socket = new WebSocket(connectionUrl.ToString(),new Dictionary<string, string>(){{"_payload", Convert.ToBase64String(_serializer.Serialize(payload, null))}});
             SubscribeEvents();
@@ -49,25 +58,21 @@ namespace WebGL.WebSockets
             await _connect.Task;
         }
 
-        private readonly TaskCompletionSource<int> _connect = new TaskCompletionSource<int>();
-        private readonly TaskCompletionSource<int> _disconnect = new TaskCompletionSource<int>();
-        private CancellationTokenRegistration _registration;
-
         private void OnMessage(ArraySegment<byte> data, BufferLifeTime lifeTime)
         {
             ((WebSocketSession)Session).ReceiveMessage(data);
-            Dispatch().ContinueWith(_ => lifeTime.Dispose(), TaskContinuationOptions.PreferFairness).GetAwaiter();
+            Dispatch().ContinueWith((_,lt) => ((BufferLifeTimeWrapper)lt).Dispose(), _pool.Get().Setup(lifeTime),TaskContinuationOptions.PreferFairness).GetAwaiter();
         }
 
         private void OnOpen()
         {
-            _connect.SetResult(0);
+            _connect?.TrySetResult(0);
             OpenSession(_socket);
         }
 
         private void OnClose(WebSocketCloseCode code)
         {
-            _disconnect.SetResult(0);
+            _disconnect?.TrySetResult(0);
             CloseSession();
         }
 
@@ -79,6 +84,7 @@ namespace WebGL.WebSockets
         public override async Task DisconnectAsync()
         {
             if(_socket == null || _socket.State == WebSocketState.Closed || _socket.State == WebSocketState.Closing) return;
+            _disconnect = new TaskCompletionSource<int>();
             _socket.Close();
             await _disconnect.Task;
         }

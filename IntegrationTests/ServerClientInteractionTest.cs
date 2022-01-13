@@ -30,7 +30,7 @@ namespace IntegrationTests
         private IClient _client;
         private IServiceProvider _clientProvider;
         private IServiceProvider _hostProvider;
-        private Uri _connectionUrl = new Uri("binary://127.0.0.1:8888");
+        private Uri _connectionUrl = new Uri("lnlp://127.0.0.1:8888");
         public ServerClientInteractionTest()
         {
             var clientCollection = new ServiceCollection();

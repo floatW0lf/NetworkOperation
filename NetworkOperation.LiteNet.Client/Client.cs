@@ -24,6 +24,7 @@ namespace NetworkOperation.LiteNet.Client
 
         private Task _pollingTask;
         private TaskCompletionSource<byte> _connectSource;
+        private TaskCompletionSource<byte> _disconnectSource;
         
         public Client(IFactory<NetPeer, Session> sessionFactory,
                       IFactory<Session, IClientOperationExecutor> executorFactory, 
@@ -70,6 +71,7 @@ namespace NetworkOperation.LiteNet.Client
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
+            _disconnectSource?.TrySetResult(1);
             GlobalCancel();
             Session.FillDisconnectInfo(disconnectInfo);
             CloseSession();
@@ -152,7 +154,7 @@ namespace NetworkOperation.LiteNet.Client
             {
                 if (Session == null || Session.State == SessionState.Closed)
                 {
-                    _globalCancellationTokenSource = _globalCancellationTokenSource ?? new CancellationTokenSource();
+                    _globalCancellationTokenSource ??= new CancellationTokenSource();
                     
                     InitEventLoop();
                     using (var compound = CancellationTokenSource.CreateLinkedTokenSource(_globalCancellationTokenSource.Token, cancellationToken))
@@ -182,9 +184,9 @@ namespace NetworkOperation.LiteNet.Client
 
         public override async Task ConnectAsync<T>(Uri connectionUrl, T payload, CancellationToken cancellationToken = default)
         {
-            if (connectionUrl.Scheme != "binary")
+            if (connectionUrl.Scheme != "lnlp")
             {
-                throw new NotSupportedException("Wrong uri scheme. Uri must be begin binary://");
+                throw new NotSupportedException("Wrong uri scheme. Uri must be begin lnlp://");
             }
             var raw = ConnectionPayload.Resolve(payload);
             var ip = await connectionUrl.Host.GetIpAddress();
@@ -196,8 +198,9 @@ namespace NetworkOperation.LiteNet.Client
         {
             if (Session?.State == SessionState.Opened)
             {
-                await Task.Factory.StartNew(() => Manager.Stop());
-                CloseSession();
+                _disconnectSource = new TaskCompletionSource<byte>();
+                await _disconnectSource.Task;
+                Manager.Stop();
                 return;
             }
             Logger.LogWarning("Client already disconnect");

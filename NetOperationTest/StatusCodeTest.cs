@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using NetworkOperation.Core;
 using Xunit;
 
@@ -35,8 +36,7 @@ namespace NetOperationTest
             StatusCode a = BarCodes.A;
             Assert.Equal(0000_0002u,a.Code);
         }
-        
-        
+
         [Fact]
         public void check_operators()
         {

@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Core", "Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.WebSockets.Host", "NetworkOperation.WebSockets.Host\NetworkOperation.WebSockets.Host.csproj", "{0522159C-20B2-4A42-913F-7EB314BE5531}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkOperation.Infrastructure.Host.WebSockets", "NetworkOperation.Infrastructure.Host.WebSockets\NetworkOperation.Infrastructure.Host.WebSockets.csproj", "{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,12 @@ Global
 		{0522159C-20B2-4A42-913F-7EB314BE5531}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0522159C-20B2-4A42-913F-7EB314BE5531}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
 		{0522159C-20B2-4A42-913F-7EB314BE5531}.AOT|Any CPU.Build.0 = Debug|Any CPU
+		{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}.AOT|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC04AD61-724A-4FDE-952C-2D96DB00C1DD}.AOT|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

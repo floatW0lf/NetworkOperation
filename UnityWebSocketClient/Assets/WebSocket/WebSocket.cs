@@ -97,8 +97,8 @@ namespace WebGL.WebSockets
         throw WebSocketTools.GetErrorMessageFromCode (ret, null);
     }
 
-    public void Send (byte[] data) {
-      int ret = WebSocketSend (this.instanceId, data, data.Length);
+    public void Send (byte[] data, int lenght = -1) {
+      int ret = WebSocketSend (this.instanceId, data, lenght == -1 ? data.Length : lenght);
 
       if (ret < 0)
         throw WebSocketTools.GetErrorMessageFromCode (ret, null);

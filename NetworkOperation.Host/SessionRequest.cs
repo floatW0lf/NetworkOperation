@@ -18,7 +18,12 @@ namespace NetworkOperation.Host
         {
             var session = Accepted(properties);
             _sessionCollection.Add(session);
+            AfterAccept(session);
             return session;
+        }
+
+        protected virtual void AfterAccept(Session session)
+        {
         }
 
         protected abstract Session Accepted(IEnumerable<SessionProperty> properties);

@@ -6,8 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
+using WebGL.WebSockets;
 
-namespace WebGL.WebSockets
+namespace NetworkOperation.WebSockets.Client
 {
     internal sealed class WebSocketSession : Session, IAsyncEnumerable<ArraySegment<byte>>
     {
@@ -32,7 +33,7 @@ namespace WebGL.WebSockets
 
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _webSocket.Send(data.Array);
+            _webSocket.Send(data.Array, data.Count);
             return Task.CompletedTask;
         }
 

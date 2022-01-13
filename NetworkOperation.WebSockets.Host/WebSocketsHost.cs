@@ -64,6 +64,7 @@ namespace NetworkOperation.WebSockets.Host
         {
             try
             {
+                _cts?.Cancel();
                 _cts?.Dispose();
                 _httpListener.Stop();
                 CloseAllSession();
@@ -77,38 +78,43 @@ namespace NetworkOperation.WebSockets.Host
            
         }
 
-        private readonly ConcurrentQueue<WebSocketsRequest> _requests = new ConcurrentQueue<WebSocketsRequest>();
+        private readonly ConcurrentQueue<Session> _openingSessionQueue = new ConcurrentQueue<Session>();
 
         private async Task PollAccept()
         {
-            _cts.Token.ThrowIfCancellationRequested();
-            var context = await _httpListener.GetContextAsync();
-            if (context.Request.IsWebSocketRequest)
+            while (!_cts.IsCancellationRequested)
             {
                 _cts.Token.ThrowIfCancellationRequested();
-                var webSocketContext = await context.AcceptWebSocketAsync(SubProtocol);
-                var request = new WebSocketsRequest(webSocketContext);
-                BeforeSessionOpen(request);
-                _requests.Enqueue(request);
-                await Task.Delay(PollTimeInMs, _cts.Token);
+                var context = await _httpListener.GetContextAsync();
+                if (context.Request.IsWebSocketRequest)
+                {
+                    _cts.Token.ThrowIfCancellationRequested();
+                    var webSocketContext = await context.AcceptWebSocketAsync(SubProtocol);
+                    var request = new WebSocketsRequest(webSocketContext, _openingSessionQueue);
+                    BeforeSessionOpen(request);
+                    await Task.Delay(PollTimeInMs, _cts.Token);
+                }
             }
         }
 
         private async Task PollReceive()
         {
-            while (_requests.TryDequeue(out var req))
+            while (!_cts.IsCancellationRequested)
             {
-                _cts.Token.ThrowIfCancellationRequested();
-                SessionOpen(req.WaitOpenSession);
-            }
+                while (_openingSessionQueue.TryDequeue(out var session))
+                {
+                    _cts.Token.ThrowIfCancellationRequested();
+                    SessionOpen(session);
+                }
             
-            foreach (var session in Sessions)
-            {
-                if (session.State == SessionState.Closed) SessionClose(session);
-            }
+                foreach (var session in Sessions)
+                {
+                    if (session.State == SessionState.Closed) SessionClose(session);
+                }
             
-            await Task.WhenAll(_cachedDispatchSessions);
-            await Task.Delay(PollTimeInMs, _cts.Token);
+                await Task.WhenAll(_cachedDispatchSessions);
+                await Task.Delay(PollTimeInMs, _cts.Token);
+            }
         }
     }
 }

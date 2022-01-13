@@ -12,7 +12,7 @@ namespace NetworkOperation.Infrastructure.Client.WebSockets
 {
     public static class BuilderExtensions
     {
-        public static ClientBuilder<TRequest, TResponse> UseLiteNet<TRequest, TResponse>(this ClientBuilder<TRequest, TResponse> builder, Action<WebSocketClient<TRequest, TResponse>> action = null) where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+        public static ClientBuilder<TRequest, TResponse> UseWebSockets<TRequest, TResponse>(this ClientBuilder<TRequest, TResponse> builder, Action<WebSocketClient<TRequest, TResponse>> action = null) where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
         {
             builder.Service.AddSingleton<IFactory<WebSocket, Session>, SessionFactory>();
             builder.Service.AddSingleton<IClient>(p =>

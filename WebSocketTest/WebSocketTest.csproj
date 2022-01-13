@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
+    <RootNamespace>WebSocketTest</RootNamespace>
+    <LangVersion>7.3</LangVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>    
+    <Authors>floatW0lf</Authors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkOperation.Infrastructure.Host.WebSockets\NetworkOperation.Infrastructure.Host.WebSockets.csproj" />
+    <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.21" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\UnityWebSocketClient\Assets\Test\Contract.cs">
+      <Link>Contract.cs</Link>
+    </Compile>
+  </ItemGroup>  
+</Project>

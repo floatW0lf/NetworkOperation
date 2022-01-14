@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
@@ -15,7 +16,6 @@ namespace NetworkOperation.WebSockets.Core
     {
         private readonly WebSocket _webSocket;
         private ArraySegment<byte> _buffer;
-        private int _prefixSize = -1;
         private CancellationToken _cancellationToken;
         public WebSession(WebSocket webSocket, IEnumerable<SessionProperty> properties, int bufferSize = 8096) : base(properties)
         {
@@ -29,6 +29,7 @@ namespace NetworkOperation.WebSockets.Core
         public override NetworkStatistics Statistics => throw new NotImplementedException();
         protected override void SendClose(ArraySegment<byte> payload)
         {
+            if (_webSocket.State != WebSocketState.Open) return;
             _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, Convert.ToBase64String(payload.Array, payload.Offset, payload.Count), CancellationToken.None).GetAwaiter();
         }
 
@@ -40,10 +41,9 @@ namespace NetworkOperation.WebSockets.Core
                 {
                     case WebSocketState.Aborted:
                     case WebSocketState.Closed:
-                        return SessionState.Closed;
                     case WebSocketState.CloseReceived:
                     case WebSocketState.CloseSent:
-                        return SessionState.Unknown;
+                        return SessionState.Closed;
                     case WebSocketState.Connecting:
                         return SessionState.Opening;
                     case WebSocketState.None:
@@ -62,6 +62,7 @@ namespace NetworkOperation.WebSockets.Core
         }
         protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
+            if (_webSocket.State != WebSocketState.Open) return;
             await _webSocket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
         }
         
@@ -83,22 +84,23 @@ namespace NetworkOperation.WebSockets.Core
         async ValueTask<bool> IAsyncEnumerator<ArraySegment<byte>>.MoveNextAsync()
         {
             WebSocketReceiveResult result;
-            do
+            result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+            if (result.Count == 0) return false;
+            var prefixSize = MemoryMarshal.Read<int>(_buffer);
+            TryResize(ref _buffer, prefixSize);
+            _buffer = _buffer.Slice(sizeof(int)-1, prefixSize);
+            while (!result.EndOfMessage)
             {
                 result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
-                if (_prefixSize == -1)
-                {
-                    if (result.Count == 0) return false;
-                    _prefixSize = BitConverter.ToInt32(_buffer.Array, 0);
-                    TryResize(ref _buffer, _prefixSize);
-                }
-                _buffer = _buffer.Slice(result.Count);
-
-            } while (!result.EndOfMessage);
-            _prefixSize = -1;
+                _buffer = _buffer.Slice(_buffer.Offset + result.Count);
+            }
+            _currentRawMessage = _buffer;
+            _buffer = new ArraySegment<byte>(_buffer.Array);
             return true;
         }
-        ArraySegment<byte> IAsyncEnumerator<ArraySegment<byte>>.Current => _buffer.Slice(sizeof(int), _prefixSize);
+
+        private ArraySegment<byte> _currentRawMessage;
+        ArraySegment<byte> IAsyncEnumerator<ArraySegment<byte>>.Current => _currentRawMessage;
         public IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
         {
             _cancellationToken = cancellationToken;

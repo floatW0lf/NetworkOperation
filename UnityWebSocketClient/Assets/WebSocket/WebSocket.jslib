@@ -74,7 +74,7 @@ var LibraryWebSocket = {
 	 *
 	 * @param url Server URL
 	 */
-	WebSocketAllocate: function(url) {
+	WebSocketAllocate: function(url, headerCollection) {
 
 		var urlStr = UTF8ToString(url);
 		var id = webSocketState.lastId++;
@@ -82,7 +82,8 @@ var LibraryWebSocket = {
 		webSocketState.instances[id] = {
 			subprotocols: [],
 			url: urlStr,
-			ws: null
+			ws: null,
+		    options : {headers : headerCollection}
 		};
 
 		return id;

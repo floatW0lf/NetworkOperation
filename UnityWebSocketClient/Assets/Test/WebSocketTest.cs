@@ -21,6 +21,7 @@ namespace WebGL.WebSockets.Tests
     {
         private ServiceProvider _serviceProvider;
         private IClient _client;
+        public string ConnectionUri { get; set; }
 
         // Start is called before the first frame update
         void Start()
@@ -41,18 +42,25 @@ namespace WebGL.WebSockets.Tests
 
             _serviceProvider = collection.BuildServiceProvider(false);
             _client = _serviceProvider.GetService<IClient>();
+            Debug.Log("Start ws client");
 
         }
 
-        // Update is called once per frame
-        async void Update()
+        public async void Connect()
         {
             if (_client?.Current == ClientState.Connected)
             {
                 return;
             }
-            await _client.ConnectAsync(new Uri("ws://localhost:7777"), new ConnectPayload());
-            await Task.Delay(100);
+            Debug.Log($"Connect to {ConnectionUri}");
+            await _client.ConnectAsync(new Uri(ConnectionUri, UriKind.Absolute), new ConnectPayload(){Version = 100});
+            Debug.Log($"State is {_client.Current}");
+            await _client.Executor.Execute(new TestOp2 {Message = "heloo"}, p => p);
+        }
+
+        public async void Disconnect()
+        {
+           await _client.DisconnectAsync();
         }
     }
 }

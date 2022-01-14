@@ -52,7 +52,8 @@ namespace NetworkOperation.WebSockets.Client
 
             _connect = new TaskCompletionSource<int>();
             _registration = cancellationToken.Register(x => ((WebSocket)x).CancelConnection(), _socket);
-            _socket = new WebSocket(connectionUrl.ToString(),new Dictionary<string, string>(){{"_payload", Convert.ToBase64String(_serializer.Serialize(payload, null))}});
+
+            _socket = new WebSocket($"{connectionUrl}?payload={Convert.ToBase64String(_serializer.Serialize(payload, null))}");
             SubscribeEvents();
             _socket.Connect();
             await _connect.Task;
@@ -66,14 +67,14 @@ namespace NetworkOperation.WebSockets.Client
 
         private void OnOpen()
         {
-            _connect?.TrySetResult(0);
             OpenSession(_socket);
+            _connect?.TrySetResult(0);
         }
 
         private void OnClose(WebSocketCloseCode code)
         {
-            _disconnect?.TrySetResult(0);
             CloseSession();
+            _disconnect?.TrySetResult(0);
         }
 
         private void OnRecError(string msg)

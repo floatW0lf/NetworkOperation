@@ -54,8 +54,8 @@ namespace NetworkOperation.WebSockets.Host
             _httpListener.Start();
             ServerStarted(null);
             _cachedDispatchSessions = Sessions.Select(s => Dispatcher.DispatchAsync(s));
-            _pollAcceptTask = Task.Factory.StartNew(PollAccept, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
-            _pollReceive = Task.Factory.StartNew(PollReceive, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+            _pollAcceptTask = Task.Factory.StartNew(PollAccept, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            _pollReceive = Task.Factory.StartNew(PollReceive, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             
             return Task.CompletedTask;
         }
@@ -84,16 +84,24 @@ namespace NetworkOperation.WebSockets.Host
         {
             while (!_cts.IsCancellationRequested)
             {
-                _cts.Token.ThrowIfCancellationRequested();
-                var context = await _httpListener.GetContextAsync();
-                if (context.Request.IsWebSocketRequest)
+                try
                 {
                     _cts.Token.ThrowIfCancellationRequested();
-                    var webSocketContext = await context.AcceptWebSocketAsync(SubProtocol);
-                    var request = new WebSocketsRequest(webSocketContext, _openingSessionQueue);
-                    BeforeSessionOpen(request);
-                    await Task.Delay(PollTimeInMs, _cts.Token);
+                    var context = await _httpListener.GetContextAsync();
+                    if (context.Request.IsWebSocketRequest)
+                    {
+                        _cts.Token.ThrowIfCancellationRequested();
+                        var webSocketContext = await context.AcceptWebSocketAsync(SubProtocol);
+                        var request = new WebSocketsRequest(webSocketContext, _openingSessionQueue);
+                        BeforeSessionOpen(request);
+                        await Task.Delay(PollTimeInMs, _cts.Token);
+                    }
                 }
+                catch (Exception e)
+                {
+                    Logger.LogError(e, "Accept connection error");
+                }
+               
             }
         }
 
@@ -101,19 +109,27 @@ namespace NetworkOperation.WebSockets.Host
         {
             while (!_cts.IsCancellationRequested)
             {
-                while (_openingSessionQueue.TryDequeue(out var session))
+                try
                 {
-                    _cts.Token.ThrowIfCancellationRequested();
-                    SessionOpen(session);
-                }
+                    while (_openingSessionQueue.TryDequeue(out var session))
+                    {
+                        _cts.Token.ThrowIfCancellationRequested();
+                        SessionOpen(session);
+                    }
             
-                foreach (var session in Sessions)
+                    foreach (var session in Sessions)
+                    {
+                        if (session.State == SessionState.Closed) SessionClose(session);
+                    }
+            
+                    await Task.WhenAll(_cachedDispatchSessions);
+                    await Task.Delay(PollTimeInMs, _cts.Token);
+                }
+                catch (Exception e)
                 {
-                    if (session.State == SessionState.Closed) SessionClose(session);
+                    Logger.LogError(e, "Event loop error");
                 }
-            
-                await Task.WhenAll(_cachedDispatchSessions);
-                await Task.Delay(PollTimeInMs, _cts.Token);
+                
             }
         }
     }

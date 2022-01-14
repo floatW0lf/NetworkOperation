@@ -1,4 +1,5 @@
-﻿using NetworkOperation.Core.Messages;
+﻿using MessagePack.Resolvers;
+using NetworkOperation.Core.Messages;
 using WebGL.WebSockets.Tests;
 
 namespace NetworkOperations.Dispatching
@@ -20,6 +21,9 @@ namespace NetworkOperations.Dispatching
             serializer.Deserialize<ConnectPayload>(default, default);
             serializer.Serialize<DisconnectPayload>(default, default);
             serializer.Deserialize<DisconnectPayload>(default, default);
+
+            var formatter = StaticCompositeResolver.Instance.GetFormatter<DefaultMessage>();
+
         }
     }
 }

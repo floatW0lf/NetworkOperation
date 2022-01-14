@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.WebSockets;
+using System.Web;
 using NetworkOperation.Core;
 using NetworkOperation.Host;
 using NetworkOperation.WebSockets.Core;
@@ -18,9 +19,14 @@ namespace NetworkOperation.WebSockets.Host
         {
             _queue = queue;
             _wsContext = wsContext;
-            RequestPayload = Convert.FromBase64String(wsContext.Headers["_payload"]).To();
+            var collection = HttpUtility.ParseQueryString(wsContext.RequestUri.Query);
+            if (!collection.HasKeys()) return;
+            var payload = collection["payload"];
+            if (string.IsNullOrWhiteSpace(payload)) return;
+            RequestPayload = Convert.FromBase64String(payload).To();
         }
 
+        
         protected override Session Accepted(IEnumerable<SessionProperty> properties)
         {
            return new WebSession(_wsContext.WebSocket, properties);

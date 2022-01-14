@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
@@ -33,8 +35,23 @@ namespace NetworkOperation.WebSockets.Client
 
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            _webSocket.Send(data.Array, data.Count);
-            return Task.CompletedTask;
+            var buffer = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(data.Count + sizeof(int)), 0, data.Count + sizeof(int));
+            try
+            {
+                var size = data.Count;
+                MemoryMarshal.Write(buffer, ref size);
+                data.CopyTo(buffer.Slice(sizeof(int)));
+                _webSocket.Send(buffer.Array, buffer.Count);
+                return Task.CompletedTask;
+            }
+            finally
+            {
+                if (buffer != default)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer.Array); 
+                }
+            }
+            
         }
 
         public override EndPoint NetworkAddress { get; } = new IPEndPoint(IPAddress.Any, 0);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
 using MessagePack;
@@ -6,12 +7,12 @@ using MessagePack.Formatters;
 using MessagePack.Resolvers;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;
+using NetworkOperation.Core.Messages;
 
 namespace WebGL.WebSockets.Tests
 {
     public class MsgSerializer : BaseSerializer
     {
-
         public override TypeMessage ReadMessageType(ArraySegment<byte> rawBytes)
         {
             return MessagePackSerializer.Deserialize<TypeMessage>(rawBytes.Slice(1, 1));
@@ -54,6 +55,34 @@ namespace WebGL.WebSockets.Tests
         public StatusCode Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             return (StatusCode) reader.ReadUInt32();
+        }
+    }
+
+    public class DefaultMessageFormatter : IMessagePackFormatter<DefaultMessage>
+    {
+        public void Serialize(ref MessagePackWriter writer, DefaultMessage value, MessagePackSerializerOptions options)
+        {
+            writer.Write((byte)value.Type);
+            writer.Write(value.Id);
+            writer.Write(value.OperationCode);
+            writer.Write(value.OperationData);
+            writer.Write(value.Status.Code);
+        }
+
+        public DefaultMessage Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+        {
+            var message = new DefaultMessage();
+            message.Type = (TypeMessage)reader.ReadByte();
+            message.Id = reader.ReadInt32();
+            message.OperationCode = reader.ReadUInt32();
+            var bytes = reader.ReadBytes();
+            if (bytes.HasValue)
+            {
+                message.OperationData = bytes.Value.ToArray();
+            }
+            message.Status = (StatusCode) reader.ReadUInt32();
+            return message;
+
         }
     }
 }

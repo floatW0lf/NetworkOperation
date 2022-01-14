@@ -31,18 +31,17 @@ namespace WebGL.WebSockets
     public event WebSocketErrorEventHandler OnError;
     public event WebSocketCloseEventHandler OnClose;
 
-    public WebSocket (string url, Dictionary<string, string> headers = null) {
+    public WebSocket (string url) {
       if (!WebSocketFactory.isInitialized) {
         WebSocketFactory.Initialize ();
       }
-
       int instanceId = WebSocketFactory.WebSocketAllocate (url);
       WebSocketFactory.instances.Add (instanceId, this);
 
       this.instanceId = instanceId;
     }
     
-    public WebSocket (string url, string subprotocol, Dictionary<string, string> headers = null) {
+    public WebSocket (string url, string subprotocol) {
       if (!WebSocketFactory.isInitialized) {
         WebSocketFactory.Initialize ();
       }
@@ -55,7 +54,7 @@ namespace WebGL.WebSockets
       this.instanceId = instanceId;
     }
 
-    public WebSocket (string url, List<string> subprotocols, Dictionary<string, string> headers = null) {
+    public WebSocket (string url, List<string> subprotocols) {
       if (!WebSocketFactory.isInitialized) {
         WebSocketFactory.Initialize ();
       }

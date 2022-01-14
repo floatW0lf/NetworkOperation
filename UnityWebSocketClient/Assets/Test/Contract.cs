@@ -18,7 +18,7 @@ namespace WebGL.WebSockets.Tests
         [Key(0)] public string Message;
     }
 
-    [Operation(2, Handle = Side.Client)]
+    [Operation(2, Handle = Side.Client, WaitResponse = false)]
     public struct ClientOp : IOperation<Empty>
     {
         [Key(0)] public string Message;
@@ -27,7 +27,7 @@ namespace WebGL.WebSockets.Tests
     [MessagePackObject]
     public struct ConnectPayload : IConnectPayload
     {
-        
+        [Key(0)] public int Version;
     }
 
     [MessagePackObject]

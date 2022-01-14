@@ -116,7 +116,8 @@ namespace MessagePack.Formatters.WebGL.WebSockets.Tests
 
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::WebGL.WebSockets.Tests.ConnectPayload value, global::MessagePack.MessagePackSerializerOptions options)
         {
-            writer.WriteArrayHeader(0);
+            writer.WriteArrayHeader(1);
+            writer.Write(value.Version);
         }
 
         public global::WebGL.WebSockets.Tests.ConnectPayload Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -126,8 +127,25 @@ namespace MessagePack.Formatters.WebGL.WebSockets.Tests
                 throw new global::System.InvalidOperationException("typecode is null, struct not supported");
             }
 
-            reader.Skip();
-            return new global::WebGL.WebSockets.Tests.ConnectPayload();
+            options.Security.DepthStep(ref reader);
+            var length = reader.ReadArrayHeader();
+            var ____result = new global::WebGL.WebSockets.Tests.ConnectPayload();
+
+            for (int i = 0; i < length; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        ____result.Version = reader.ReadInt32();
+                        break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
+            }
+
+            reader.Depth--;
+            return ____result;
         }
     }
 

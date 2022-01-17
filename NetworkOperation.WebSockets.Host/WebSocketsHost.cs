@@ -92,7 +92,7 @@ namespace NetworkOperation.WebSockets.Host
                     {
                         _cts.Token.ThrowIfCancellationRequested();
                         var webSocketContext = await context.AcceptWebSocketAsync(SubProtocol);
-                        var request = new WebSocketsRequest(webSocketContext, _openingSessionQueue);
+                        var request = new WebSocketsRequest(webSocketContext, _openingSessionQueue, context.Request.RemoteEndPoint);
                         BeforeSessionOpen(request);
                         await Task.Delay(PollTimeInMs, _cts.Token);
                     }

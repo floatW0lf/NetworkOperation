@@ -19,13 +19,13 @@ namespace NetworkOperation.WebSockets.Core
         private ArraySegment<byte> _buffer;
         private CancellationToken _cancellationToken;
         private ArraySegment<byte> _currentRawMessage;
-        public WebSession(WebSocket webSocket, IEnumerable<SessionProperty> properties, int bufferSize = 65535) : base(properties)
+        public WebSession(WebSocket webSocket, EndPoint remote, IEnumerable<SessionProperty> properties, int bufferSize = 65535) : base(properties)
         {
+            NetworkAddress = remote;
             _webSocket = webSocket;
             _buffer = PooledArraySegment.Rent<byte>(bufferSize);
         }
-
-        public override EndPoint NetworkAddress => new IPEndPoint(0, 0);
+        public override EndPoint NetworkAddress { get; }
         public override object UntypedConnection => _webSocket;
         public override long Id => _webSocket.GetHashCode();
         public override NetworkStatistics Statistics => throw new NotImplementedException();

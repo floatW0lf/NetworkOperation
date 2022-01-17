@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.WebSockets;
 using System.Web;
 using NetworkOperation.Core;
@@ -13,10 +14,12 @@ namespace NetworkOperation.WebSockets.Host
     {
         private readonly HttpListenerWebSocketContext _wsContext;
         private ConcurrentQueue<Session> _queue;
+        private EndPoint _remote;
         public override ArraySegment<byte> RequestPayload { get; }
 
-        public WebSocketsRequest(HttpListenerWebSocketContext wsContext, ConcurrentQueue<Session> queue)
+        public WebSocketsRequest(HttpListenerWebSocketContext wsContext, ConcurrentQueue<Session> queue, EndPoint remote)
         {
+            _remote = remote;
             _queue = queue;
             _wsContext = wsContext;
             var collection = HttpUtility.ParseQueryString(wsContext.RequestUri.Query);
@@ -29,7 +32,7 @@ namespace NetworkOperation.WebSockets.Host
         
         protected override Session Accepted(IEnumerable<SessionProperty> properties)
         {
-           return new WebSession(_wsContext.WebSocket, properties);
+            return new WebSession(_wsContext.WebSocket,_remote, properties);
         }
         protected override void AfterAccept(Session session)
         {

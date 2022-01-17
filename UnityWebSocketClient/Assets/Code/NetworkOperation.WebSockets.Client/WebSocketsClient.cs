@@ -11,6 +11,7 @@ using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Factories;
 using NetworkOperation.Core.Messages;
+using UnityEngine;
 using WebGL.WebSockets;
 
 namespace NetworkOperation.WebSockets.Client
@@ -22,12 +23,9 @@ namespace NetworkOperation.WebSockets.Client
         private TaskCompletionSource<int> _connect;
         private TaskCompletionSource<int> _disconnect;
         private CancellationTokenRegistration _registration;
-        private readonly ObjectPool<BufferLifeTimeWrapper> _pool;
-
         public WebSocketClient(IFactory<WebSocket, Session> sessionFactory, IFactory<Session, IClientOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, ILoggerFactory loggerFactory, BaseSerializer serializer) : base(sessionFactory, executorFactory, dispatcher, loggerFactory)
         {
             _serializer = serializer;
-            _pool = new LifeTimePoolProvider().Create(new LifeTimeObjectPolicy());
         }
 
         public override Task ConnectAsync(EndPoint remote, CancellationToken cancellationToken = new CancellationToken())
@@ -59,10 +57,13 @@ namespace NetworkOperation.WebSockets.Client
             await _connect.Task;
         }
 
-        private void OnMessage(ArraySegment<byte> data, BufferLifeTime lifeTime)
+        private async void OnMessage(BufferWithLifeTime buffer)
         {
-            ((WebSocketSession)Session).ReceiveMessage(data);
-            Dispatch().ContinueWith((_,lt) => ((BufferLifeTimeWrapper)lt).Dispose(), _pool.Get().Setup(lifeTime),TaskContinuationOptions.PreferFairness).GetAwaiter();
+            using (buffer)
+            {
+                ((WebSocketSession)Session).ReceiveMessage(buffer);
+                await Dispatch();
+            }
         }
 
         private void OnOpen()

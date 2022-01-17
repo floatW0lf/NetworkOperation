@@ -93,7 +93,7 @@ namespace WebGL.WebSockets
             {
                 var bytes = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(msgSize),0,msgSize);
                 Marshal.Copy(msgPtr, bytes.Array, 0, msgSize);
-                instanceRef.DelegateOnMessageEvent(bytes, new BufferLifeTime(bytes.Array));
+                instanceRef.DelegateOnMessageEvent(new BufferWithLifeTime(bytes));
             }
         }
 

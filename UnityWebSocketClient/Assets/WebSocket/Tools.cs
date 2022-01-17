@@ -3,10 +3,10 @@ using System.Buffers;
 
 namespace WebGL.WebSockets
 {
-    public readonly struct BufferLifeTime : IDisposable
+    public readonly struct BufferWithLifeTime : IDisposable
     {
-        private readonly byte[] _buffer;
-        internal BufferLifeTime(byte[] buffer)
+        private readonly ArraySegment<byte> _buffer;
+        internal BufferWithLifeTime(ArraySegment<byte> buffer)
         {
             _buffer = buffer;
         }
@@ -14,8 +14,12 @@ namespace WebGL.WebSockets
         {
             if (_buffer != null)
             {
-                ArrayPool<byte>.Shared.Return(_buffer);
+                ArrayPool<byte>.Shared.Return(_buffer.Array);
             }
+        }
+        public static implicit operator ArraySegment<byte>(BufferWithLifeTime self)
+        {
+            return self._buffer;
         }
     }
     internal static class WebSocketTools

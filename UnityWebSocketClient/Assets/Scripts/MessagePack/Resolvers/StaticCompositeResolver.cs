@@ -29,12 +29,11 @@ namespace MessagePack.Resolvers
         /// This method can only call before use StaticCompositeResolver.Instance.GetFormatter.
         /// If call twice in the Register methods, registered formatters and resolvers will be overridden.
         /// </summary>
-        /// <param name="formatterResolvers"></param>
         /// <param name="formatters">
-        ///     A list of instances of <see cref="IMessagePackFormatter{T}"/>.
-        ///     The formatters are searched in the order given, so if two formatters support serializing the same type, the first one is used.
+        /// A list of instances of <see cref="IMessagePackFormatter{T}"/>.
+        /// The formatters are searched in the order given, so if two formatters support serializing the same type, the first one is used.
         /// </param>
-        public void Register(IFormatterResolver[] formatterResolvers, params IMessagePackFormatter[] formatters)
+        public void Register(params IMessagePackFormatter[] formatters)
         {
             if (this.freezed)
             {

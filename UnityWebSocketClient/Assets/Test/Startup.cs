@@ -16,7 +16,7 @@ namespace WebGL.WebSockets.Tests
             if (!serializerRegistered)
             {
                 StaticCompositeResolver.Instance.Register(new IMessagePackFormatter[]{new StatusCodeFormatter(), new DefaultMessageFormatter()}, new IFormatterResolver[]{
-                        GeneratedResolver.Instance, StandardResolver.Instance});
+                        GeneratedResolver.Instance, StandardResolver.Instance,PrimitiveObjectResolver.Instance});
                 
                 MessagePackSerializer.DefaultOptions = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
                 serializerRegistered = true;

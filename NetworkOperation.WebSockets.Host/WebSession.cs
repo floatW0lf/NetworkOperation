@@ -83,18 +83,19 @@ namespace NetworkOperation.WebSockets.Core
 
         async ValueTask<bool> IAsyncEnumerator<ArraySegment<byte>>.MoveNextAsync()
         {
+            var messageSize = 0;
             WebSocketReceiveResult result;
             result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
             if (result.Count == 0) return false;
-            var prefixSize = MemoryMarshal.Read<int>(_buffer);
-            TryResize(ref _buffer, prefixSize);
-            _buffer = _buffer.Slice(sizeof(int)-1, prefixSize);
+            messageSize += result.Count;
+            _buffer = _buffer.Slice(_buffer.Offset + result.Count);
             while (!result.EndOfMessage)
             {
                 result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
                 _buffer = _buffer.Slice(_buffer.Offset + result.Count);
+                messageSize += result.Count;
             }
-            _currentRawMessage = _buffer;
+            _currentRawMessage = new ArraySegment<byte>(_buffer.Array, 0, messageSize);
             _buffer = new ArraySegment<byte>(_buffer.Array);
             return true;
         }

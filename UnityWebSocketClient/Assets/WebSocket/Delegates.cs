@@ -3,7 +3,7 @@
 namespace WebGL.WebSockets
 {
     public delegate void WebSocketOpenEventHandler();
-    public delegate void WebSocketMessageEventHandler(ArraySegment<byte> data, BufferLifeTime lifeTime);
+    public delegate void WebSocketMessageEventHandler(BufferWithLifeTime buffer);
     public delegate void WebSocketErrorEventHandler(string errorMsg);
     public delegate void WebSocketCloseEventHandler(WebSocketCloseCode closeCode);
 }

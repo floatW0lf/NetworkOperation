@@ -71,7 +71,7 @@ namespace NetworkOperation.Core.Dispatching
                             break;
 
                         default:
-                            throw new ArgumentOutOfRangeException();
+                            throw new ArgumentOutOfRangeException(nameof(type), "Can not read message type.");
                     }
 
                     var request = _serializer.Deserialize<TRequest>(rawMessage, session);

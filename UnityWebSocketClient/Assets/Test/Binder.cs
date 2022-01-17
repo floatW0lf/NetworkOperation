@@ -16,6 +16,7 @@ namespace Test
         {
             Connect.onClick.AddListener(Model.Connect);
             Uri.onValueChanged.AddListener(Changed);
+            Changed(Uri.text);
             Disconnect.onClick.AddListener(Model.Disconnect);
         }
 

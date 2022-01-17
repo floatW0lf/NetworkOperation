@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
+using UnityEngine;
 using WebGL.WebSockets;
 
 namespace NetworkOperation.WebSockets.Client
@@ -32,26 +33,10 @@ namespace NetworkOperation.WebSockets.Client
             _webSocket.Close(WebSocketCloseCode.Normal,payload.Array != null ? Convert.ToBase64String(payload.Array, payload.Offset, payload.Count) : null);
         }
 
-
         protected override Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
-            var buffer = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(data.Count + sizeof(int)), 0, data.Count + sizeof(int));
-            try
-            {
-                var size = data.Count;
-                MemoryMarshal.Write(buffer, ref size);
-                data.CopyTo(buffer.Slice(sizeof(int)));
-                _webSocket.Send(buffer.Array, buffer.Count);
-                return Task.CompletedTask;
-            }
-            finally
-            {
-                if (buffer != default)
-                {
-                    ArrayPool<byte>.Shared.Return(buffer.Array); 
-                }
-            }
-            
+            _webSocket.Send(data.Array, data.Count);
+            return Task.CompletedTask;
         }
 
         public override EndPoint NetworkAddress { get; } = new IPEndPoint(IPAddress.Any, 0);

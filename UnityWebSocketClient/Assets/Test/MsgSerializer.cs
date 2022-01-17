@@ -15,7 +15,7 @@ namespace WebGL.WebSockets.Tests
     {
         public override TypeMessage ReadMessageType(ArraySegment<byte> rawBytes)
         {
-            return MessagePackSerializer.Deserialize<TypeMessage>(rawBytes.Slice(1, 1));
+            return (TypeMessage)rawBytes.Slice(1, 1)[0];
         }
 
         public override T Deserialize<T>(ArraySegment<byte> rawBytes, Session context)
@@ -62,6 +62,7 @@ namespace WebGL.WebSockets.Tests
     {
         public void Serialize(ref MessagePackWriter writer, DefaultMessage value, MessagePackSerializerOptions options)
         {
+            writer.WriteArrayHeader(5);
             writer.Write((byte)value.Type);
             writer.Write(value.Id);
             writer.Write(value.OperationCode);
@@ -72,6 +73,7 @@ namespace WebGL.WebSockets.Tests
         public DefaultMessage Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             var message = new DefaultMessage();
+            reader.ReadArrayHeader();
             message.Type = (TypeMessage)reader.ReadByte();
             message.Id = reader.ReadInt32();
             message.OperationCode = reader.ReadUInt32();

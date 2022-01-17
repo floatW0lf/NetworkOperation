@@ -75,22 +75,28 @@ namespace NetworkOperation.WebSockets.Core
 
         async ValueTask<bool> IAsyncEnumerator<ArraySegment<byte>>.MoveNextAsync()
         {
-            TryGrow(ref _buffer);
-            var result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
-            if (result.Count == 0) return false;
-            var messageSize = result.Count;
-            _buffer = _buffer.Slice(result.Count);
-            
-            while (!result.EndOfMessage)
+            try
             {
                 TryGrow(ref _buffer);
-                result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
-                messageSize += result.Count;
+                var result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+                if (result.Count == 0) return false;
+                var messageSize = result.Count;
                 _buffer = _buffer.Slice(result.Count);
+            
+                while (!result.EndOfMessage)
+                {
+                    TryGrow(ref _buffer);
+                    result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+                    messageSize += result.Count;
+                    _buffer = _buffer.Slice(result.Count);
+                }
+                _currentRawMessage = new ArraySegment<byte>(_buffer.Array, 0, messageSize);
+                return true;
             }
-            _currentRawMessage = new ArraySegment<byte>(_buffer.Array, 0, messageSize);
-            _buffer = new ArraySegment<byte>(_buffer.Array);
-            return true;
+            finally
+            {
+                _buffer = new ArraySegment<byte>(_buffer.Array);
+            }
         }
 
         private void TryGrow(ref ArraySegment<byte> buffer)

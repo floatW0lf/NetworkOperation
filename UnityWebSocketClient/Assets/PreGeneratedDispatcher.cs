@@ -23,6 +23,7 @@ namespace NetworkOperations.Dispatching
             switch (context.OperationDescription.Code)
             {
                case 2: return GenericHandle<WebGL.WebSockets.Tests.ClientOp, NetworkOperation.Core.Empty>(message, context, token);
+               case 3: return GenericHandle<WebGL.WebSockets.Tests.LargeDataOperation, System.Int32>(message, context, token);
             }
             throw new InvalidOperationException($"Wrong code operation {context.OperationDescription.Code}");
         }
@@ -36,6 +37,7 @@ namespace NetworkOperations.Dispatching
                 VirtualGenericMethodsDefinition<WebGL.WebSockets.Tests.TestOp>();                                        
                 VirtualGenericMethodsDefinition<WebGL.WebSockets.Tests.TestOp2>();                                        
                 VirtualGenericMethodsDefinition<WebGL.WebSockets.Tests.ClientOp>();                                        
+                VirtualGenericMethodsDefinition<WebGL.WebSockets.Tests.LargeDataOperation>();                                        
             
                 VirtualGenericMethodsDefinition<System.Int32>();                                       
                 VirtualGenericMethodsDefinition<System.String>();                                       

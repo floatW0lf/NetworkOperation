@@ -15,6 +15,7 @@ namespace NetworkOperation.Host
 
         public Task<OperationResult<TOpResult>> Execute<TOp, TOpResult>(TOp operation, CancellationToken cancellation = default) where TOp : IOperation<TOpResult>
         {
+            if (_sessions.Count <= 0) return Task.FromResult<OperationResult<TOpResult>>(default);
             return SendOperation<TOp, TOpResult>(operation, null, cancellation);
         }
 

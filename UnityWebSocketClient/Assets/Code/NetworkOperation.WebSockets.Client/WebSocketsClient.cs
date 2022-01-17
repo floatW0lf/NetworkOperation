@@ -75,11 +75,13 @@ namespace NetworkOperation.WebSockets.Client
         private void OnClose(WebSocketCloseCode code)
         {
             CloseSession();
+            Debug.Log($"Ws close {code}");
             _disconnect?.TrySetResult(0);
         }
 
         private void OnRecError(string msg)
         {
+            Debug.Log($"Ws Error {msg}");
             DoErrorSession(new IPEndPoint(IPAddress.Any, 0), SocketError.Shutdown);
         }
 

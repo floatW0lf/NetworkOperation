@@ -34,6 +34,7 @@
     <ProjectReference Include="..\NetworkOperation.Infrastructure.Host.LiteNet\NetworkOperation.Infrastructure.Host.LiteNet.csproj" />
     <ProjectReference Include="..\NetworkOperation.LiteNet\NetworkOperation.LiteNet.csproj" />
     <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
+    <ProjectReference Include="..\NetworkOperation.WebSockets.Host\NetworkOperation.WebSockets.Host.csproj" />
     <ProjectReference Include="..\Serializer.MessagePack\Serializer.MessagePack.csproj" />
   </ItemGroup>
 

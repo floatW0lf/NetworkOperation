@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
+using NetworkOperation.WebSockets.Host;
 
 
 namespace NetworkOperation.WebSockets.Core
@@ -17,10 +18,11 @@ namespace NetworkOperation.WebSockets.Core
         private readonly WebSocket _webSocket;
         private ArraySegment<byte> _buffer;
         private CancellationToken _cancellationToken;
-        public WebSession(WebSocket webSocket, IEnumerable<SessionProperty> properties, int bufferSize = 8096) : base(properties)
+        private ArraySegment<byte> _currentRawMessage;
+        public WebSession(WebSocket webSocket, IEnumerable<SessionProperty> properties, int bufferSize = 65535) : base(properties)
         {
             _webSocket = webSocket;
-            _buffer = ArrayPool<byte>.Shared.Rent(bufferSize).To();
+            _buffer = PooledArraySegment.Rent<byte>(bufferSize);
         }
 
         public override EndPoint NetworkAddress => new IPEndPoint(0, 0);
@@ -58,22 +60,12 @@ namespace NetworkOperation.WebSockets.Core
         protected override IAsyncEnumerable<ArraySegment<byte>> Bytes => this;
         protected override void OnClosedSession()
         {
-            ArrayPool<byte>.Shared.Return(_buffer.Array);
+            PooledArraySegment.Return(_buffer);
         }
         protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {
             if (_webSocket.State != WebSocketState.Open) return;
             await _webSocket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
-        }
-        
-        private static bool TryResize(ref ArraySegment<byte> segment, int newSize)
-        {
-            if (segment.Array.Length >= newSize) return false;
-            var newArray = ArrayPool<byte>.Shared.Rent(newSize);
-            Buffer.BlockCopy(segment.Array, 0, newArray, 0,segment.Array.Length);
-            ArrayPool<byte>.Shared.Return(segment.Array);
-            segment = new ArraySegment<byte>(newArray, segment.Offset, newSize);
-            return true;
         }
 
         ValueTask IAsyncDisposable.DisposeAsync()
@@ -83,24 +75,34 @@ namespace NetworkOperation.WebSockets.Core
 
         async ValueTask<bool> IAsyncEnumerator<ArraySegment<byte>>.MoveNextAsync()
         {
-            var messageSize = 0;
-            WebSocketReceiveResult result;
-            result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+            TryGrow(ref _buffer);
+            var result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
             if (result.Count == 0) return false;
-            messageSize += result.Count;
-            _buffer = _buffer.Slice(_buffer.Offset + result.Count);
+            var messageSize = result.Count;
+            _buffer = _buffer.Slice(result.Count);
+            
             while (!result.EndOfMessage)
             {
+                TryGrow(ref _buffer);
                 result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
-                _buffer = _buffer.Slice(_buffer.Offset + result.Count);
                 messageSize += result.Count;
+                _buffer = _buffer.Slice(result.Count);
             }
             _currentRawMessage = new ArraySegment<byte>(_buffer.Array, 0, messageSize);
             _buffer = new ArraySegment<byte>(_buffer.Array);
             return true;
         }
 
-        private ArraySegment<byte> _currentRawMessage;
+        private void TryGrow(ref ArraySegment<byte> buffer)
+        {
+            const int webSocketMaxBlockSize = 16376;
+            if (buffer.Count < webSocketMaxBlockSize)
+            {
+                PooledArraySegment.Advance(ref buffer, (buffer.Count + buffer.Offset)*2);
+            }
+        }
+
+        
         ArraySegment<byte> IAsyncEnumerator<ArraySegment<byte>>.Current => _currentRawMessage;
         public IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
         {

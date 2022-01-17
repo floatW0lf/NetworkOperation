@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MessagePack;
@@ -55,7 +56,9 @@ namespace WebGL.WebSockets.Tests
             Debug.Log($"Connect to {ConnectionUri}");
             await _client.ConnectAsync(new Uri(ConnectionUri, UriKind.Absolute), new ConnectPayload(){Version = 100});
             Debug.Log($"State is {_client.Current}");
-            await _client.Executor.Execute(new TestOp2 {Message = "heloo"}, p => p);
+            //await _client.Executor.Execute(new TestOp2 {Message = "heloo"}, p => p);
+            var large = Enumerable.Repeat((byte) 125, 64000).ToArray();
+            await _client.Executor.Execute(new LargeDataOperation() {Raw = large}, p => p);
         }
 
         public async void Disconnect()

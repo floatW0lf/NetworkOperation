@@ -49,12 +49,14 @@ namespace MessagePack.Resolvers
 
         static GeneratedResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(4)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(6)
             {
-                { typeof(global::WebGL.WebSockets.Tests.ConnectPayload), 0 },
-                { typeof(global::WebGL.WebSockets.Tests.DisconnectPayload), 1 },
-                { typeof(global::WebGL.WebSockets.Tests.TestOp), 2 },
-                { typeof(global::WebGL.WebSockets.Tests.TestOp2), 3 },
+                { typeof(global::WebGL.WebSockets.Tests.ClientOp), 0 },
+                { typeof(global::WebGL.WebSockets.Tests.ConnectPayload), 1 },
+                { typeof(global::WebGL.WebSockets.Tests.DisconnectPayload), 2 },
+                { typeof(global::WebGL.WebSockets.Tests.LargeDataOperation), 3 },
+                { typeof(global::WebGL.WebSockets.Tests.TestOp), 4 },
+                { typeof(global::WebGL.WebSockets.Tests.TestOp2), 5 },
             };
         }
 
@@ -68,10 +70,12 @@ namespace MessagePack.Resolvers
 
             switch (key)
             {
-                case 0: return new MessagePack.Formatters.WebGL.WebSockets.Tests.ConnectPayloadFormatter();
-                case 1: return new MessagePack.Formatters.WebGL.WebSockets.Tests.DisconnectPayloadFormatter();
-                case 2: return new MessagePack.Formatters.WebGL.WebSockets.Tests.TestOpFormatter();
-                case 3: return new MessagePack.Formatters.WebGL.WebSockets.Tests.TestOp2Formatter();
+                case 0: return new MessagePack.Formatters.WebGL.WebSockets.Tests.ClientOpFormatter();
+                case 1: return new MessagePack.Formatters.WebGL.WebSockets.Tests.ConnectPayloadFormatter();
+                case 2: return new MessagePack.Formatters.WebGL.WebSockets.Tests.DisconnectPayloadFormatter();
+                case 3: return new MessagePack.Formatters.WebGL.WebSockets.Tests.LargeDataOperationFormatter();
+                case 4: return new MessagePack.Formatters.WebGL.WebSockets.Tests.TestOpFormatter();
+                case 5: return new MessagePack.Formatters.WebGL.WebSockets.Tests.TestOp2Formatter();
                 default: return null;
             }
         }
@@ -110,6 +114,46 @@ namespace MessagePack.Formatters.WebGL.WebSockets.Tests
 {
     using global::System.Buffers;
     using global::MessagePack;
+
+    public sealed class ClientOpFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::WebGL.WebSockets.Tests.ClientOp>
+    {
+
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::WebGL.WebSockets.Tests.ClientOp value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            global::MessagePack.IFormatterResolver formatterResolver = options.Resolver;
+            writer.WriteArrayHeader(1);
+            formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.Message, options);
+        }
+
+        public global::WebGL.WebSockets.Tests.ClientOp Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil())
+            {
+                throw new global::System.InvalidOperationException("typecode is null, struct not supported");
+            }
+
+            options.Security.DepthStep(ref reader);
+            global::MessagePack.IFormatterResolver formatterResolver = options.Resolver;
+            var length = reader.ReadArrayHeader();
+            var ____result = new global::WebGL.WebSockets.Tests.ClientOp();
+
+            for (int i = 0; i < length; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        ____result.Message = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, options);
+                        break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
+            }
+
+            reader.Depth--;
+            return ____result;
+        }
+    }
 
     public sealed class ConnectPayloadFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::WebGL.WebSockets.Tests.ConnectPayload>
     {
@@ -166,6 +210,44 @@ namespace MessagePack.Formatters.WebGL.WebSockets.Tests
 
             reader.Skip();
             return new global::WebGL.WebSockets.Tests.DisconnectPayload();
+        }
+    }
+
+    public sealed class LargeDataOperationFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::WebGL.WebSockets.Tests.LargeDataOperation>
+    {
+
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::WebGL.WebSockets.Tests.LargeDataOperation value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            writer.WriteArrayHeader(1);
+            writer.Write(value.Raw);
+        }
+
+        public global::WebGL.WebSockets.Tests.LargeDataOperation Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil())
+            {
+                throw new global::System.InvalidOperationException("typecode is null, struct not supported");
+            }
+
+            options.Security.DepthStep(ref reader);
+            var length = reader.ReadArrayHeader();
+            var ____result = new global::WebGL.WebSockets.Tests.LargeDataOperation();
+
+            for (int i = 0; i < length; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        ____result.Raw = reader.ReadBytes()?.ToArray();
+                        break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
+            }
+
+            reader.Depth--;
+            return ____result;
         }
     }
 

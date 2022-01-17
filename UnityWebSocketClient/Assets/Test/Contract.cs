@@ -19,9 +19,17 @@ namespace WebGL.WebSockets.Tests
     }
 
     [Operation(2, Handle = Side.Client, WaitResponse = false)]
+    [MessagePackObject]
     public struct ClientOp : IOperation<Empty>
     {
         [Key(0)] public string Message;
+    }
+
+    [Operation(3, Handle = Side.All, WaitResponse = true)]
+    [MessagePackObject]
+    public struct LargeDataOperation : IOperation<int>
+    {
+        [Key(0)] public byte[] Raw;
     }
 
     [MessagePackObject]

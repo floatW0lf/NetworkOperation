@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,9 +48,12 @@ namespace WebSocketTest
             var service = (IHostedService) hostContext;
             await service.StartAsync(default);
             var prevPlayerCount = -1;
+
+            var bigBuffer = Enumerable.Repeat<byte>(125, 64000).ToArray();
             while (true)
             {
-                await hostContext.Executor.Execute(new ClientOp() {Message = "hello"}, t => t);
+               // await hostContext.Executor.Execute(new ClientOp() {Message = "hello"}, t => t);
+                //await hostContext.Executor.Execute(new LargeDataOperation() {Raw = bigBuffer}, t => t);
                 await Task.Delay(1000);
                 if (prevPlayerCount != hostContext.Sessions.Count)
                 {

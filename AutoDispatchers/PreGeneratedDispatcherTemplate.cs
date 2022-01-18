@@ -9,12 +9,9 @@
 // ------------------------------------------------------------------------------
 namespace TemplateDispatcher
 {
-    using NetworkOperation.Core;
     using NetworkOperation.Core.Models;
     using TemplateDispatcher;
     using System.Linq;
-    using System.Text;
-    using System.Collections.Generic;
     using System;
     
     /// <summary>
@@ -31,93 +28,93 @@ namespace TemplateDispatcher
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\nusing System;\r\nusing System.Threading.Tasks;\r\nusing System.Threading;\r\nusing NetworkOperation.Core;\r\nusing NetworkOperation.Core.Dispatching;\r\nusing NetworkOperation.Core.Models;\r\nusing NetworkOperation.Core.Messages;\r\nusing Microsoft.Extensions.Logging;\r\n\r\n\r\nnamespace NetworkOperations.Dispatching\r\n{\r\n    public class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>\r\n           where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()\r\n    {\r\n        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel) : base(serializer, factory, model, logger,descriptionRuntimeModel)\r\n        {\r\n        }\r\n\r\n        protected override Task<DataWithStateCode> ProcessHandler(TRequest message, RequestContext<TRequest> context, CancellationToken token)\r\n        {\r\n            switch (context.OperationDescription.Code)\r\n            {\r\n");
+            this.Write("\r\n\r\nusing System;\r\nusing System.Threading.Tasks;\r\nusing System.Threading;\r\nusing NetworkOperation.Core;\r\nusing NetworkOperation.Core.Dispatching;\r\nusing NetworkOperation.Core.Models;\r\nusing NetworkOperation.Core.Messages;\r\nusing Microsoft.Extensions.Logging;\r\n\r\n\r\nnamespace NetworkOperations.Dispatching\r\n{\r\n    public class PreGeneratedDispatcher<TRequest, TResponse> : BaseDispatcher<TRequest, TResponse>\r\n           where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()\r\n    {\r\n        public PreGeneratedDispatcher(BaseSerializer serializer, IHandlerFactory factory, OperationRuntimeModel model, ILoggerFactory logger, DescriptionRuntimeModel descriptionRuntimeModel) : base(serializer, factory, model, logger,descriptionRuntimeModel)\r\n        {\r\n        }\r\n\r\n        protected override Task<DataWithStateCode> ProcessHandler(TRequest message, RequestContext<TRequest> context, CancellationToken token)\r\n        {\r\n            switch (context.OperationDescription.Code)\r\n            {\r\n");
             
-            #line 37 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 30 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (OperationDescription op in Model) { if (op == null || !op.Handle.HasFlag(Side)) continue; 
             
             #line default
             #line hidden
             this.Write("               case ");
             
-            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 31 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.Code));
             
             #line default
             #line hidden
             this.Write(": return GenericHandle<");
             
-            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 31 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.OperationType.FullName));
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 31 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.ResultType.ToCSharpFormat()));
             
             #line default
             #line hidden
             this.Write(">(message, context, token);\r\n");
             
-            #line 39 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 32 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            }\r\n            throw new InvalidOperationException($\"Wrong code operation {context.OperationDescription.Code}\");\r\n        }\r\n    }\r\n    \r\n");
             
-            #line 45 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 38 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  if (AOTSupport) {
             
             #line default
             #line hidden
             this.Write(" \r\n        public static partial class AOTSupport\r\n        {\r\n            public static void GeneratedDefinitions()\r\n            {\r\n");
             
-            #line 50 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 43 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (OperationDescription op in Model){
             
             #line default
             #line hidden
             this.Write("                VirtualGenericMethodsDefinition<");
             
-            #line 51 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 44 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(op.OperationType.FullName));
             
             #line default
             #line hidden
             this.Write(">();                                        \r\n");
             
-            #line 52 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 45 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("            \r\n");
             
-            #line 54 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 47 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  foreach (Type resultType in Model.Select(d => d.ResultType).Distinct()){
             
             #line default
             #line hidden
             this.Write("                VirtualGenericMethodsDefinition<");
             
-            #line 55 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 48 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(resultType.ToCSharpFormat()));
             
             #line default
             #line hidden
             this.Write(">();                                       \r\n");
             
-            #line 56 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 49 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("            }            \r\n            static partial void VirtualGenericMethodsDefinition<T>();            \r\n        }\r\n");
             
-            #line 60 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
+            #line 53 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
  } 
             
             #line default
@@ -125,107 +122,6 @@ namespace TemplateDispatcher
             this.Write(" \r\n}");
             return this.GenerationEnvironment.ToString();
         }
-        
-        #line 1 "D:\projects\NetworkOperation\AutoDispatchers\PreGeneratedDispatcherTemplate.tt"
-
-private bool _AOTSupportField;
-
-/// <summary>
-/// Access the AOTSupport parameter of the template.
-/// </summary>
-private bool AOTSupport
-{
-    get
-    {
-        return this._AOTSupportField;
-    }
-}
-
-private global::NetworkOperation.Core.Side _SideField;
-
-/// <summary>
-/// Access the Side parameter of the template.
-/// </summary>
-private global::NetworkOperation.Core.Side Side
-{
-    get
-    {
-        return this._SideField;
-    }
-}
-
-private global::NetworkOperation.Core.Models.OperationRuntimeModel _ModelField;
-
-/// <summary>
-/// Access the Model parameter of the template.
-/// </summary>
-private global::NetworkOperation.Core.Models.OperationRuntimeModel Model
-{
-    get
-    {
-        return this._ModelField;
-    }
-}
-
-
-/// <summary>
-/// Initialize the template
-/// </summary>
-public virtual void Initialize()
-{
-    if ((this.Errors.HasErrors == false))
-    {
-bool AOTSupportValueAcquired = false;
-if (this.Session.ContainsKey("AOTSupport"))
-{
-    this._AOTSupportField = ((bool)(this.Session["AOTSupport"]));
-    AOTSupportValueAcquired = true;
-}
-if ((AOTSupportValueAcquired == false))
-{
-    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("AOTSupport");
-    if ((data != null))
-    {
-        this._AOTSupportField = ((bool)(data));
-    }
-}
-bool SideValueAcquired = false;
-if (this.Session.ContainsKey("Side"))
-{
-    this._SideField = ((global::NetworkOperation.Core.Side)(this.Session["Side"]));
-    SideValueAcquired = true;
-}
-if ((SideValueAcquired == false))
-{
-    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Side");
-    if ((data != null))
-    {
-        this._SideField = ((global::NetworkOperation.Core.Side)(data));
-    }
-}
-bool ModelValueAcquired = false;
-if (this.Session.ContainsKey("Model"))
-{
-    this._ModelField = ((global::NetworkOperation.Core.Models.OperationRuntimeModel)(this.Session["Model"]));
-    ModelValueAcquired = true;
-}
-if ((ModelValueAcquired == false))
-{
-    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Model");
-    if ((data != null))
-    {
-        this._ModelField = ((global::NetworkOperation.Core.Models.OperationRuntimeModel)(data));
-    }
-}
-
-
-    }
-}
-
-
-        
-        #line default
-        #line hidden
     }
     
     #line default

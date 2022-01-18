@@ -1,15 +1,8 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
-<#@ assembly name="System.Core" #>
-<#@ import namespace="NetworkOperation.Core" #>
 <#@ import namespace="NetworkOperation.Core.Models" #>
 <#@ import namespace="TemplateDispatcher" #>
 <#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
-<#@ parameter type="System.Boolean" name="AOTSupport" #>
-<#@ parameter type="NetworkOperation.Core.Side" name="Side" #>
-<#@ parameter type="NetworkOperation.Core.Models.OperationRuntimeModel" name="Model" #>
-<#@ output extension=".generated.cs" #>
+
 
 using System;
 using System.Threading.Tasks;

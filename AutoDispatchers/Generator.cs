@@ -45,18 +45,7 @@ namespace TemplateDispatcher
             {
                 Console.WriteLine(description.OperationType.FullName);
             }
-            var dispatcher = new PreGeneratedDispatcherTemplate
-            {
-                Session = new Dictionary<string, object>()
-                {
-                    {"Model", model}, {"Side", arg.Side}, {"AOTSupport", arg.AOTSupport}
-                }
-            };
-            dispatcher.Initialize();
-            foreach (var error in dispatcher.Errors)
-            {
-                Console.WriteLine(error);
-            }
+            var dispatcher = new PreGeneratedDispatcherTemplate(model, arg.AOTSupport, arg.Side);
             File.WriteAllText(Path.Combine(arg.Output,"PreGeneratedDispatcher.cs"), dispatcher.TransformText());
             
         }

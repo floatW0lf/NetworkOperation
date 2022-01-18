@@ -15,7 +15,7 @@ using NetworkOperation.Host;
 
 namespace NetworkOperation.WebSockets.Host
 {
-    public class WebSocketsHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse,WebSocket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class WebSocketsHttpListenerHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse,WebSocket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private HttpListener _httpListener;
         private Task _pollAcceptTask;
@@ -40,7 +40,7 @@ namespace NetworkOperation.WebSockets.Host
         }
         
 
-        public WebSocketsHost(IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(new Factory(), executorFactory, dispatcher, handler, loggerFactory)
+        public WebSocketsHttpListenerHost(IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(new Factory(), executorFactory, dispatcher, handler, loggerFactory)
         {
             
         }
@@ -92,7 +92,7 @@ namespace NetworkOperation.WebSockets.Host
                     {
                         _cts.Token.ThrowIfCancellationRequested();
                         var webSocketContext = await context.AcceptWebSocketAsync(SubProtocol);
-                        var request = new WebSocketsRequest(webSocketContext, _openingSessionQueue, context.Request.RemoteEndPoint);
+                        var request = new HttpListenerWebSocketsRequest(webSocketContext, _openingSessionQueue, context.Request.RemoteEndPoint);
                         BeforeSessionOpen(request);
                         await Task.Delay(PollTimeInMs, _cts.Token);
                     }

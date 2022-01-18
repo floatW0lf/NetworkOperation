@@ -60,6 +60,7 @@ namespace NetworkOperation.WebSockets.Core
         protected override void OnClosedSession()
         {
             PooledArraySegment.Return(_buffer);
+            _webSocket.Dispose();
         }
         protected override async Task SendMessageAsync(ArraySegment<byte> data, DeliveryMode mode)
         {

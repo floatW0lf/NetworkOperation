@@ -10,14 +10,14 @@ using NetworkOperation.WebSockets.Core;
 
 namespace NetworkOperation.WebSockets.Host
 {
-    internal class WebSocketsRequest : SessionRequest
+    internal class HttpListenerWebSocketsRequest : SessionRequest
     {
         private readonly HttpListenerWebSocketContext _wsContext;
         private ConcurrentQueue<Session> _queue;
         private EndPoint _remote;
         public override ArraySegment<byte> RequestPayload { get; }
 
-        public WebSocketsRequest(HttpListenerWebSocketContext wsContext, ConcurrentQueue<Session> queue, EndPoint remote)
+        public HttpListenerWebSocketsRequest(HttpListenerWebSocketContext wsContext, ConcurrentQueue<Session> queue, EndPoint remote)
         {
             _remote = remote;
             _queue = queue;

@@ -31,7 +31,6 @@ namespace NetworkOperation.WebSockets.Core
         public override NetworkStatistics Statistics => throw new NotImplementedException();
         protected override void SendClose(ArraySegment<byte> payload)
         {
-            if (_webSocket.State != WebSocketState.Open) return;
             _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, Convert.ToBase64String(payload.Array, payload.Offset, payload.Count), CancellationToken.None).GetAwaiter();
         }
 

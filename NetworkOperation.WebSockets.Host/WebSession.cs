@@ -19,11 +19,14 @@ namespace NetworkOperation.WebSockets.Core
         private ArraySegment<byte> _buffer;
         private CancellationToken _cancellationToken;
         private ArraySegment<byte> _currentRawMessage;
+        private readonly TaskCompletionSource<byte> _closedSession;
+
         public WebSession(WebSocket webSocket, EndPoint remote, IEnumerable<SessionProperty> properties, int bufferSize = 65535) : base(properties)
         {
             NetworkAddress = remote;
             _webSocket = webSocket;
             _buffer = PooledArraySegment.Rent<byte>(bufferSize);
+            _closedSession = new TaskCompletionSource<byte>();
         }
         public override EndPoint NetworkAddress { get; }
         public override object UntypedConnection => _webSocket;
@@ -33,6 +36,7 @@ namespace NetworkOperation.WebSockets.Core
         {
             _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, Convert.ToBase64String(payload.Array, payload.Offset, payload.Count), CancellationToken.None).GetAwaiter();
         }
+        public Task WaitClose => _closedSession.Task;
 
         public override SessionState State
         {
@@ -59,6 +63,7 @@ namespace NetworkOperation.WebSockets.Core
         protected override IAsyncEnumerable<ArraySegment<byte>> Bytes => this;
         protected override void OnClosedSession()
         {
+            _closedSession.SetResult(0);
             PooledArraySegment.Return(_buffer);
             _webSocket.Dispose();
         }
@@ -79,6 +84,7 @@ namespace NetworkOperation.WebSockets.Core
             {
                 TryGrow(ref _buffer);
                 var result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+                LastReceiveMessage = DateTime.UtcNow;
                 if (result.Count == 0) return false;
                 var messageSize = result.Count;
                 _buffer = _buffer.Slice(result.Count);
@@ -87,6 +93,7 @@ namespace NetworkOperation.WebSockets.Core
                 {
                     TryGrow(ref _buffer);
                     result = await _webSocket.ReceiveAsync(_buffer, _cancellationToken);
+                    LastReceiveMessage = DateTime.UtcNow;
                     messageSize += result.Count;
                     _buffer = _buffer.Slice(result.Count);
                 }
@@ -110,6 +117,9 @@ namespace NetworkOperation.WebSockets.Core
 
         
         ArraySegment<byte> IAsyncEnumerator<ArraySegment<byte>>.Current => _currentRawMessage;
+
+        public DateTime LastReceiveMessage { get; private set; }
+
         public IAsyncEnumerator<ArraySegment<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
         {
             _cancellationToken = cancellationToken;

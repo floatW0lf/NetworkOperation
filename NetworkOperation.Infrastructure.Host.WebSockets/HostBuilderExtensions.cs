@@ -9,7 +9,7 @@ namespace NetworkOperation.Infrastructure.Host.WebSockets
 {
     public static class HostBuilderExtensions
     {
-        public static HostBuilder<TRequest, TResponse> UseWebSockets<TRequest, TResponse>(this HostBuilder<TRequest, TResponse> builder, Action<WebSocketsHttpListenerHost<TRequest, TResponse>> setup = null) where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+        public static HostBuilder<TRequest, TResponse> UseHttpListenerWebSockets<TRequest, TResponse>(this HostBuilder<TRequest, TResponse> builder, Action<WebSocketsHttpListenerHost<TRequest, TResponse>> setup = null) where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
         {
             builder.Service.AddSingleton<IHostContext, WebSocketsHttpListenerHost<TRequest, TResponse>>(p =>
             {

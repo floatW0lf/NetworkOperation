@@ -39,9 +39,12 @@ namespace NetworkOperation.WebSockets.Host
             _queue.Enqueue(session);
         }
 
-        public override void Reject(ArraySegment<byte> payload = default)
+        public override async void Reject(ArraySegment<byte> payload = default)
         {
-            _wsContext.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, payload != default ? Convert.ToBase64String(payload.Array, payload.Offset, payload.Count) : string.Empty, default).GetAwaiter();
+            await _wsContext.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
+                payload != default
+                    ? Convert.ToBase64String(payload.Array, payload.Offset, payload.Count)
+                    : string.Empty, default);
         }
     }
 }

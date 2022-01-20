@@ -38,7 +38,7 @@ namespace WebSocketTest
                 .Dispatcher<ExpressionDispatcher<DefaultMessage, DefaultMessage>>()
                 .RuntimeModel(OperationRuntimeModel.CreateFromAttribute())
                 .RegisterHandlers(new [] {typeof(Program).Assembly})
-                .UseWebSockets(h =>
+                .UseHttpListenerWebSockets(h =>
                 {
                     h.UriHost = "http://*:7700/connection/";
                 });

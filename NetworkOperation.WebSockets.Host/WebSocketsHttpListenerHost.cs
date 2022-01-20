@@ -15,7 +15,7 @@ using NetworkOperation.Host;
 
 namespace NetworkOperation.WebSockets.Host
 {
-    public class WebSocketsHttpListenerHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse,WebSocket> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
+    public class WebSocketsHttpListenerHost<TRequest,TResponse> : AbstractHost<TRequest,TResponse,NoneConnectionCollection> where TRequest : IOperationMessage, new() where TResponse : IOperationMessage, new()
     {
         private HttpListener _httpListener;
         private Task _pollAcceptTask;
@@ -23,24 +23,10 @@ namespace NetworkOperation.WebSockets.Host
         private Task _pollReceive;
         private IEnumerable<Task> _cachedDispatchSessions;
 
-
         public string UriHost { get; set; }
         public string SubProtocol { get; set; }
-        
-        private class Factory : IFactory<WebSocket, MutableSessionCollection>
-        {
-            class WebSocketCollection : MutableSessionCollection
-            {
-                public override NetworkStatistics Statistics => throw new NotImplementedException();
-            }
-            public MutableSessionCollection Create(WebSocket arg)
-            {
-                return new WebSocketCollection();
-            }
-        }
-        
 
-        public WebSocketsHttpListenerHost(IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(new Factory(), executorFactory, dispatcher, handler, loggerFactory)
+        public WebSocketsHttpListenerHost(IFactory<SessionCollection, IHostOperationExecutor> executorFactory, BaseDispatcher<TRequest, TResponse> dispatcher, SessionRequestHandler handler, ILoggerFactory loggerFactory) : base(new CollectionFactory(), executorFactory, dispatcher, handler, loggerFactory)
         {
             
         }
@@ -52,7 +38,7 @@ namespace NetworkOperation.WebSockets.Host
             _httpListener = new HttpListener();
             _httpListener.Prefixes.Add(UriHost);
             _httpListener.Start();
-            ServerStarted(null);
+            ServerStarted(default);
             _cachedDispatchSessions = Sessions.Select(s => Dispatcher.DispatchAsync(s));
             _pollAcceptTask = Task.Factory.StartNew(PollAccept, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             _pollReceive = Task.Factory.StartNew(PollReceive, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);

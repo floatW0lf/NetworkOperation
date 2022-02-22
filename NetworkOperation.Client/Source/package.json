@@ -1,0 +1,12 @@
+{
+    "name": "com.networkoperation.abstraction.client",
+    "displayName": "Abstraction network operation client",
+    "author": { "name": "floatW0lf", "url": "https://github.com/floatW0lf" },
+    "version": "1.0.0",
+    "unity": "2020.4",
+    "description": "Client for rpc",
+    "keywords": [ "rpc", "network" ],
+    "license": "MIT",
+    "category": "RPC",
+    "dependencies": {}
+}

@@ -19,7 +19,7 @@ namespace IntegrationTests.Server
 
         public async Task<OperationResult<float>> Handle(Multiply objectData, RequestContext<DefaultMessage> context, CancellationToken token)
         {
-            return this.ReturnCode(MultiplyStatus.OverFlow,t=>t,objectData.A * objectData.B);
+            return this.ReturnCode(MultiplyStatus.OverFlow,objectData.A * objectData.B);
         }
     }
 }

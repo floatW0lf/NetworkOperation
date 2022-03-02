@@ -26,6 +26,12 @@
     <Compile Include="..\UnityProject\Packages\$(ProjectName)\Runtime\**\*.cs">
       <Link>Runtime\*.cs</Link>
     </Compile>
+    <Compile Update="..\UnityProject\Packages\NetworkOperation.Core\Runtime\StatusCode.cs">
+      <Link>Runtime\StatusCode.cs</Link>
+    </Compile>
+    <Compile Update="..\UnityProject\Packages\NetworkOperation.Core\Runtime\OperationExtensions.cs">
+      <Link>Runtime\OperationExtensions.cs</Link>
+    </Compile>
   </ItemGroup>
 
 </Project>

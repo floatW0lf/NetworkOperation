@@ -8,13 +8,12 @@ namespace Serializer.MessagePack
     {
         public void Serialize(ref MessagePackWriter writer, StatusCode value, MessagePackSerializerOptions options)
         {
-            writer.WriteUInt8(value.TypeTag);
-            writer.WriteUInt16(value.EnumValue);
+            writer.WriteUInt32(value.Code);
         }
 
         public StatusCode Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
-            return new StatusCode(reader.ReadByte(), reader.ReadUInt16());
+            return (StatusCode)reader.ReadUInt32();
         }
     }
 }

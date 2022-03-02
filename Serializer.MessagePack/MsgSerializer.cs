@@ -22,7 +22,7 @@ namespace Serializer.MessagePack
 
         public override TypeMessage ReadMessageType(ArraySegment<byte> rawBytes)
         {
-            return MessagePackSerializer.Deserialize<TypeMessage>(rawBytes.Slice(1, 1), _options);
+            return MessagePackSerializer.Deserialize<TypeMessage>(new ArraySegment<byte>(rawBytes.Array, rawBytes.Offset + 1, 1),_options);
         }
 
         public override T Deserialize<T>(ArraySegment<byte> rawBytes, Session context)

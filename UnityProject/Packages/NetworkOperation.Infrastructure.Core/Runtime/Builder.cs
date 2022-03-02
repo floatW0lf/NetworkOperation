@@ -21,7 +21,12 @@ namespace NetworkOperation.Infrastructure
             Service.Add(new ServiceDescriptor(typeof(DescriptionRuntimeModel),_runtimeModel));
         }
         public IServiceCollection Service { get; }
-        
+        public TImplement RegisterStatusCodes(params Type[] codes)
+        {
+            StatusCode.Register(codes);
+            return This;
+        }
+
         public TImplement Dispatcher<TDispatcher>(Action<TDispatcher> dispatcher = null) where TDispatcher : BaseDispatcher<TRequest,TResponse>
         {
             Service.AddSingleton<BaseDispatcher<TRequest,TResponse>>(p =>

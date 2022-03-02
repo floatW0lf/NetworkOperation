@@ -9,15 +9,7 @@ environment:
     secure: eBrnjT3GvCjDXqBN/Q4g7hMIchMToOerQeoZrG/OC8QGBVVV7S4Kq+SSv4xTWQe+  
 install:
 - ps: Install-Product node $env:nodejs_version
-build_script:
-- ps: >-
-    $packagesFiles = Get-ChildItem -Path $env:APPVEYOR_BUILD_FOLDER -Include "package.json" -Recurse
-    
-    foreach ($package in $packagesFiles)
-    {       
-        Set-Location -Path $package.Directory.FullName  
-        Invoke-Expression -Command "npm pack"  
-    }
+build: off
 artifacts:
 - path: '**\*.tgz'
 deploy_script:

@@ -34,6 +34,7 @@ namespace IntegrationTests
         
         public ServerClientInteractionTest()
         {
+            StatusCode.Register(typeof(MultiplyStatus), typeof(MultiplyStatusExt));
             var clientCollection = new ServiceCollection();
             clientCollection.AddLogging();
             clientCollection
@@ -68,9 +69,8 @@ namespace IntegrationTests
         {
             await StartServerAndClient();
             var operationResult = await _client.Executor.Execute(new Multiply() {A = 100, B = 100}, t => t);
-            operationResult.Match(t => t, (state, f) => {}, (status, f) => {}, (ext, f) => {});
-            
-            Assert.True(operationResult.Is(MultiplyStatus.OverFlow, t=> t));
+           
+            Assert.True(operationResult.Status.AsEnum<MultiplyStatus>() == MultiplyStatus.OverFlow);
             Assert.Equal(10000,operationResult.Result);
         }
 

@@ -5,7 +5,7 @@
     "name": "floatW0lf",
     "url": "https://github.com/floatW0lf"
   },
-  "version": "1.0.1",
+  "version": "0.2.8",
   "unity": "2020.4",
   "description": "Rpc Client",
   "keywords": [
@@ -15,7 +15,7 @@
   "license": "MIT",
   "category": "RPC",
   "dependencies": {
-    "com.networkoperation.abstraction.client": "1.0.1",
+    "com.networkoperation.abstraction.client": "0.2.8",
     "com.litenetlib": "0.9.5"
   },
   "repository": {

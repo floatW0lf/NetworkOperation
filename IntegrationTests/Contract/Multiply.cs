@@ -14,7 +14,7 @@ namespace IntegrationTests.Contract
     }
     [DataContract]
     [Operation(4, Handle = Side.All)]
-    public class Multiply : IOperationWithStatus<float,MultiplyStatus,MultiplyStatusExt>
+    public class Multiply : IOperation<float>
     {
         [DataMember(Order = 0)]
         public float A;

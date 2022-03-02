@@ -1,0 +1,22 @@
+{
+    "name": "NetworkOperation.Infrastructure.Client.LiteNet",
+    "rootNamespace": "NetworkOperation.Infrastructure.Client.LiteNet",
+    "references": [
+        "NetworkOperation.Infrastructure.Client",
+        "NetworkOperation.Core",
+        "LiteNetLib",
+        "NetworkOperation.Client",
+        "NetworkOperation.LiteNet.Client",
+        "NetworkOperation.LiteNet",
+        "NetworkOperation.Infrastructure.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

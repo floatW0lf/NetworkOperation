@@ -1,0 +1,29 @@
+{
+  "name": "com.networkoperation.litenet",
+  "displayName": "Network Operation litenet",
+  "author": {
+    "name": "floatW0lf",
+    "url": "https://github.com/floatW0lf"
+  },
+  "version": "1.0.1",
+  "unity": "2020.4",
+  "description": "Rpc Client",
+  "keywords": [
+    "rpc",
+    "network"
+  ],
+  "license": "MIT",
+  "category": "RPC",
+  "dependencies": {
+    "com.networkoperation.abstraction.client": "1.0.1",
+    "com.litenetlib": "0.9.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/floatW0lf/NetworkOperation.git",
+    "directory": "UnityProject/Assets/NetworkOperation.LiteNet"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@floatW0lf"
+  }
+}

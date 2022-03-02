@@ -1,0 +1,29 @@
+{
+  "name": "com.networkoperation.infrastructure.client",
+  "displayName": "Network Operation Infrastructure Client",
+  "author": {
+    "name": "floatW0lf",
+    "url": "https://github.com/floatW0lf"
+  },
+  "version": "1.0.1",
+  "unity": "2020.4",
+  "description": "Rpc Client",
+  "keywords": [
+    "rpc",
+    "network"
+  ],
+  "license": "MIT",
+  "category": "RPC",
+  "dependencies": {
+    "com.networkoperation.infrastructure.core": "1.0.1",
+    "com.networkoperation.abstraction.client": "1.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/floatW0lf/NetworkOperation.git",
+    "directory": "UnityProject/Assets/NetworkOperation.Infrastructure.Client"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@floatW0lf"
+  }
+}

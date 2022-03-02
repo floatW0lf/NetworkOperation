@@ -1,0 +1,18 @@
+{
+    "name": "NetworkOperation.Infrastructure.Core",
+    "rootNamespace": "NetworkOperation.Infrastructure.Core",
+    "references": [
+        "GUID:5bc2cd9f08aae1c41932883dd67de67f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Microsoft.Extensions.DependencyInjection.Abstractions.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

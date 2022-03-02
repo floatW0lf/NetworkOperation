@@ -1,0 +1,16 @@
+{
+    "name": "NetworkOperation.Client",
+    "rootNamespace": "NetworkOperation.Client",
+    "references": [
+        "GUID:5bc2cd9f08aae1c41932883dd67de67f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

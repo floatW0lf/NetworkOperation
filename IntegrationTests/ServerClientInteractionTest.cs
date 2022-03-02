@@ -9,7 +9,7 @@ using LiteNet.Infrastructure.Host;
 using LiteNetLib;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NetLibOperation;
+using NetLibOperation.LiteNet;
 using NetworkOperation.Client;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;

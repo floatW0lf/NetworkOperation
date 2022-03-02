@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using LiteNetLib;
-using NetLibOperation;
+using NetLibOperation.LiteNet;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Models;
 

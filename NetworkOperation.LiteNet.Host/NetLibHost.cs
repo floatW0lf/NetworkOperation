@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using Microsoft.Extensions.Logging;
-using NetLibOperation;
+using NetLibOperation.LiteNet;
 using NetworkOperation.Core;
 using NetworkOperation.Core.Dispatching;
 using NetworkOperation.Core.Factories;

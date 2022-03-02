@@ -16,5 +16,10 @@
       <ProjectReference Include="..\NetworkOperation.Client\NetworkOperation.Client.csproj" />
       <ProjectReference Include="..\NetworkOperation.Infrastructure.Core\NetworkOperation.Infrastructure.Core.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\UnityProject\Packages\$(ProjectName)\Runtime\**\*.cs">
+            <Link>Runtime\*.cs</Link>
+        </Compile>
+    </ItemGroup>
 
 </Project>

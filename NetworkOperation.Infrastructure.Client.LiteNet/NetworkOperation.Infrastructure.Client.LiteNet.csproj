@@ -6,10 +6,14 @@
         <Authors>floatW0lf</Authors>
         <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
     </PropertyGroup>
-
     <ItemGroup>
       <ProjectReference Include="..\NetworkOperation.Infrastructure.Client\NetworkOperation.Infrastructure.Client.csproj" />
       <ProjectReference Include="..\NetworkOperation.LiteNet.Client\NetworkOperation.LiteNet.Client.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\UnityProject\Packages\$(ProjectName)\Runtime\**\*.cs">
+            <Link>Runtime\*.cs</Link>
+        </Compile>
     </ItemGroup>
 
 </Project>

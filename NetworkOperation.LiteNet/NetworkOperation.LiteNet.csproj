@@ -11,11 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
+    <PackageReference Include="LiteNetLib" Version="0.9.5.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\UnityProject\Packages\$(ProjectName)\Runtime\**\*.cs">
+      <Link>Runtime\*.cs</Link>
+    </Compile>
+  </ItemGroup>  
 
 </Project>

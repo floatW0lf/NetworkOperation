@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LiteNetLib;
-using NetLibOperation;
+using NetLibOperation.LiteNet;
 using NetworkOperation.Core;
 using NetworkOperation.Host;
 

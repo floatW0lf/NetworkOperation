@@ -11,9 +11,14 @@
     <Authors>floatW0lf</Authors>
     <RepositoryUrl>https://github.com/floatW0lf/NetworkOperation</RepositoryUrl>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\NetworkOperation.Core\NetworkOperation.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\UnityProject\Packages\$(ProjectName)\Runtime\**\*.cs">
+      <Link>Runtime\*.cs</Link>
+    </Compile>
   </ItemGroup>
 
 </Project>

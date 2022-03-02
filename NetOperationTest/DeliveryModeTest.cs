@@ -1,5 +1,5 @@
 ﻿using LiteNetLib;
-using NetLibOperation;
+using NetLibOperation.LiteNet;
 using NetworkOperation.Core.Models;
 using Xunit;
 

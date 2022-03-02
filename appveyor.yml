@@ -1,30 +1,33 @@
-version: 0.3.{build}
+version: 0.1.{build}
 branches:
   only:
-  - master
-image: Visual Studio 2019
+  - feature/unity_package
 configuration: Release
-dotnet_csproj:
-  patch: true
-  file: '**\*.csproj'
-  version: '{version}'
-  version_prefix: '{version}'
-  package_version: '{version}'
-  assembly_version: '{version}'
-  file_version: '{version}'
-  informational_version: '{version}'
-before_build:
-- cmd: nuget restore NetworkOperation.sln
-build:
-  project: NetworkOperation.sln
-  publish_nuget: true
-  verbosity: minimal
+environment:
+  nodejs_version: STABLE
+  NPM_TOKEN:
+    secure: eBrnjT3GvCjDXqBN/Q4g7hMIchMToOerQeoZrG/OC8QGBVVV7S4Kq+SSv4xTWQe+  
+install:
+- ps: Install-Product node $env:nodejs_version
+build_script:
+- ps: >-
+    $packagesFiles = Get-ChildItem -Path $env:APPVEYOR_BUILD_FOLDER -Include "package.json" -Recurse
+    
+    foreach ($package in $packagesFiles)
+    {       
+        Set-Location -Path $package.Directory.FullName  
+        Invoke-Expression -Command "npm pack"  
+    }
 artifacts:
-- path: '**\*.nupkg'
-deploy:
-- provider: NuGet
-  api_key:
-    secure: 6Ssbwk10OU2U08WMOW2Cn0oyHOa3n++bg5zctQWnHcwmaRkNr8QvZPqaOqBSvSRP
-  skip_symbols: true
-  symbol_server:
-  artifact: /.*\.nupkg/
+- path: '**\*.tgz'
+deploy_script:
+- ps: >-
+    $packagesFiles = Get-ChildItem -Path $env:APPVEYOR_BUILD_FOLDER -Include "package.json" -Recurse
+    
+    foreach ($package in $packagesFiles)
+    {
+        Set-Location -Path $package.Directory.FullName
+        "//npm.pkg.github.com/:_authToken={0}" -f $env:NPM_TOKEN | Out-File ".npmrc" -Encoding UTF8
+        
+        Invoke-Expression -Command "npm publish"
+    }

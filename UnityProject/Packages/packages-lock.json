@@ -35,7 +35,7 @@
       "source": "embedded",
       "dependencies": {
         "com.networkoperation.infrastructure.client": "1.0.1",
-        "com.networkoperation.litnet.client": "1.0.1"
+        "com.networkoperation.litenet.client": "1.0.1"
       }
     },
     "com.networkoperation.infrastructure.core": {
@@ -55,7 +55,7 @@
         "com.litenetlib": "0.9.5"
       }
     },
-    "com.networkoperation.litnet.client": {
+    "com.networkoperation.litenet.client": {
       "version": "file:NetworkOperation.LiteNet.Client",
       "depth": 0,
       "source": "embedded",

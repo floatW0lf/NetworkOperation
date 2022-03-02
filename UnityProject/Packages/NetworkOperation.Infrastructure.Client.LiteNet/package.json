@@ -16,7 +16,7 @@
   "category": "RPC",
   "dependencies": {
     "com.networkoperation.infrastructure.client": "1.0.1",
-    "com.networkoperation.litnet.client": "1.0.1"
+    "com.networkoperation.litenet.client": "1.0.1"
   },
   "repository": {
     "type": "git",

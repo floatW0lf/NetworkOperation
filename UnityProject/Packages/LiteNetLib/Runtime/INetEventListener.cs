@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Sockets;
-using LiteNetLib.Utils;
 
 namespace LiteNetLib
 {
@@ -10,7 +9,8 @@ namespace LiteNetLib
     public enum UnconnectedMessageType
     {
         BasicMessage,
-        Broadcast
+        DiscoveryRequest,
+        DiscoveryResponse
     }
 
     /// <summary>
@@ -21,14 +21,10 @@ namespace LiteNetLib
         ConnectionFailed,
         Timeout,
         HostUnreachable,
-        NetworkUnreachable,
         RemoteConnectionClose,
         DisconnectPeerCalled,
         ConnectionRejected,
-        InvalidProtocol,
-        UnknownHost,
-        Reconnect,
-        PeerToPeerConnection
+        InvalidProtocol
     }
 
     /// <summary>
@@ -87,7 +83,7 @@ namespace LiteNetLib
         /// </summary>
         /// <param name="remoteEndPoint">From address (IP and Port)</param>
         /// <param name="reader">Message data</param>
-        /// <param name="messageType">Message type (simple, discovery request or response)</param>
+        /// <param name="messageType">Message type (simple, discovery request or responce)</param>
         void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType);
 
         /// <summary>
@@ -104,26 +100,7 @@ namespace LiteNetLib
         void OnConnectionRequest(ConnectionRequest request);
     }
 
-    public interface IDeliveryEventListener
-    {
-        /// <summary>
-        /// On reliable message delivered
-        /// </summary>
-        /// <param name="peer"></param>
-        /// <param name="userData"></param>
-        void OnMessageDelivered(NetPeer peer, object userData);
-    }
-
-    public interface INtpEventListener
-    {
-        /// <summary>
-        /// Ntp response
-        /// </summary>
-        /// <param name="packet"></param>
-        void OnNtpResponse(NtpPacket packet);
-    }
-
-    public class EventBasedNetListener : INetEventListener, IDeliveryEventListener, INtpEventListener
+    public class EventBasedNetListener : INetEventListener
     {
         public delegate void OnPeerConnected(NetPeer peer);
         public delegate void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo);
@@ -131,9 +108,8 @@ namespace LiteNetLib
         public delegate void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod);
         public delegate void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType);
         public delegate void OnNetworkLatencyUpdate(NetPeer peer, int latency);
+
         public delegate void OnConnectionRequest(ConnectionRequest request);
-        public delegate void OnDeliveryEvent(NetPeer peer, object userData);
-        public delegate void OnNtpResponseEvent(NtpPacket packet);
 
         public event OnPeerConnected PeerConnectedEvent;
         public event OnPeerDisconnected PeerDisconnectedEvent;
@@ -142,8 +118,6 @@ namespace LiteNetLib
         public event OnNetworkReceiveUnconnected NetworkReceiveUnconnectedEvent;
         public event OnNetworkLatencyUpdate NetworkLatencyUpdateEvent;
         public event OnConnectionRequest ConnectionRequestEvent;
-        public event OnDeliveryEvent DeliveryEvent;
-        public event OnNtpResponseEvent NtpResponseEvent;
 
         public void ClearPeerConnectedEvent()
         {
@@ -152,7 +126,7 @@ namespace LiteNetLib
 
         public void ClearPeerDisconnectedEvent()
         {
-            PeerDisconnectedEvent = null;
+            PeerConnectedEvent = null;
         }
 
         public void ClearNetworkErrorEvent()
@@ -178,16 +152,6 @@ namespace LiteNetLib
         public void ClearConnectionRequestEvent()
         {
             ConnectionRequestEvent = null;
-        }
-
-        public void ClearDeliveryEvent()
-        {
-            DeliveryEvent = null;
-        }
-
-        public void ClearNtpResponseEvent()
-        {
-            NtpResponseEvent = null;
         }
 
         void INetEventListener.OnPeerConnected(NetPeer peer)
@@ -230,18 +194,6 @@ namespace LiteNetLib
         {
             if (ConnectionRequestEvent != null)
                 ConnectionRequestEvent(request);
-        }
-
-        void IDeliveryEventListener.OnMessageDelivered(NetPeer peer, object userData)
-        {
-            if (DeliveryEvent != null)
-                DeliveryEvent(peer, userData);
-        }
-
-        void INtpEventListener.OnNtpResponse(NtpPacket packet)
-        {
-            if (NtpResponseEvent != null)
-                NtpResponseEvent(packet);
         }
     }
 }

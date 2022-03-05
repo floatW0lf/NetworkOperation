@@ -43,7 +43,7 @@ namespace LiteNetLib.Utils
                 netDataWriter.Put(bytes);
                 return netDataWriter;
             }
-            return new NetDataWriter(true, 0) {_data = bytes, _position = bytes.Length};
+            return new NetDataWriter(true, 0) {_data = bytes};
         }
 
         /// <summary>
@@ -103,18 +103,6 @@ namespace LiteNetLib.Utils
         public int Length
         {
             get { return _position; }
-        }
-
-        /// <summary>
-        /// Sets position of NetDataWriter to rewrite previous values
-        /// </summary>
-        /// <param name="position">new byte position</param>
-        /// <returns>previous position of data writer</returns>
-        public int SetPosition(int position)
-        {
-            int prevPosition = _position;
-            _position = position;
-            return prevPosition;
         }
 
         public void Put(float value)
@@ -220,24 +208,6 @@ namespace LiteNetLib.Utils
             Buffer.BlockCopy(data, 0, _data, _position, data.Length);
             _position += data.Length;
         }
-        
-        public void PutSBytesWithLength(sbyte[] data, int offset, int length)
-        {
-            if (_autoResize)
-                ResizeIfNeed(_position + length + 4);
-            FastBitConverter.GetBytes(_data, _position, length);
-            Buffer.BlockCopy(data, offset, _data, _position + 4, length);
-            _position += length + 4;
-        }
-        
-        public void PutSBytesWithLength(sbyte[] data)
-        {
-            if (_autoResize)
-                ResizeIfNeed(_position + data.Length + 4);
-            FastBitConverter.GetBytes(_data, _position, data.Length);
-            Buffer.BlockCopy(data, 0, _data, _position + 4, data.Length);
-            _position += data.Length + 4;
-        }
 
         public void PutBytesWithLength(byte[] data, int offset, int length)
         {
@@ -265,61 +235,94 @@ namespace LiteNetLib.Utils
             _position++;
         }
 
-        private void PutArray(Array arr, int sz)
-        {
-            ushort length = arr == null ? (ushort) 0 : (ushort)arr.Length;
-            sz *= length;
-            if (_autoResize)
-                ResizeIfNeed(_position + sz + 2);
-            FastBitConverter.GetBytes(_data, _position, length);
-            if (arr != null)
-                Buffer.BlockCopy(arr, 0, _data, _position + 2, sz);
-            _position += sz + 2;
-        }
-
         public void PutArray(float[] value)
         {
-            PutArray(value, 4);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 4 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(double[] value)
         {
-            PutArray(value, 8);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 8 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(long[] value)
         {
-            PutArray(value, 8);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 8 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(ulong[] value)
         {
-            PutArray(value, 8);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 8 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(int[] value)
         {
-            PutArray(value, 4);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 4 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(uint[] value)
         {
-            PutArray(value, 4);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 4 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(ushort[] value)
         {
-            PutArray(value, 2);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 2 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(short[] value)
         {
-            PutArray(value, 2);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len * 2 + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(bool[] value)
         {
-            PutArray(value, 1);
+            ushort len = value == null ? (ushort)0 : (ushort)value.Length;
+            if (_autoResize)
+                ResizeIfNeed(_position + len + 2);
+            Put(len);
+            for (int i = 0; i < len; i++)
+                Put(value[i]);
         }
 
         public void PutArray(string[] value)
@@ -384,11 +387,6 @@ namespace LiteNetLib.Utils
             Encoding.UTF8.GetBytes(value, 0, length, _data, _position);
 
             _position += bytesCount;
-        }
-
-        public void Put<T>(T obj) where T : INetSerializable
-        {
-            obj.Serialize(this);
         }
     }
 }

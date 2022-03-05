@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 
 namespace LiteNetLib
 {
@@ -7,12 +6,6 @@ namespace LiteNetLib
     {
         protected readonly NetPeer Peer;
         protected readonly Queue<NetPacket> OutgoingQueue;
-        private int _isAddedToPeerChannelSendQueue;
-
-        public int PacketsInQueue
-        {
-            get { return OutgoingQueue.Count; }
-        }
 
         protected BaseChannel(NetPeer peer)
         {
@@ -20,33 +13,18 @@ namespace LiteNetLib
             OutgoingQueue = new Queue<NetPacket>(64);
         }
 
+        public int PacketsInQueue
+        {
+            get { return OutgoingQueue.Count; }
+        }
+
         public void AddToQueue(NetPacket packet)
         {
             lock (OutgoingQueue)
-            {
                 OutgoingQueue.Enqueue(packet);
-            }
-            AddToPeerChannelSendQueue();
         }
 
-        protected void AddToPeerChannelSendQueue()
-        {
-            if (Interlocked.CompareExchange(ref _isAddedToPeerChannelSendQueue, 1, 0) == 0)
-            {
-                Peer.AddToReliableChannelSendQueue(this);
-            }
-        }
-
-        public bool SendAndCheckQueue()
-        {
-            bool hasPacketsToSend = SendNextPackets();
-            if (!hasPacketsToSend)
-                Interlocked.Exchange(ref _isAddedToPeerChannelSendQueue, 0);
-
-            return hasPacketsToSend;
-        }
-
-        protected abstract bool SendNextPackets();
-        public abstract bool ProcessPacket(NetPacket packet);
+        public abstract void SendNextPackets();
+        public abstract void ProcessPacket(NetPacket packet);
     }
 }

@@ -50,11 +50,6 @@ namespace LiteNetLib.Utils
         {
             get { return _dataSize - _position; }
         }
-        
-        public void SkipBytes(int count) 
-        {
-            _position += count;
-        }
 
         public void SetSource(NetDataWriter dataWriter)
         {
@@ -91,11 +86,6 @@ namespace LiteNetLib.Utils
         public NetDataReader()
         {
 
-        }
-
-        public NetDataReader(NetDataWriter writer)
-        {
-            SetSource(writer);
         }
 
         public NetDataReader(byte[] source)
@@ -140,8 +130,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new bool[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size);
-            _position += size;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetBool();
+            }
             return arr;
         }
 
@@ -150,8 +142,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new ushort[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 2);
-            _position += size * 2;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetUShort();
+            }
             return arr;
         }
 
@@ -160,8 +154,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new short[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 2);
-            _position += size * 2;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetShort();
+            }
             return arr;
         }
 
@@ -170,8 +166,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new long[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
-            _position += size * 8;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetLong();
+            }
             return arr;
         }
 
@@ -180,8 +178,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new ulong[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
-            _position += size * 8;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetULong();
+            }
             return arr;
         }
 
@@ -190,8 +190,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new int[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
-            _position += size * 4;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetInt();
+            }
             return arr;
         }
 
@@ -200,8 +202,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new uint[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
-            _position += size * 4;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetUInt();
+            }
             return arr;
         }
 
@@ -210,8 +214,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new float[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
-            _position += size * 4;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetFloat();
+            }
             return arr;
         }
 
@@ -220,8 +226,10 @@ namespace LiteNetLib.Utils
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new double[size];
-            Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
-            _position += size * 8;
+            for (int i = 0; i < size; i++)
+            {
+                arr[i] = GetDouble();
+            }
             return arr;
         }
 
@@ -351,20 +359,6 @@ namespace LiteNetLib.Utils
             return result;
         }
 
-        public ArraySegment<byte> GetRemainingBytesSegment()
-        {
-            ArraySegment<byte> segment = new ArraySegment<byte>(_data, _position, AvailableBytes);
-            _position = _data.Length;
-            return segment;
-        }
-
-        public T Get<T>() where T : INetSerializable, new()
-        {
-            var obj = new T();
-            obj.Deserialize(this);
-            return obj;
-        }
-
         public byte[] GetRemainingBytes()
         {
             byte[] outgoingData = new byte[AvailableBytes];
@@ -384,16 +378,7 @@ namespace LiteNetLib.Utils
             Buffer.BlockCopy(_data, _position, destination, 0, count);
             _position += count;
         }
-        
-        public sbyte[] GetSBytesWithLength()
-        {
-            int length = GetInt();
-            sbyte[] outgoingData = new sbyte[length];
-            Buffer.BlockCopy(_data, _position, outgoingData, 0, length);
-            _position += length;
-            return outgoingData;
-        }
-        
+
         public byte[] GetBytesWithLength()
         {
             int length = GetInt();
@@ -672,7 +657,7 @@ namespace LiteNetLib.Utils
             if (AvailableBytes >= 4)
             {
                 var length = PeekInt();
-                if (length >= 0 && AvailableBytes >= length + 4)
+                if (AvailableBytes >= length + 4)
                 {
                     result = GetBytesWithLength();
                     return true;

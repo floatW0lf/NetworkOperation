@@ -67,7 +67,7 @@ namespace NetLibOperation.LiteNet
 
         public static SessionState DecodeState(ConnectionState connectionState)
         {
-            if ((connectionState & ConnectionState.Outgoing) != 0)
+            if ((connectionState & ConnectionState.Incoming) != 0)
             {
                 return SessionState.Opening;
             }

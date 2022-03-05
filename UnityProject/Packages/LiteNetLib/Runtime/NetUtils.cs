@@ -29,26 +29,31 @@ namespace LiteNetLib
 
         public static IPAddress ResolveAddress(string hostStr)
         {
-            if(hostStr == "localhost")
-                return IPAddress.Loopback;
-            
             IPAddress ipAddress;
             if (!IPAddress.TryParse(hostStr, out ipAddress))
             {
                 if (NetSocket.IPv6Support)
-                    ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetworkV6);
+                {
+                    ipAddress = hostStr == "localhost"
+                        ? IPAddress.IPv6Loopback
+                        : ResolveAddress(hostStr, AddressFamily.InterNetworkV6);
+                }
                 if (ipAddress == null)
+                {
                     ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetwork);
+                }
             }
             if (ipAddress == null)
+            {
                 throw new ArgumentException("Invalid address: " + hostStr);
+            }
 
             return ipAddress;
         }
 
-        public static IPAddress ResolveAddress(string hostStr, AddressFamily addressFamily)
+        private static IPAddress ResolveAddress(string hostStr, AddressFamily addressFamily)
         {
-            IPAddress[] addresses = Dns.GetHostEntry(hostStr).AddressList;
+            IPAddress[] addresses = ResolveAddresses(hostStr);
             foreach (IPAddress ip in addresses)
             {
                 if (ip.AddressFamily == addressFamily)
@@ -59,11 +64,23 @@ namespace LiteNetLib
             return null;
         }
 
+        private static IPAddress[] ResolveAddresses(string hostStr)
+        {
+#if NETCORE
+            var hostTask = Dns.GetHostEntryAsync(hostStr);
+            hostTask.GetAwaiter().GetResult();
+            var host = hostTask.Result;
+#else
+            var host = Dns.GetHostEntry(hostStr);
+#endif
+            return host.AddressList;
+        }
+
         /// <summary>
         /// Get all local ip addresses
         /// </summary>
         /// <param name="addrType">type of address (IPv4, IPv6 or both)</param>
-        /// <returns>List with all local ip addresses</returns>
+        /// <returns>List with all local ip adresses</returns>
         public static List<string> GetLocalIpList(LocalAddrType addrType)
         {
             List<string> targetList = new List<string>();
@@ -76,7 +93,7 @@ namespace LiteNetLib
         /// </summary>
         /// <param name="targetList">result list</param>
         /// <param name="addrType">type of address (IPv4, IPv6 or both)</param>
-        public static void GetLocalIpList(IList<string> targetList, LocalAddrType addrType)
+        public static void GetLocalIpList(List<string> targetList, LocalAddrType addrType)
         {
             bool ipv4 = (addrType & LocalAddrType.IPv4) == LocalAddrType.IPv4;
             bool ipv6 = (addrType & LocalAddrType.IPv6) == LocalAddrType.IPv6;
@@ -112,7 +129,7 @@ namespace LiteNetLib
             //Fallback mode (unity android)
             if (targetList.Count == 0)
             {
-                IPAddress[] addresses = Dns.GetHostEntry(Dns.GetHostName()).AddressList;
+                IPAddress[] addresses = ResolveAddresses(Dns.GetHostName());
                 foreach (IPAddress ip in addresses)
                 {
                     if((ipv4 && ip.AddressFamily == AddressFamily.InterNetwork) ||

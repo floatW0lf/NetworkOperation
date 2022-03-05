@@ -11,7 +11,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.networkoperation.core": "0.2.8"
+        "com.networkoperation.core": "0.2.7"
       }
     },
     "com.networkoperation.core": {
@@ -25,8 +25,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.networkoperation.infrastructure.core": "0.2.8",
-        "com.networkoperation.abstraction.client": "0.2.8"
+        "com.networkoperation.infrastructure.core": "0.2.7",
+        "com.networkoperation.abstraction.client": "0.2.7"
       }
     },
     "com.networkoperation.infrastructure.client.litenet": {
@@ -34,8 +34,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.networkoperation.infrastructure.client": "0.2.8",
-        "com.networkoperation.litenet.client": "0.2.8"
+        "com.networkoperation.infrastructure.client": "0.2.7",
+        "com.networkoperation.litenet.client": "0.2.7"
       }
     },
     "com.networkoperation.infrastructure.core": {
@@ -43,7 +43,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.networkoperation.core": "0.2.8"
+        "com.networkoperation.core": "0.2.7"
       }
     },
     "com.networkoperation.litenet": {
@@ -51,8 +51,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.networkoperation.abstraction.client": "0.2.8",
-        "com.litenetlib": "0.9.5"
+        "com.networkoperation.abstraction.client": "0.2.7",
+        "com.litenetlib": "0.8.3"
       }
     },
     "com.networkoperation.litenet.client": {
@@ -60,7 +60,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.networkoperation.litenet": "0.2.8"
+        "com.networkoperation.litenet": "0.2.7"
       }
     },
     "com.unity.collab-proxy": {

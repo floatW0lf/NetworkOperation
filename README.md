@@ -14,7 +14,7 @@ This is simple RPC Framework.
 - Easy to implement custom transport level
 
 ## Installation
-###For client:
+### For client:
 ```
 PM> Install-Package NetworkOperation.Infrastructure.Client.LiteNet
 ```
@@ -22,7 +22,7 @@ Or
 ```
 dotnet add package NetworkOperation.Infrastructure.Client.LiteNet
 ```
-###For Server:
+### For Server:
 ```
 PM> Install-Package NetworkOperation.Infrastructure.Host.LiteNet
 ```

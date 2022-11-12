@@ -10,7 +10,7 @@ This is simple RPC Framework.
     - Win/Linux/Mac/Android/iOS
     - Unity 2018+
     - WebGL
-- Production ready
+- Production ready (Used by [Exile: Survival Games Online](https://play.google.com/store/apps/details?id=com.pgstudio.exile.survival))
 - Easy to implement custom transport level
 
 ## Installation
